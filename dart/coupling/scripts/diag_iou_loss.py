@@ -46,6 +46,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n", type=int, default=6)
     ap.add_argument("--assign", default="segment")
+    ap.add_argument("--basal_only", action="store_true")
     a = ap.parse_args()
     agg = []
     for i in range(a.n):
@@ -55,7 +56,8 @@ def main():
         mesh = loft_organs(extract_organs_for_lofter(plant), use_nurbs_backend=True)
         comp, clab = J.sample_labelled(mesh, 16384, rng)
         pts, gt = J.occlude_labelled(comp, clab, rng)
-        organs = mg.segment_plant_pseudostem(pts, n_skel_nodes=400, assign=a.assign)
+        organs = mg.segment_plant_pseudostem(pts, n_skel_nodes=400, assign=a.assign,
+                                              pseudostem_basal_only=a.basal_only)
         pred = pred_full(organs, pts)
         for g in [x for x in np.unique(gt) if x != 0]:
             gm = gt == g

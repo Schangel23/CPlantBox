@@ -794,6 +794,8 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
                              geodesic_max_edge_cm=3.0,
                              distal_seed_start=0.5,
                              distal_seed_end=1.0,
+                             pseudostem_basal_only=False,
+                             pseudostem_top_margin_cm=2.0,
                              return_debug=False):
     """No-stem segmentation for young maize: pseudostem bundle + leaves.
 
@@ -829,6 +831,20 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
         T, start, min_leaf_solo_len_cm=solo_len)
 
     node_positions = nx.get_node_attributes(T, "pos")
+
+    # Optionally confine the pseudostem to the basal bundle (base -> lowest leaf
+    # collar). Above the lowest insertion the shared bundle runs parallel to
+    # every blade; a tall pseudostem polyline there steals lamina points by 3-D
+    # proximity (the dominant IoU-loss channel). Truncating to below the lowest
+    # insertion lets mid/high blade points fall to their own leaf midrib.
+    if pseudostem_basal_only and leaf_dict and ps_edges:
+        ins_z = [node_positions[path[0]][2] for path in leaf_dict.values()
+                 if len(path) >= 1]
+        if ins_z:
+            z_cut = min(ins_z) + pseudostem_top_margin_cm
+            ps_edges = [(a, b) for (a, b) in ps_edges
+                        if max(node_positions[a][2], node_positions[b][2]) <= z_cut]
+
     instances = [(1, ps_edges)]
     for lid, path in leaf_dict.items():
         edges = [(path[i], path[i + 1]) for i in range(len(path) - 1)]

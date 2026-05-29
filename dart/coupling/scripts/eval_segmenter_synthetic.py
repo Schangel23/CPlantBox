@@ -167,6 +167,9 @@ def main():
     ap.add_argument("--geodesic_max_edge_cm", type=float, default=3.0)
     ap.add_argument("--distal_seed_start", type=float, default=0.5)
     ap.add_argument("--distal_seed_end", type=float, default=1.0)
+    ap.add_argument("--pseudostem_basal_only", action="store_true",
+                    help="confine pseudostem to base->lowest collar (anti-theft)")
+    ap.add_argument("--pseudostem_top_margin_cm", type=float, default=2.0)
     a = ap.parse_args()
 
     rows = []
@@ -216,7 +219,9 @@ def main():
                                               geodesic_k=a.geodesic_k,
                                               geodesic_max_edge_cm=a.geodesic_max_edge_cm,
                                               distal_seed_start=a.distal_seed_start,
-                                              distal_seed_end=a.distal_seed_end)
+                                              distal_seed_end=a.distal_seed_end,
+                                              pseudostem_basal_only=a.pseudostem_basal_only,
+                                              pseudostem_top_margin_cm=a.pseudostem_top_margin_cm)
         s = score(gt, predicted_labels(organs, pts))
         if s is None:
             continue
