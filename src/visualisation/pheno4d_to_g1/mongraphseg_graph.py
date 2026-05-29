@@ -786,6 +786,146 @@ def assign_points_geodesic_instances(points, node_positions, leaf_dict,
     return labels
 
 
+def estimate_normals(points, k=16):
+    """Per-point unoriented surface normal = smallest-eigenvalue eigenvector of
+    the local covariance over the ``k`` nearest neighbours. Orientation is
+    irrelevant here (only the angle between adjacent normals is used)."""
+    points = np.asarray(points, float)
+    n = len(points)
+    if n < 3:
+        return np.tile([0.0, 0.0, 1.0], (n, 1))
+    kk = min(k, n)
+    idx = KDTree(points).query(points, k=kk)[1]
+    nb = points[idx]
+    nb = nb - nb.mean(axis=1, keepdims=True)
+    cov = np.einsum("nki,nkj->nij", nb, nb) / kk
+    _, v = np.linalg.eigh(cov)
+    return v[:, :, 0]
+
+
+def assign_points_regiongrow_instances(points, node_positions, leaf_dict,
+                                       pseudostem_edges, k=12, max_edge_cm=3.0,
+                                       normal_k=16, crease_deg=45.0,
+                                       crease_penalty=8.0, distal_seed_start=0.0,
+                                       distal_seed_end=1.0, fallback_labels=None,
+                                       return_debug=False):
+    """Crease-aware multi-source region growing (surface-smoothness watershed).
+
+    Same multi-source flood as the geodesic assigner, but each kNN-graph edge
+    cost is multiplied by a CREASE factor from the angle between the two
+    endpoints' surface normals: smooth edges stay cheap; edges across a normal
+    discontinuity (the seam where two blades touch, or a leaf-stem collar) become
+    expensive. A leaf's flood stops at the seam instead of bleeding into a
+    touching neighbour -- the direct fix for the contraction's merge ceiling.
+    Seeds match the geodesic assigner (leaf midrib path; pseudostem basal nodes).
+    """
+    from geodesic_assignment import build_knn_graph
+    points = np.asarray(points, float)
+    n = len(points)
+    labels = np.zeros(n, dtype=int)
+    if n == 0:
+        return (labels, {}) if return_debug else labels
+    node_ids = list(node_positions)
+    if not node_ids:
+        return (labels, {}) if return_debug else labels
+    node_arr = np.array([node_positions[nid] for nid in node_ids], dtype=float)
+    nearest_node = np.array([node_ids[int(i)]
+                             for i in KDTree(node_arr).query(points)[1]])
+
+    ps_nodes = set()
+    for a_id, b_id in pseudostem_edges:
+        ps_nodes.add(a_id); ps_nodes.add(b_id)
+    seed_by_label = {0: np.where(np.isin(nearest_node, list(ps_nodes)))[0]}
+    for lid, path in sorted(leaf_dict.items()):
+        if len(path) < 2:
+            continue
+        seg = np.array([
+            np.linalg.norm(node_positions[path[i + 1]] - node_positions[path[i]])
+            for i in range(len(path) - 1)])
+        total = float(seg.sum())
+        if total <= 1e-12:
+            nodes = {path[-1]}
+        else:
+            cum = np.concatenate([[0.0], np.cumsum(seg)]) / total
+            lo = min(distal_seed_start, distal_seed_end)
+            hi = max(distal_seed_start, distal_seed_end)
+            nodes = {nd for nd, fr in zip(path, cum) if lo <= fr <= hi} or {path[-1]}
+        seed_by_label[lid] = np.where(np.isin(nearest_node, list(nodes)))[0]
+
+    active = [(lab, s) for lab, s in seed_by_label.items() if len(s)]
+    if not active:
+        if fallback_labels is not None:
+            labels = np.asarray(fallback_labels, int).copy()
+        return (labels, {}) if return_debug else labels
+
+    normals = estimate_normals(points, k=normal_k)
+    G = build_knn_graph(points, k=k, max_edge_cm=max_edge_cm).tocoo()
+    cosang = np.abs(np.einsum("ij,ij->i", normals[G.row], normals[G.col]))
+    ang = np.degrees(np.arccos(np.clip(cosang, 0.0, 1.0)))      # 0..90, unoriented
+    factor = 1.0 + crease_penalty * np.clip(ang / crease_deg, 0.0, None)
+    W = csr_matrix((G.data * factor, (G.row, G.col)), shape=(n, n))
+    W = W.maximum(W.T)
+
+    aug = W.tolil()
+    aug.resize((n + len(active), n + len(active)))
+    src_labels = []
+    for off, (lab, s) in enumerate(active):
+        aug[n + off, np.asarray(s, int)] = 1e-9
+        src_labels.append(lab)
+    aug = aug.tocsr(); aug = aug.maximum(aug.T)
+    dmat = dijkstra(aug, directed=False,
+                    indices=np.arange(n, n + len(active)))[:, :n]
+    reach = np.isfinite(dmat).any(axis=0)
+    labels[reach] = np.array(src_labels, int)[np.argmin(dmat[:, reach], axis=0)]
+    if fallback_labels is not None and (~reach).any():
+        labels[~reach] = np.asarray(fallback_labels, int)[~reach]
+    if return_debug:
+        return labels, {"normals": normals, "crease_ang": ang,
+                        "seed_by_label": seed_by_label, "source_labels": src_labels}
+    return labels
+
+
+def split_components_leaf_instances(points, leaf_id, max_edge_cm=1.5,
+                                    knn_k=12, min_support=50):
+    """Split predicted leaf instances by spatial connected components.
+
+    Maize blades don't separate by surface crease (the canopy is one smooth
+    manifold) but they ARE separate surfaces joined only at the base, so a kNN
+    graph at a short edge length disconnects two merged blades wherever there is
+    a physical gap between them. Each connected component >= ``min_support`` of a
+    predicted instance becomes its own leaf. Catches spatially-separated merges
+    that the geodesic-tip splitter (touching-blade divergence) misses; the
+    support floor keeps occlusion fragments from spawning false leaves.
+    """
+    from geodesic_assignment import build_knn_graph
+    from scipy.sparse.csgraph import connected_components as _cc
+    points = np.asarray(points, float)
+    leaf_id = np.asarray(leaf_id, int).copy()
+    next_id = int(leaf_id.max()) + 1 if leaf_id.max() > 0 else 1
+    for lid in [x for x in np.unique(leaf_id) if x > 0]:
+        idx = np.where(leaf_id == lid)[0]
+        if len(idx) < 2 * min_support:
+            continue
+        G = build_knn_graph(points[idx], k=knn_k, max_edge_cm=max_edge_cm)
+        _, lab = _cc(G, directed=False)
+        sizes = np.bincount(lab)
+        big = np.where(sizes >= min_support)[0]
+        if len(big) < 2:
+            continue
+        for j, b in enumerate(big):
+            leaf_id[idx[lab == b]] = lid if j == 0 else next_id
+            if j > 0:
+                next_id += 1
+        small = idx[~np.isin(lab, big)]
+        if len(small):
+            trees = [KDTree(points[idx[lab == b]]) for b in big]
+            db = np.column_stack([t.query(points[small])[0] for t in trees])
+            nearest_big = big[np.argmin(db, axis=1)]
+            for s, b in zip(small, nearest_big):
+                leaf_id[s] = leaf_id[idx[lab == b][0]]
+    return leaf_id
+
+
 def split_merged_leaf_instances(points, leaf_id, ps_mask, knn_k=8,
                                 max_edge_cm=None, min_branch_len_cm=6.0,
                                 min_tip_sep_cm=5.0, min_support=40,
@@ -912,9 +1052,14 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
                              geodesic_max_edge_cm=3.0,
                              distal_seed_start=0.0,
                              distal_seed_end=1.0,
+                             normal_k=16,
+                             crease_deg=45.0,
+                             crease_penalty=8.0,
                              pseudostem_basal_only=False,
                              pseudostem_top_margin_cm=2.0,
                              split_merged=False,
+                             split_components=False,
+                             split_component_max_edge_cm=1.5,
                              split_min_branch_len_cm=12.0,
                              split_min_support=100,
                              split_tip_angle_min_deg=60.0,
@@ -988,8 +1133,19 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
             return_debug=True)
         label_for_pseudostem = 0
         label_for_leaf = lambda lid: lid
+    elif assign == "regiongrow":
+        labels, geodesic_debug = assign_points_regiongrow_instances(
+            points, node_positions, leaf_dict, ps_edges,
+            k=geodesic_k, max_edge_cm=geodesic_max_edge_cm,
+            normal_k=normal_k, crease_deg=crease_deg, crease_penalty=crease_penalty,
+            distal_seed_start=distal_seed_start, distal_seed_end=distal_seed_end,
+            fallback_labels=np.where(labels_segment == 1, 0,
+                                     np.maximum(labels_segment - 1, 0)),
+            return_debug=True)
+        label_for_pseudostem = 0
+        label_for_leaf = lambda lid: lid
     else:
-        raise ValueError("assign must be 'segment' or 'geodesic'")
+        raise ValueError("assign must be 'segment', 'geodesic' or 'regiongrow'")
 
     # normalised per-point instance id: 0 = pseudostem/unassigned, 1..L leaves
     ps_mask = labels == label_for_pseudostem
@@ -997,12 +1153,17 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
     for lid in sorted(leaf_dict):
         leaf_id[labels == label_for_leaf(lid)] = lid
 
-    if split_merged and leaf_id.max() > 0:
-        leaf_id = split_merged_leaf_instances(
-            points, leaf_id, ps_mask,
-            min_branch_len_cm=split_min_branch_len_cm,
-            min_support=split_min_support,
-            tip_angle_min_deg=split_tip_angle_min_deg)
+    if leaf_id.max() > 0:
+        if split_merged:
+            leaf_id = split_merged_leaf_instances(
+                points, leaf_id, ps_mask,
+                min_branch_len_cm=split_min_branch_len_cm,
+                min_support=split_min_support,
+                tip_angle_min_deg=split_tip_angle_min_deg)
+        if split_components:
+            leaf_id = split_components_leaf_instances(
+                points, leaf_id, max_edge_cm=split_component_max_edge_cm,
+                min_support=split_min_support)
 
     organs = {"pseudostem": points[ps_mask]}
     out_id = 0

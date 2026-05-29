@@ -177,7 +177,10 @@ def main():
     ap.add_argument("--min_leaf", type=float, default=3.0, help="min leaf/branch len cm")
     ap.add_argument("--prune", choices=["length", "support"], default="length")
     ap.add_argument("--support_frac", type=float, default=0.02)
-    ap.add_argument("--assign", choices=["segment", "geodesic"], default="segment")
+    ap.add_argument("--assign", choices=["segment", "geodesic", "regiongrow"], default="segment")
+    ap.add_argument("--normal_k", type=int, default=16)
+    ap.add_argument("--crease_deg", type=float, default=45.0)
+    ap.add_argument("--crease_penalty", type=float, default=8.0)
     ap.add_argument("--geodesic_k", type=int, default=10)
     ap.add_argument("--geodesic_max_edge_cm", type=float, default=3.0)
     ap.add_argument("--distal_seed_start", type=float, default=0.0)
@@ -187,6 +190,9 @@ def main():
     ap.add_argument("--pseudostem_top_margin_cm", type=float, default=2.0)
     ap.add_argument("--split_merged", action="store_true",
                     help="split predicted leaves that fused >=2 blades (anti-under-count)")
+    ap.add_argument("--no_split_components", dest="split_components",
+                    action="store_false", help="disable spatial component split")
+    ap.add_argument("--split_component_max_edge_cm", type=float, default=1.5)
     ap.add_argument("--split_min_branch_len_cm", type=float, default=12.0)
     ap.add_argument("--split_min_support", type=int, default=100)
     ap.add_argument("--split_tip_angle_min_deg", type=float, default=60.0)
@@ -254,9 +260,14 @@ def main():
                                               geodesic_max_edge_cm=a.geodesic_max_edge_cm,
                                               distal_seed_start=a.distal_seed_start,
                                               distal_seed_end=a.distal_seed_end,
+                                              normal_k=a.normal_k,
+                                              crease_deg=a.crease_deg,
+                                              crease_penalty=a.crease_penalty,
                                               pseudostem_basal_only=a.pseudostem_basal_only,
                                               pseudostem_top_margin_cm=a.pseudostem_top_margin_cm,
                                               split_merged=a.split_merged,
+                                              split_components=a.split_components,
+                                              split_component_max_edge_cm=a.split_component_max_edge_cm,
                                               split_min_branch_len_cm=a.split_min_branch_len_cm,
                                               split_min_support=a.split_min_support,
                                               split_tip_angle_min_deg=a.split_tip_angle_min_deg)
