@@ -80,3 +80,6 @@ dart/tools/plantsim_features_demo/*.mtl
 
 # Virtual environments
 cpbenv/
+
+# graphify knowledge-graph outputs
+graphify-out/
