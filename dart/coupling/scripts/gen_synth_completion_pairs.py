@@ -102,7 +102,7 @@ def voxel_down(pc, vox):
     return pc[u]
 
 
-def make_partial(complete, rng, vox_cm=0.5, noise_mm=1.0):
+def make_partial(complete, rng, vox_cm=None, noise_mm=1.0):
     """Composite FP4D-like occlusion: depth-buffer self-shadowing (always) +
     randomised ground-up dropout + occasional one-sided sector loss, then voxel
     + mm noise. Randomised per sample so the dataset spans realistic patterns."""
@@ -115,6 +115,16 @@ def make_partial(complete, rng, vox_cm=0.5, noise_mm=1.0):
     # one-sided scan ~40% of the time
     if rng.random() < 0.4 and len(part) > 500:
         part = part[sector_loss(part, rng, frac=rng.uniform(0.15, 0.35))]
+    # Voxel resolution scales with plant extent so retention is size-invariant.
+    # `complete` is a FIXED 16384-pt sample regardless of plant size, so a small
+    # seedling is over-sampled (ultra-dense surface); a fixed absolute voxel then
+    # collapsed it (5mm merged a day-15 8cm plant 10074->122 pts) while leaving a
+    # 1m plant at ~21%. Real scanner res is sub-mm; model it as a small fraction
+    # of plant height, floored ~1mm and capped 6mm -> occlusion (not the voxel)
+    # governs retention, matching the physical trend (small plants self-occlude
+    # less -> retain more).
+    if vox_cm is None:
+        vox_cm = float(np.clip(0.012 * np.ptp(complete[:, 2]), 0.1, 0.6))
     part = voxel_down(part, vox_cm)
     part = part + rng.normal(0, noise_mm / 10.0, part.shape)   # mm -> cm
     return part
