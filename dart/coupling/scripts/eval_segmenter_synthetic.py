@@ -160,6 +160,7 @@ def main():
     ap.add_argument("--seed0", type=int, default=0)
     ap.add_argument("--fill", choices=["none", "directional", "combined", "maize"], default="none")
     ap.add_argument("--nsk", type=int, default=400, help="skeleton nodes")
+    ap.add_argument("--contraction_iters", type=int, default=8)
     ap.add_argument("--min_leaf", type=float, default=3.0, help="min leaf/branch len cm")
     ap.add_argument("--prune", choices=["length", "support"], default="length")
     ap.add_argument("--support_frac", type=float, default=0.02)
@@ -171,6 +172,11 @@ def main():
     ap.add_argument("--pseudostem_basal_only", action="store_true",
                     help="confine pseudostem to base->lowest collar (anti-theft)")
     ap.add_argument("--pseudostem_top_margin_cm", type=float, default=2.0)
+    ap.add_argument("--split_merged", action="store_true",
+                    help="split predicted leaves that fused >=2 blades (anti-under-count)")
+    ap.add_argument("--split_min_branch_len_cm", type=float, default=12.0)
+    ap.add_argument("--split_min_support", type=int, default=100)
+    ap.add_argument("--split_tip_angle_min_deg", type=float, default=60.0)
     ap.add_argument("--cache", default=None,
                     help="dir of cloud_*.npz (make_synth_cache.py); skip growth, "
                          "iterate segmenter against cached fill=none clouds")
@@ -226,6 +232,7 @@ def main():
                 _, ni = cKDTree(orig_pts).query(add)
                 pts = np.vstack([pts, add]); gt = np.concatenate([gt, gt[ni]])
         organs = mg.segment_plant_pseudostem(pts, n_skel_nodes=a.nsk,
+                                              contraction_iters=a.contraction_iters,
                                               min_leaf_len_cm=a.min_leaf,
                                               prune=a.prune,
                                               support_frac=a.support_frac,
@@ -235,7 +242,11 @@ def main():
                                               distal_seed_start=a.distal_seed_start,
                                               distal_seed_end=a.distal_seed_end,
                                               pseudostem_basal_only=a.pseudostem_basal_only,
-                                              pseudostem_top_margin_cm=a.pseudostem_top_margin_cm)
+                                              pseudostem_top_margin_cm=a.pseudostem_top_margin_cm,
+                                              split_merged=a.split_merged,
+                                              split_min_branch_len_cm=a.split_min_branch_len_cm,
+                                              split_min_support=a.split_min_support,
+                                              split_tip_angle_min_deg=a.split_tip_angle_min_deg)
         s = score(gt, predicted_labels(organs, pts))
         if s is None:
             continue

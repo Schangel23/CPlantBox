@@ -786,6 +786,124 @@ def assign_points_geodesic_instances(points, node_positions, leaf_dict,
     return labels
 
 
+def split_merged_leaf_instances(points, leaf_id, ps_mask, knn_k=8,
+                                max_edge_cm=None, min_branch_len_cm=6.0,
+                                min_tip_sep_cm=5.0, min_support=40,
+                                tip_angle_min_deg=35.0, max_subleaves=4):
+    """Split predicted leaf instances that fused >=2 real blades.
+
+    The global Laplacian contraction pulls a whorl of touching blades onto one
+    skeleton axis, so one predicted instance can own 2-4 GT leaves (the dominant
+    under-count channel). The merged instance's RAW points still contain the
+    separate blade arcs sharing a base near the insertion. We re-trace each
+    instance with a LOCAL kNN graph (no over-contraction): find tips as local
+    maxima of geodesic distance from the instance base, merge near-duplicate
+    tips, and if >=2 well-separated tips survive, reassign points to the nearest
+    tip geodesically. Local-maxima (not farthest-point sampling) avoids cutting
+    a single curved blade at its midpoint.
+
+    ``leaf_id``: per-point instance id (0 = non-leaf, 1..L = leaves).
+    ``ps_mask``: bool per-point pseudostem mask (defines the insertion anchor).
+    Returns a new ``leaf_id`` array with split instances given fresh ids.
+    """
+    from geodesic_assignment import build_knn_graph
+
+    points = np.asarray(points, float)
+    leaf_id = np.asarray(leaf_id, int).copy()
+    ps_pts = points[ps_mask] if ps_mask is not None and ps_mask.any() else None
+    ps_tree = KDTree(ps_pts) if ps_pts is not None and len(ps_pts) else None
+    next_id = int(leaf_id.max()) + 1 if leaf_id.max() > 0 else 1
+
+    for lid in [x for x in np.unique(leaf_id) if x > 0]:
+        idx = np.where(leaf_id == lid)[0]
+        if len(idx) < 2 * min_support:
+            continue
+        P = points[idx]
+        # local edge scale from median nearest-neighbour spacing (x3)
+        if max_edge_cm is None:
+            d = KDTree(P).query(P, k=min(4, len(P)))[0]
+            edge = float(np.clip(3.0 * np.median(d[:, 1:]), 1.5, 6.0))
+        else:
+            edge = max_edge_cm
+        G = build_knn_graph(P, k=knn_k, max_edge_cm=edge)
+
+        # base = instance point nearest the pseudostem (insertion); else lowest z
+        if ps_tree is not None:
+            base = int(np.argmin(ps_tree.query(P)[0]))
+        else:
+            base = int(np.argmin(P[:, 2]))
+
+        geo = dijkstra(G, directed=False, indices=base)
+        fin = np.isfinite(geo)
+        if fin.sum() < min_support:
+            continue
+
+        # tips = local maxima of geodesic distance among reachable points
+        Gc = G.tocsr()
+        tips = []
+        for i in np.where(fin)[0]:
+            if geo[i] < min_branch_len_cm:
+                continue
+            nbrs = Gc.indices[Gc.indptr[i]:Gc.indptr[i + 1]]
+            nbrs = [n for n in nbrs if fin[n]]
+            if nbrs and all(geo[i] >= geo[n] for n in nbrs):
+                tips.append(i)
+        # unreachable components: their farthest-from-base point is also a tip
+        if (~fin).sum() >= min_support:
+            comp_idx = np.where(~fin)[0]
+            tips.append(int(comp_idx[np.argmax(P[comp_idx, 2])]))
+
+        if len(tips) < 2:
+            continue
+        # merge near-duplicate tips (same blade end): greedily keep farthest,
+        # drop tips within min_tip_sep_cm euclidean of a kept tip
+        tips = sorted(tips, key=lambda t: -(geo[t] if fin[t] else 1e9))
+        kept = []
+        for t in tips:
+            if all(np.linalg.norm(P[t] - P[k]) > min_tip_sep_cm for k in kept):
+                kept.append(t)
+        if len(kept) < 2:
+            continue
+        # require tip directions (base->tip) to diverge
+        dirs = [P[t] - P[base] for t in kept]
+        keep2 = [kept[0]]
+        dir2 = [dirs[0]]
+        for t, dv in zip(kept[1:], dirs[1:]):
+            if all(_angle_deg(dv, d) >= tip_angle_min_deg for d in dir2):
+                keep2.append(t); dir2.append(dv)
+        kept = keep2[:max_subleaves]
+        if len(kept) < 2:
+            continue
+
+        # multi-source geodesic from each kept tip; assign point to nearest tip
+        dmat = dijkstra(G, directed=False, indices=kept)
+        reach = np.isfinite(dmat).any(axis=0)
+        sub = np.full(len(P), -1, int)
+        sub[reach] = np.argmin(dmat[:, reach], axis=0)
+        # unreachable points -> nearest kept tip euclidean
+        if (~reach).any():
+            ktree = KDTree(P[kept])
+            sub[~reach] = ktree.query(P[~reach])[1]
+
+        # enforce support floor: fold tiny sub-instances into the largest
+        labels_u, counts = np.unique(sub, return_counts=True)
+        big = labels_u[counts >= min_support]
+        if len(big) < 2:
+            continue
+        # relabel: first sub keeps lid, rest get fresh ids; small subs -> nearest big
+        if not np.isin(sub, big).all():
+            big_tips = [kept[b] for b in big]
+            btree = KDTree(P[big_tips])
+            small = ~np.isin(sub, big)
+            sub[small] = big[btree.query(P[small])[1]]
+        for j, b in enumerate(big):
+            tgt = lid if j == 0 else next_id
+            if j > 0:
+                next_id += 1
+            leaf_id[idx[sub == b]] = tgt
+    return leaf_id
+
+
 def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
                              angle_threshold_deg=50, prune="length",
                              support_frac=0.02, recover_branches=False,
@@ -796,6 +914,10 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
                              distal_seed_end=1.0,
                              pseudostem_basal_only=False,
                              pseudostem_top_margin_cm=2.0,
+                             split_merged=False,
+                             split_min_branch_len_cm=12.0,
+                             split_min_support=100,
+                             split_tip_angle_min_deg=60.0,
                              return_debug=False):
     """No-stem segmentation for young maize: pseudostem bundle + leaves.
 
@@ -869,10 +991,23 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
     else:
         raise ValueError("assign must be 'segment' or 'geodesic'")
 
-    organs = {"pseudostem": points[labels == label_for_pseudostem]}
-    out_id = 0
+    # normalised per-point instance id: 0 = pseudostem/unassigned, 1..L leaves
+    ps_mask = labels == label_for_pseudostem
+    leaf_id = np.zeros(len(points), dtype=int)
     for lid in sorted(leaf_dict):
-        pts = points[labels == label_for_leaf(lid)]
+        leaf_id[labels == label_for_leaf(lid)] = lid
+
+    if split_merged and leaf_id.max() > 0:
+        leaf_id = split_merged_leaf_instances(
+            points, leaf_id, ps_mask,
+            min_branch_len_cm=split_min_branch_len_cm,
+            min_support=split_min_support,
+            tip_angle_min_deg=split_tip_angle_min_deg)
+
+    organs = {"pseudostem": points[ps_mask]}
+    out_id = 0
+    for lid in sorted(x for x in np.unique(leaf_id) if x > 0):
+        pts = points[leaf_id == lid]
         if len(pts) == 0:
             continue
         out_id += 1
@@ -881,7 +1016,7 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
     if not return_debug:
         return organs
     debug = {"tree": T, "start": start, "pseudostem_edges": ps_edges,
-             "leaf_dict": leaf_dict, "labels": labels,
+             "leaf_dict": leaf_dict, "labels": labels, "leaf_id": leaf_id,
              "node_positions": node_positions, "initial_graph": G,
              "assign": assign}
     if geodesic_debug is not None:
