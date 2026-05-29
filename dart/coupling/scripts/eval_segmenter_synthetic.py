@@ -68,6 +68,19 @@ def sample_labelled(mesh, n, rng):
     return pts.astype(np.float64), lab
 
 
+def complete_labelled(pts, lab, rng):
+    """Fully-intact control: SAME size-invariant voxel + 1 mm jitter as the
+    occluded path, but NO occlusion masks (depth buffer / ground-up / sector /
+    holes). Isolates incompleteness from density -- the voxel resolution matches
+    occlude_labelled so a complete-vs-occluded A/B is fair."""
+    vox = float(np.clip(0.012 * np.ptp(pts[:, 2]), 0.1, 0.6))
+    mn = pts.min(0); ijk = np.floor((pts - mn) / vox).astype(np.int64)
+    _, u = np.unique(ijk, axis=0, return_index=True)
+    pts, lab = pts[u], lab[u]
+    pts = pts + rng.normal(0, 0.1, pts.shape)
+    return pts, lab
+
+
 def occlude_labelled(pts, lab, rng):
     """FP4D-style self-occlusion (depth buffer + ground-up + sector) keeping
     labels aligned. Mirrors gen_synth_completion_pairs.make_partial masks."""

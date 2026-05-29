@@ -31,6 +31,9 @@ def main():
     ap.add_argument("--n_sample", type=int, default=16384)
     ap.add_argument("--xml", default=J.DEFAULT_XML)
     ap.add_argument("--out", default="dart/coupling/output/synth_cache")
+    ap.add_argument("--complete", action="store_true",
+                    help="fully-intact clouds (no occlusion masks) to probe the "
+                         "occlusion-vs-model bottleneck; same seeds/days as occluded")
     a = ap.parse_args()
     os.makedirs(a.out, exist_ok=True)
     for i in range(a.n):
@@ -40,7 +43,10 @@ def main():
         plant = grow_plant(a.xml, simulation_time=day, seed=seed)
         mesh = loft_organs(extract_organs_for_lofter(plant), use_nurbs_backend=True)
         comp, comp_lab = J.sample_labelled(mesh, a.n_sample, rng)
-        pts, gt = J.occlude_labelled(comp, comp_lab, rng)
+        if a.complete:
+            pts, gt = J.complete_labelled(comp, comp_lab, rng)
+        else:
+            pts, gt = J.occlude_labelled(comp, comp_lab, rng)
         np.savez(os.path.join(a.out, f"cloud_{i:03d}.npz"),
                  pts=pts, gt=gt, seed=seed, day=day)
         n_gt = int(len([x for x in np.unique(gt) if x != 0]))

@@ -48,6 +48,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cache", default="dart/coupling/output/synth_cache")
     ap.add_argument("--basal_only", action="store_true")
+    ap.add_argument("--split_merged", action="store_true")
+    ap.add_argument("--assign", default="segment")
     a = ap.parse_args()
     files = sorted(glob.glob(os.path.join(a.cache, "cloud_*.npz")))
 
@@ -57,8 +59,9 @@ def main():
     for f in files:
         d = np.load(f)
         pts, gt = d["pts"], d["gt"]
-        organs = mg.segment_plant_pseudostem(pts, n_skel_nodes=400, assign="segment",
-                                              pseudostem_basal_only=a.basal_only)
+        organs = mg.segment_plant_pseudostem(pts, n_skel_nodes=400, assign=a.assign,
+                                              pseudostem_basal_only=a.basal_only,
+                                              split_merged=a.split_merged)
         pred = pred_full(organs, pts)
         gt_ids = [x for x in np.unique(gt) if x != 0]
         pr_ids = [x for x in np.unique(pred) if x > 0]
