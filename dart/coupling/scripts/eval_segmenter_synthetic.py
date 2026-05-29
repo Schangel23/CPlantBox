@@ -167,7 +167,7 @@ def main():
     ap.add_argument("--assign", choices=["segment", "geodesic"], default="segment")
     ap.add_argument("--geodesic_k", type=int, default=10)
     ap.add_argument("--geodesic_max_edge_cm", type=float, default=3.0)
-    ap.add_argument("--distal_seed_start", type=float, default=0.5)
+    ap.add_argument("--distal_seed_start", type=float, default=0.0)
     ap.add_argument("--distal_seed_end", type=float, default=1.0)
     ap.add_argument("--pseudostem_basal_only", action="store_true",
                     help="confine pseudostem to base->lowest collar (anti-theft)")
