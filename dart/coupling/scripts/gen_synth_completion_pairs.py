@@ -130,6 +130,58 @@ def make_partial(complete, rng, vox_cm=None, noise_mm=1.0):
     return part
 
 
+def _resample(pc, n, rng):
+    if len(pc) == n:
+        return pc
+    if len(pc) > n:
+        return pc[rng.choice(len(pc), n, replace=False)]
+    return pc[np.concatenate([np.arange(len(pc)),
+                              rng.choice(len(pc), n - len(pc), replace=True)])]
+
+
+def visible_surface(dense, rng):
+    """DENSE sample of the VISIBLE surface only (the densify TARGET).
+
+    Same occlusion mask a real scan sees — depth-buffer self-shadowing (keeps the
+    front shell within a depth tolerance, so density is preserved, not capped at
+    angular resolution) + ground-up dropout + occasional one-sided sector loss —
+    but NO sparsification and NO noise. The occluded back-side is genuinely
+    absent, so the net is never trained to invent it; what remains is the clean,
+    fully-connected front surface (thin vein/midrib/stem structures stay
+    continuous), which is exactly what the input's gaps must be bridged toward."""
+    vp = scanner_viewpoint(dense, rng)
+    vis = dense[occlude_depthbuffer(
+        dense, vp, ang_res_deg=rng.uniform(0.4, 0.9),
+        depth_tol_cm=rng.uniform(1.0, 2.5))]
+    vis = vis[ground_up_dropout(vis, rng, strength=rng.uniform(0.3, 0.8))]
+    if rng.random() < 0.4 and len(vis) > 500:
+        vis = vis[sector_loss(vis, rng, frac=rng.uniform(0.15, 0.35))]
+    return vis
+
+
+def degrade_to_input(target, rng, noise_mm=1.0):
+    """Sparse / holey / noisy INPUT from the dense visible TARGET — SAME support,
+    no new geometry. (1) A few wide patch gouges (up to 3.5 cm radius) that can
+    split a narrow linear structure into 2 cm+ separated clusters the net must
+    learn to bridge collinearly. (2) Size-invariant voxel sparsification to
+    scanner density. (3) mm noise. Target stays clean+connected => the net learns
+    gap-bridging + densify + denoise WITHOUT off-manifold invention."""
+    from scipy.spatial import KDTree
+    part = target
+    if len(part) > 200:
+        tree = KDTree(part)
+        drop = np.zeros(len(part), bool)
+        for _ in range(int(rng.integers(3, 9))):
+            ci = int(rng.integers(len(part)))
+            drop[tree.query_ball_point(part[ci], rng.uniform(1.0, 3.5))] = True
+        if drop.mean() < 0.55:          # never gut the whole cloud
+            part = part[~drop]
+    vox = float(np.clip(0.012 * np.ptp(target[:, 2]), 0.1, 0.6))
+    part = voxel_down(part, vox)
+    part = part + rng.normal(0, noise_mm / 10.0, part.shape)
+    return part
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--n", type=int, default=1)
@@ -147,6 +199,15 @@ def main():
     ap.add_argument("--day_hi", type=int, default=92)
     ap.add_argument("--seed0", type=int, default=0)
     ap.add_argument("--viz", action="store_true")
+    # densify (default): target = dense VISIBLE surface, input = sparse+holey
+    #   version of it -> net learns upsample + collinear gap-bridge + denoise on
+    #   the observed support, never inventing the occluded back-side.
+    # completion: target = full plant, input = occluded subset (old paradigm;
+    #   recovers occluded leaves but hallucinates off-manifold points on real
+    #   clouds — see FP4D eval 2026-05-29).
+    ap.add_argument("--mode", choices=["densify", "completion"], default="densify")
+    ap.add_argument("--dense_factor", type=int, default=3,
+                    help="oversample factor for the densify target before resampling to n_complete")
     a = ap.parse_args()
     out = Path(a.out); (out / "complete").mkdir(parents=True, exist_ok=True)
     (out / "partial").mkdir(parents=True, exist_ok=True)
@@ -158,8 +219,13 @@ def main():
         plant = grow_plant(a.xml, simulation_time=day, seed=seed)
         organs = extract_organs_for_lofter(plant)
         mesh = loft_organs(organs, use_nurbs_backend=True)
-        comp = sample_mesh(mesh.vertices, mesh.indices, a.n_complete)
-        part = make_partial(comp, rng)
+        if a.mode == "densify":
+            dense = sample_mesh(mesh.vertices, mesh.indices, a.n_complete * a.dense_factor)
+            comp = _resample(visible_surface(dense, rng), a.n_complete, rng)
+            part = degrade_to_input(comp, rng)
+        else:
+            comp = sample_mesh(mesh.vertices, mesh.indices, a.n_complete)
+            part = make_partial(comp, rng)
         np.save(out / "complete" / f"plant_{seed:04d}_d{day}.npy", comp.astype(np.float32))
         np.save(out / "partial" / f"plant_{seed:04d}_d{day}.npy", part.astype(np.float32))
         print(f"[{i+1}/{a.n}] seed {seed} day {day}: complete {len(comp)} "
