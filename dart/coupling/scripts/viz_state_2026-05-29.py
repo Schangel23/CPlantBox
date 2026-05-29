@@ -7,7 +7,7 @@ Winning stack: pseudostem_basal_only + split_merged + assign=geodesic (full-path
     PYTHONPATH=. OMP_NUM_THREADS=1 cpbenv/bin/python \
         dart/coupling/scripts/viz_state_2026-05-29.py
 """
-import glob, os, sys
+import glob, os, sys, argparse
 import numpy as np
 import matplotlib; matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -17,7 +17,11 @@ sys.path.insert(0, "src/visualisation/pheno4d_to_g1")
 sys.path.insert(0, "dart/coupling/scripts")
 import mongraphseg_graph as mg
 
-CACHE = "dart/coupling/output/synth_cache"
+_ap = argparse.ArgumentParser()
+_ap.add_argument("--cache", default="dart/coupling/output/synth_cache_complete")
+_ap.add_argument("--tag", default="complete")
+_A = _ap.parse_args()
+CACHE = _A.cache
 
 
 def pred_labels(organs, pts):
@@ -86,7 +90,7 @@ def main():
                  f"mean recall@.5 = {overall*100:.0f}%   (n={n}, GT|PRED pairs)",
                  fontsize=13)
     fig.tight_layout(rect=(0, 0, 1, 0.97))
-    out = "dart/coupling/output/mongraphseg_state_compsplit_2026-05-29.png"
+    out = f"dart/coupling/output/mongraphseg_state_{_A.tag}_2026-05-29.png"
     fig.savefig(out, dpi=120); print("wrote", out)
 
     # per-plant recall distribution (the headline reassessment signal)
@@ -99,7 +103,7 @@ def main():
     ax.set_title(f"Per-plant recall spread (n={n}): best {pr.max():.0f}%, "
                  f"worst {pr.min():.0f}%, max {pr.max():.0f}%"); ax.legend()
     fig2.tight_layout()
-    out2 = "dart/coupling/output/mongraphseg_recall_hist_compsplit_2026-05-29.png"
+    out2 = f"dart/coupling/output/mongraphseg_recall_hist_{_A.tag}_2026-05-29.png"
     fig2.savefig(out2, dpi=120); print("wrote", out2)
     print(f"per-plant recall: {sorted([round(r[0]*100) for r in recs], reverse=True)}")
 
