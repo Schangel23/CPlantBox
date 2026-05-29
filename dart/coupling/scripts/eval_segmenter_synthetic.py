@@ -20,6 +20,7 @@ eyeballing PNGs. Run from CPlantBox root with cpbenv:
         --n 8 --fill directional
 """
 from __future__ import annotations
+import os
 import sys
 import argparse
 import numpy as np
@@ -170,20 +171,33 @@ def main():
     ap.add_argument("--pseudostem_basal_only", action="store_true",
                     help="confine pseudostem to base->lowest collar (anti-theft)")
     ap.add_argument("--pseudostem_top_margin_cm", type=float, default=2.0)
+    ap.add_argument("--cache", default=None,
+                    help="dir of cloud_*.npz (make_synth_cache.py); skip growth, "
+                         "iterate segmenter against cached fill=none clouds")
     a = ap.parse_args()
 
+    import glob
+    cache_files = (sorted(glob.glob(os.path.join(a.cache, "cloud_*.npz")))
+                   if a.cache else None)
+    n_iter = len(cache_files) if cache_files is not None else a.n
+
     rows = []
-    for i in range(a.n):
-        seed = a.seed0 + i
-        # per-plant RNG: plant + occlusion identical across --fill modes (clean A/B)
-        rng = np.random.default_rng(seed)
-        frng = np.random.default_rng(seed + 7)          # independent fill stream
-        day = int(rng.integers(a.day_lo, a.day_hi + 1))
-        plant = grow_plant(a.xml, simulation_time=day, seed=seed)
-        mesh = loft_organs(extract_organs_for_lofter(plant), use_nurbs_backend=True)
-        comp, comp_lab = sample_labelled(mesh, a.n_sample, rng)
-        pts, gt = occlude_labelled(comp, comp_lab, rng)
-        if a.fill == "directional":
+    for i in range(n_iter):
+        if cache_files is not None:
+            d = np.load(cache_files[i])
+            pts, gt = d["pts"], d["gt"]
+            seed = int(d["seed"]); day = int(d["day"])
+        else:
+            seed = a.seed0 + i
+            # per-plant RNG: plant + occlusion identical across --fill modes (clean A/B)
+            rng = np.random.default_rng(seed)
+            frng = np.random.default_rng(seed + 7)          # independent fill stream
+            day = int(rng.integers(a.day_lo, a.day_hi + 1))
+            plant = grow_plant(a.xml, simulation_time=day, seed=seed)
+            mesh = loft_organs(extract_organs_for_lofter(plant), use_nurbs_backend=True)
+            comp, comp_lab = sample_labelled(mesh, a.n_sample, rng)
+            pts, gt = occlude_labelled(comp, comp_lab, rng)
+        if cache_files is None and a.fill == "directional":
             import directional_fill as df
             sp = df.local_spacing(pts)
             lab_f, fids = df.fragments(pts, 2.5 * sp, 8)
@@ -195,7 +209,7 @@ def main():
                 # seeds inherit the GT label of their nearest real point (for scoring)
                 _, ni = cKDTree(pts).query(add)
                 pts = np.vstack([pts, add]); gt = np.concatenate([gt, gt[ni]])
-        if a.fill == "combined":
+        if cache_files is None and a.fill == "combined":
             import combined_fill as cf
             orig_pts = pts.copy()
             add = cf.combined_fill(pts, frng, return_added_only=True)
@@ -203,7 +217,7 @@ def main():
                 # added points inherit the GT label of their nearest ORIGINAL point
                 _, ni = cKDTree(orig_pts).query(add)
                 pts = np.vstack([pts, add]); gt = np.concatenate([gt, gt[ni]])
-        if a.fill == "maize":
+        if cache_files is None and a.fill == "maize":
             import maize_leaf_fill as mlf
             orig_pts = pts.copy()
             add = mlf.maize_leaf_fill(pts, frng, return_added_only=True)
@@ -227,7 +241,7 @@ def main():
             continue
         s.update(seed=seed, day=day, npts=len(pts))
         rows.append(s)
-        print(f"[{i+1}/{a.n}] seed {seed:3d} d{day:3d} pts {len(pts):5d} | "
+        print(f"[{i+1}/{n_iter}] seed {seed:3d} d{day:3d} pts {len(pts):5d} | "
               f"GT {s['n_gt']:2d} pred {s['n_pred']:2d} (err {s['count_err']:+d}) | "
               f"meanIoU {s['mean_iou']:.2f} IoU>=.5 {s['iou_ge50']:2d} | ptAcc {s['pt_acc']:.2f}")
 
