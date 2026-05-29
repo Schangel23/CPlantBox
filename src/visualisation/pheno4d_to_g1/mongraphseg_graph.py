@@ -216,6 +216,129 @@ def collapse_skeleton_tree(G):
     return T
 
 
+def _angle_deg(a, b):
+    na = np.linalg.norm(a)
+    nb = np.linalg.norm(b)
+    if na < 1e-9 or nb < 1e-9:
+        return 0.0
+    c = np.clip(float(a @ b) / (na * nb), -1.0, 1.0)
+    return float(np.degrees(np.arccos(c)))
+
+
+def recover_leaf_branches(skeleton_graph, dense_graph, points,
+                          min_angle_deg=35.0, min_branch_len_cm=3.0,
+                          max_paths_per_junction=2):
+    """Recover terminal dense-graph branches that a local MST choice hid.
+
+    The collapsed skeleton is intentionally a tree, but MST tie-breaking around
+    pseudostem junctions can route two nearby leaf traces through one branch.
+    For each tree junction, inspect dense pre-MST edges that touch the junction
+    but are absent from the tree; if the edge leads to a dense terminal through
+    a direction distinct from existing tree branches, graft a duplicate terminal
+    path onto the tree. Duplicating the recovered path keeps the output acyclic
+    while preserving a separate terminal for pseudostem decomposition.
+    """
+    T = skeleton_graph.copy()
+    if T.number_of_nodes() == 0 or dense_graph.number_of_edges() == 0:
+        return T
+
+    dense_pos = nx.get_node_attributes(dense_graph, "pos")
+    next_id = (max(T.nodes()) + 1) if T.number_of_nodes() else 0
+    point_tree = KDTree(np.asarray(points, float)) if len(points) else None
+
+    def path_len(path):
+        return sum(
+            float(np.linalg.norm(dense_pos[path[i + 1]] - dense_pos[path[i]]))
+            for i in range(len(path) - 1)
+        )
+
+    def support_count(path):
+        if point_tree is None or len(path) < 2:
+            return 0
+        samples = []
+        for i in range(len(path) - 1):
+            a = dense_pos[path[i]]
+            b = dense_pos[path[i + 1]]
+            seg_len = float(np.linalg.norm(b - a))
+            n = max(2, int(np.ceil(seg_len / 1.0)))
+            t = np.linspace(0.0, 1.0, n)
+            samples.append(a + np.outer(t, b - a))
+        samples = np.vstack(samples)
+        hits = point_tree.query_ball_point(samples, r=2.0)
+        return len({idx for group in hits for idx in group})
+
+    def terminal_path_from(junction, first):
+        blocked = {junction}
+        queue = collections.deque([(first, [junction, first])])
+        seen = {junction, first}
+        best = None
+        while queue:
+            cur, path = queue.popleft()
+            if dense_graph.degree(cur) == 1:
+                best = path
+                break
+            nbrs = [n for n in dense_graph.neighbors(cur) if n not in blocked]
+            for nbr in nbrs:
+                if nbr in seen:
+                    continue
+                # Stay on a branch-like trace; stop expanding through another
+                # dense junction unless it is the only route to a terminal.
+                if cur != first and dense_graph.degree(cur) >= 3:
+                    continue
+                seen.add(nbr)
+                queue.append((nbr, path + [nbr]))
+        return best
+
+    for junction in [n for n in list(T.nodes()) if T.degree(n) >= 3]:
+        if junction not in dense_graph:
+            continue
+        jpos = dense_pos[junction]
+        existing_dirs = [
+            T.nodes[nbr]["pos"] - jpos
+            for nbr in T.neighbors(junction)
+            if np.linalg.norm(T.nodes[nbr]["pos"] - jpos) > 1e-9
+        ]
+        recovered_dirs = []
+        candidates = []
+        for nbr in dense_graph.neighbors(junction):
+            if T.has_edge(junction, nbr):
+                continue
+            path = terminal_path_from(junction, nbr)
+            if path is None or len(path) < 2:
+                continue
+            length = path_len(path)
+            if length < min_branch_len_cm:
+                continue
+            direction = dense_pos[path[-1]] - jpos
+            if any(_angle_deg(direction, d) < min_angle_deg for d in existing_dirs):
+                continue
+            support = support_count(path)
+            if support < 8:
+                continue
+            candidates.append((support, length, path, direction))
+
+        candidates.sort(reverse=True, key=lambda x: (x[0], x[1]))
+        added = 0
+        for _, _, path, direction in candidates:
+            if added >= max_paths_per_junction:
+                break
+            if any(_angle_deg(direction, d) < min_angle_deg for d in recovered_dirs):
+                continue
+            prev = junction
+            for old in path[1:]:
+                new = next_id
+                next_id += 1
+                pos = dense_pos[old].copy()
+                T.add_node(new, pos=pos)
+                w = float(np.linalg.norm(T.nodes[prev]["pos"] - pos))
+                T.add_edge(prev, new, weight=w)
+                prev = new
+            recovered_dirs.append(direction)
+            existing_dirs.append(direction)
+            added += 1
+    return T
+
+
 def _branch_length(T, path):
     return sum(T.edges[path[i], path[i + 1]]["weight"]
                for i in range(len(path) - 1))
@@ -542,7 +665,9 @@ def assign_points_to_instances(points, node_positions, instances):
 
 def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
                              angle_threshold_deg=50, prune="length",
-                             support_frac=0.02, return_debug=False):
+                             support_frac=0.02, recover_branches=False,
+                             recovery_angle_deg=35.0, contraction_iters=8,
+                             return_debug=False):
     """No-stem segmentation for young maize: pseudostem bundle + leaves.
 
     Same skeleton/tree front-end as :func:`segment_plant_graph`, but replaces
@@ -556,12 +681,16 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
     support, drops only unsupported tiny spurs).
     """
     points = np.asarray(points, float)
-    contracted = contract_point_cloud(points)[0]
+    contracted = contract_point_cloud(points, iterations=contraction_iters)[0]
     sel = farthest_point_resample(contracted, n_skel_nodes)
     nodes = contracted[sel]
 
     G = build_initial_graph(nodes, k=3)
     T = collapse_skeleton_tree(G)
+    if recover_branches:
+        T = recover_leaf_branches(
+            T, G, points, min_angle_deg=recovery_angle_deg,
+            min_branch_len_cm=min_leaf_len_cm)
     if prune == "support":
         T = prune_branches_by_support(T, points, min_support_frac=support_frac)
     else:
@@ -592,7 +721,7 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
         return organs
     debug = {"tree": T, "start": start, "pseudostem_edges": ps_edges,
              "leaf_dict": leaf_dict, "labels": labels,
-             "node_positions": node_positions}
+             "node_positions": node_positions, "initial_graph": G}
     return organs, debug
 
 
