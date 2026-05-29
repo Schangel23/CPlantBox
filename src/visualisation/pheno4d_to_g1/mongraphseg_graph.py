@@ -28,6 +28,8 @@ The single driver is :func:`segment_plant_graph`, which returns the same
 ``organs`` dict shape as the rest of the package.
 """
 
+import collections
+
 import numpy as np
 import networkx as nx
 from scipy.spatial import KDTree
@@ -257,6 +259,60 @@ def prune_short_branches(T, min_branch_len_cm=4.0, max_iter=100):
 # ── Phase 3b: ground removal (verticality) ────────────────────────────────
 
 
+def prune_branches_by_support(T, points, min_support_frac=0.02, max_iter=100):
+    """Drop terminal branches with little cloud SUPPORT, not just short ones.
+
+    Length-based pruning (:func:`prune_short_branches`) cannot tell a short but
+    REAL leaf (small / occluded / partially scanned, yet backed by many cloud
+    points) from a medial-axis spur (a noise filament backed by ~no points).
+    After contraction + coarse resampling, real leaves are often short, so the
+    length rule deletes them and the segmenter under-segments.
+
+    Here each cloud point votes for its nearest skeleton node; a terminal
+    branch's support is the point count over its nodes (excluding the junction),
+    and a branch is pruned when that support is below ``min_support_frac`` of all
+    points. Measured against the synthetic judge this trades count for quality:
+    higher ``min_support_frac`` raises per-leaf IoU + point accuracy but
+    under-segments more. NOTE: it does NOT lift leaf recall@IoU>=.5 past the
+    ~39% ceiling of the contract->MST->prune skeleton -- most leaves are lost at
+    the skeleton level (merged / absorbed) before pruning. A learned
+    point-instance segmenter (trained on the labelled synthetic set) is the way
+    past that ceiling; this remains the best heuristic option.
+    """
+    import collections
+    thresh = max(3, int(min_support_frac * len(points)))
+    for _ in range(max_iter):
+        node_ids = list(T.nodes())
+        if len(node_ids) < 3:
+            break
+        pos = np.array([T.nodes[n]["pos"] for n in node_ids])
+        _, nn = KDTree(pos).query(points)
+        votes = collections.Counter(node_ids[i] for i in nn)
+        removed = False
+        for t in [n for n in T.nodes() if T.degree(n) == 1]:
+            path, prev, cur = [t], None, t
+            while True:
+                nbrs = [x for x in T.neighbors(cur) if x != prev]
+                if len(nbrs) != 1:
+                    break
+                prev, cur = cur, nbrs[0]
+                path.append(cur)
+                if T.degree(cur) != 2:
+                    break
+            if T.degree(path[-1]) < 3:
+                continue
+            support = sum(votes.get(n, 0) for n in path[:-1])
+            # prune on support alone: a real leaf is well-supported however short
+            # its (contracted) skeleton is; a spur is a filament with ~no points.
+            if support < thresh:
+                T.remove_nodes_from(path[:-1])
+                removed = True
+        if not removed:
+            break
+    T.remove_nodes_from([n for n in list(T.nodes()) if T.degree(n) == 0])
+    return T
+
+
 def remove_ground_nodes(T, angle_threshold_deg=50):
     """Pick the plant base by verticality, drop nodes below it (MATLAB 3b)."""
     if T.number_of_nodes() == 0:
@@ -391,6 +447,153 @@ def segment_leaves(T, stem_path, min_leaf_len_cm=4.0):
             leaves[lid] = path
             lid += 1
     return leaves
+
+
+# ── Pseudostem model (no visible stem — young maize) ──────────────────────
+
+
+def extract_pseudostem_and_leaves(T, start, min_leaf_solo_len_cm=3.0):
+    """Decompose a young-maize tree with NO visible stem.
+
+    In these field scans the tall vertical structure is the longest/youngest
+    *leaf*, not a stem — the only stem-like part is the basal pseudostem where
+    leaf sheaths wrap each other. So instead of electing a privileged stem
+    path, every leaf tip is traced down to the base and each skeleton edge is
+    classified by how many tip→base paths traverse it:
+
+      * edges on ≥2 paths  -> pseudostem (the shared wrapped-sheath bundle);
+      * edges on exactly 1 -> that leaf's emerged blade.
+
+    Each leaf is rooted at its *insertion* (the highest node it still shares
+    with another leaf), so the leaf polyline is insertion → tip = sheath-exit
+    + blade. The tall erect leaf becomes an ordinary leaf.
+
+    Returns:
+        pseudostem_edges: list of (nodeA, nodeB) shared edges.
+        leaf_dict: ``{leaf_id: [node_ids]}`` insertion→tip per leaf.
+    """
+    if start is None or start not in T:
+        return [], {}
+    terminals = [n for n in T.nodes() if T.degree(n) == 1 and n != start]
+    if not terminals:
+        return [], {}
+
+    paths = {}
+    node_use = collections.Counter()
+    edge_use = collections.Counter()
+    for t in terminals:
+        try:
+            p = nx.shortest_path(T, start, t, weight="weight")
+        except nx.NetworkXNoPath:
+            continue
+        paths[t] = p
+        for n in p:
+            node_use[n] += 1
+        for i in range(len(p) - 1):
+            edge_use[frozenset((p[i], p[i + 1]))] += 1
+
+    pseudostem_edges = [tuple(e) for e, c in edge_use.items() if c >= 2]
+
+    leaf_dict = {}
+    lid = 1
+    for t in sorted(paths, key=lambda n: T.nodes[n]["pos"][2]):
+        p = paths[t]
+        # insertion = highest path index still shared with another leaf
+        shared_idx = [i for i, n in enumerate(p) if node_use[n] >= 2]
+        i0 = max(shared_idx) if shared_idx else 0
+        leaf_nodes = p[i0:]              # insertion node + emerged blade
+        if len(leaf_nodes) < 2:
+            continue
+        if _branch_length(T, leaf_nodes) < min_leaf_solo_len_cm:
+            continue
+        leaf_dict[lid] = leaf_nodes
+        lid += 1
+    return pseudostem_edges, leaf_dict
+
+
+def assign_points_to_instances(points, node_positions, instances):
+    """Nearest panoptic-instance assignment over explicit edge sets (MATLAB 4).
+
+    ``instances`` is a list of ``(label, edges)`` where ``edges`` is a list of
+    ``(nodeA, nodeB)`` id pairs. Each point gets the label of the instance with
+    the smallest point-to-segment distance over that instance's edges. Label 0
+    is reserved for "unassigned" but every point is reachable here.
+    """
+    points = np.asarray(points, float)
+    n = len(points)
+    best_d = np.full(n, np.inf)
+    labels = np.zeros(n, dtype=int)
+    for label, edges in instances:
+        for a_id, b_id in edges:
+            a = node_positions[a_id]
+            b = node_positions[b_id]
+            ab = b - a
+            L2 = float(ab @ ab)
+            if L2 < 1e-12:
+                d = np.linalg.norm(points - a, axis=1)
+            else:
+                t = np.clip((points - a) @ ab / L2, 0.0, 1.0)
+                d = np.linalg.norm(points - (a + np.outer(t, ab)), axis=1)
+            upd = d < best_d
+            best_d[upd] = d[upd]
+            labels[upd] = label
+    return labels
+
+
+def segment_plant_pseudostem(points, n_skel_nodes=250, min_leaf_len_cm=3.0,
+                             angle_threshold_deg=50, prune="length",
+                             support_frac=0.02, return_debug=False):
+    """No-stem segmentation for young maize: pseudostem bundle + leaves.
+
+    Same skeleton/tree front-end as :func:`segment_plant_graph`, but replaces
+    stem-path election with :func:`extract_pseudostem_and_leaves`. Returns an
+    ``organs`` dict with a ``pseudostem`` key plus ``leaf_1..N`` (the tall erect
+    leaf included).
+
+    ``prune`` selects spur removal: ``"length"`` (drop branches shorter than
+    ``min_leaf_len_cm`` -- deletes short real leaves) or ``"support"``
+    (:func:`prune_branches_by_support` -- keeps short leaves that have cloud
+    support, drops only unsupported tiny spurs).
+    """
+    points = np.asarray(points, float)
+    contracted = contract_point_cloud(points)[0]
+    sel = farthest_point_resample(contracted, n_skel_nodes)
+    nodes = contracted[sel]
+
+    G = build_initial_graph(nodes, k=3)
+    T = collapse_skeleton_tree(G)
+    if prune == "support":
+        T = prune_branches_by_support(T, points, min_support_frac=support_frac)
+    else:
+        T = prune_short_branches(T, min_branch_len_cm=min_leaf_len_cm)
+    T, start = remove_ground_nodes(T, angle_threshold_deg=angle_threshold_deg)
+    # support-pruning already removed spurs; don't re-kill short real leaves here
+    solo_len = 1.0 if prune == "support" else min_leaf_len_cm
+    ps_edges, leaf_dict = extract_pseudostem_and_leaves(
+        T, start, min_leaf_solo_len_cm=solo_len)
+
+    node_positions = nx.get_node_attributes(T, "pos")
+    instances = [(1, ps_edges)]
+    for lid, path in leaf_dict.items():
+        edges = [(path[i], path[i + 1]) for i in range(len(path) - 1)]
+        instances.append((lid + 1, edges))
+    labels = assign_points_to_instances(points, node_positions, instances)
+
+    organs = {"pseudostem": points[labels == 1]}
+    out_id = 0
+    for lid in sorted(leaf_dict):
+        pts = points[labels == lid + 1]
+        if len(pts) == 0:
+            continue
+        out_id += 1
+        organs[f"leaf_{out_id}"] = pts
+
+    if not return_debug:
+        return organs
+    debug = {"tree": T, "start": start, "pseudostem_edges": ps_edges,
+             "leaf_dict": leaf_dict, "labels": labels,
+             "node_positions": node_positions}
+    return organs, debug
 
 
 # ── Phase 4: nearest-instance point assignment ────────────────────────────

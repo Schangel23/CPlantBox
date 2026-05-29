@@ -146,6 +146,10 @@ def main():
     ap.add_argument("--n_sample", type=int, default=16384)
     ap.add_argument("--seed0", type=int, default=0)
     ap.add_argument("--fill", choices=["none", "directional"], default="none")
+    ap.add_argument("--nsk", type=int, default=250, help="skeleton nodes")
+    ap.add_argument("--min_leaf", type=float, default=3.0, help="min leaf/branch len cm")
+    ap.add_argument("--prune", choices=["length", "support"], default="length")
+    ap.add_argument("--support_frac", type=float, default=0.02)
     a = ap.parse_args()
 
     rows = []
@@ -171,7 +175,8 @@ def main():
                 # seeds inherit the GT label of their nearest real point (for scoring)
                 _, ni = cKDTree(pts).query(add)
                 pts = np.vstack([pts, add]); gt = np.concatenate([gt, gt[ni]])
-        organs = mg.segment_plant_pseudostem(pts, n_skel_nodes=250, min_leaf_len_cm=3.0)
+        organs = mg.segment_plant_pseudostem(pts, n_skel_nodes=a.nsk,
+                                              min_leaf_len_cm=a.min_leaf, prune=a.prune, support_frac=a.support_frac)
         s = score(gt, predicted_labels(organs, pts))
         if s is None:
             continue
