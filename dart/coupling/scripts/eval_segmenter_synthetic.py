@@ -32,6 +32,14 @@ sys.path.insert(0, "/home/lukas/pointr")          # directional_fill (pure numpy
 from dart.coupling.growth.grow import grow_plant
 from dart.coupling.geometry.cplantbox_adapter import extract_organs_for_lofter
 from dart.coupling.geometry.g1_to_g3 import loft_organs
+try:
+    from gen_synth_completion_pairs import (occlude_depthbuffer, scanner_viewpoint,
+                                            ground_up_dropout, sector_loss,
+                                            within_leaf_holes)
+except ModuleNotFoundError:
+    from dart.coupling.scripts.gen_synth_completion_pairs import (
+        occlude_depthbuffer, scanner_viewpoint, ground_up_dropout, sector_loss,
+        within_leaf_holes)
 import mongraphseg_graph as mg
 
 DEFAULT_XML = "dart/coupling/data/maize_calibrated.xml"
@@ -62,8 +70,6 @@ def sample_labelled(mesh, n, rng):
 def occlude_labelled(pts, lab, rng):
     """FP4D-style self-occlusion (depth buffer + ground-up + sector) keeping
     labels aligned. Mirrors gen_synth_completion_pairs.make_partial masks."""
-    from gen_synth_completion_pairs import (occlude_depthbuffer, scanner_viewpoint,
-                                            ground_up_dropout, sector_loss)
     idx = occlude_depthbuffer(pts, scanner_viewpoint(pts, rng),
                               ang_res_deg=rng.uniform(0.4, 0.9),
                               depth_tol_cm=rng.uniform(1.0, 2.5))
@@ -73,6 +79,12 @@ def occlude_labelled(pts, lab, rng):
     if rng.random() < 0.4 and len(pts) > 500:
         keep = sector_loss(pts, rng, frac=rng.uniform(0.15, 0.35))
         pts, lab = pts[keep], lab[keep]
+    kept = within_leaf_holes(
+        pts, rng,
+        n_holes_per_kpt=rng.uniform(8.0, 14.0),
+        r_lo_cm=rng.uniform(0.5, 0.8),
+        r_hi_cm=rng.uniform(1.5, 2.5))
+    pts, lab = pts[kept], lab[kept]
     # size-invariant voxel, label = first point in each voxel
     vox = float(np.clip(0.012 * np.ptp(pts[:, 2]), 0.1, 0.6))
     mn = pts.min(0); ijk = np.floor((pts - mn) / vox).astype(np.int64)

@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 import numpy as np
+from scipy.spatial import cKDTree
 
 from dart.coupling.growth.grow import grow_plant
 from dart.coupling.geometry.cplantbox_adapter import extract_organs_for_lofter
@@ -107,6 +108,32 @@ def sector_loss(points, rng, frac):
     return np.where(dd > width / 2)[0]
 
 
+def within_leaf_holes(points, rng, n_holes_per_kpt=10.0, r_lo_cm=0.6,
+                      r_hi_cm=2.0, max_frac=0.35):
+    """Punch scattered circular holes across the surface (interior dropout).
+    Pick random seed points, remove all points within a random radius
+    [r_lo_cm, r_hi_cm] of each, until ~a target number of holes scaled by
+    cloud size. Cap total removal at max_frac of points so a leaf is never
+    fully erased. Returns KEPT INDICES (index-based, label-safe)."""
+    n = len(points)
+    if n == 0:
+        return np.empty(0, dtype=np.int64)
+    n_holes = max(1, round(n_holes_per_kpt * n / 1000))
+    tree = cKDTree(points[:, :3])
+    seeds = rng.choice(n, size=min(n_holes, n), replace=False)
+    removed = set()
+    max_removed = max_frac * n
+    for seed in seeds:
+        idx = tree.query_ball_point(points[seed, :3], rng.uniform(r_lo_cm, r_hi_cm))
+        if len(removed) + len(set(idx) - removed) > max_removed:
+            break
+        removed.update(idx)
+    keep_mask = np.ones(n, dtype=bool)
+    if removed:
+        keep_mask[list(removed)] = False
+    return np.where(keep_mask)[0]
+
+
 def voxel_down(pc, vox):
     mn = pc.min(0); idx = np.floor((pc - mn) / vox).astype(np.int64)
     _, u = np.unique(idx, axis=0, return_index=True)
@@ -126,6 +153,12 @@ def make_partial(complete, rng, vox_cm=None, noise_mm=1.0):
     # one-sided scan ~40% of the time
     if rng.random() < 0.4 and len(part) > 500:
         part = part[sector_loss(part, rng, frac=rng.uniform(0.15, 0.35))]
+    kept = within_leaf_holes(
+        part, rng,
+        n_holes_per_kpt=rng.uniform(8.0, 14.0),
+        r_lo_cm=rng.uniform(0.5, 0.8),
+        r_hi_cm=rng.uniform(1.5, 2.5))
+    part = part[kept]
     # Voxel resolution scales with plant extent so retention is size-invariant.
     # `complete` is a FIXED 16384-pt sample regardless of plant size, so a small
     # seedling is over-sampled (ultra-dense surface); a fixed absolute voxel then
