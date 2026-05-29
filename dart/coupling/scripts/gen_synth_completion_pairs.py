@@ -72,17 +72,28 @@ def scanner_viewpoint(complete, rng, mostly_above=True):
                                 np.cos(el) * np.sin(az), np.sin(el)])
 
 
-def ground_up_dropout(points, rng, strength):
+def ground_up_dropout(points, rng, strength, cell=3.0):
     """Lower canopy hidden under upper leaves: drop probability grows with the
-    amount of canopy mass above a point (count of points higher within a column)."""
-    from scipy.spatial import KDTree
+    fraction of same xy-column points sitting ABOVE a point.
+
+    Grid-column + z-rank, O(N log N) time / O(N) memory at ANY density. A fixed-
+    radius KDTree ball query (the old impl) blows up to O(N^2) when a dense sample
+    lands on a small plant — every 3 cm query returns ~the whole cloud — which OOM
+    -killed the densify generator on small (day 15-30) plants."""
     z = points[:, 2]
-    tree = KDTree(points[:, :2])
-    # neighbours in an xy-column; fraction of them that sit above this point
-    nb = tree.query_ball_point(points[:, :2], r=3.0)
-    above = np.array([np.mean(z[ix] > zi) if ix else 0.0 for ix, zi in zip(nb, z)])
-    pdrop = strength * above
-    return np.where(rng.random(len(points)) > pdrop)[0]
+    ij = np.floor(points[:, :2] / cell).astype(np.int64)
+    _, col = np.unique(ij, axis=0, return_inverse=True)
+    col = col.ravel()
+    order = np.argsort(col, kind="stable")
+    cs = col[order]
+    frac = np.empty(len(points))
+    bnd = np.r_[0, np.flatnonzero(np.diff(cs)) + 1, len(cs)]
+    for a, b in zip(bnd[:-1], bnd[1:]):
+        zz = z[order[a:b]]
+        m = len(zz)
+        rank = np.argsort(np.argsort(zz, kind="stable"), kind="stable")  # ascending 0..m-1
+        frac[order[a:b]] = (m - 1 - rank) / max(m, 1)        # fraction above
+    return np.where(rng.random(len(points)) > strength * frac)[0]
 
 
 def sector_loss(points, rng, frac):
