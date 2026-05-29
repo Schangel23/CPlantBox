@@ -161,21 +161,39 @@ def visible_surface(dense, rng):
 
 def degrade_to_input(target, rng, noise_mm=1.0):
     """Sparse / holey / noisy INPUT from the dense visible TARGET — SAME support,
-    no new geometry. (1) A few wide patch gouges (up to 3.5 cm radius) that can
-    split a narrow linear structure into 2 cm+ separated clusters the net must
-    learn to bridge collinearly. (2) Size-invariant voxel sparsification to
-    scanner density. (3) mm noise. Target stays clean+connected => the net learns
-    gap-bridging + densify + denoise WITHOUT off-manifold invention."""
+    no new geometry. Three degradations, then voxel + noise:
+
+    (a) HEAVY regional thinning: a few leaf-scale zones (6-18 cm) kept at only
+        8-22% of their points. This is the key signal for the hard case — a leaf
+        reduced to a sparse scatter that still SPANS the blade, paired with a full
+        target, teaches the net to infer the whole leaf surface from sparse
+        spanning evidence (not just local gap-fill).
+    (b) Hard patch gouges (up to 3.5 cm) — break narrow structures into 2 cm+
+        clusters the net must bridge collinearly.
+    (c) Size-invariant voxel sparsification to scanner density + mm noise.
+
+    Target stays dense+connected and only ever has surface where real geometry
+    exists, so the net learns fill-from-sparse + bridge + denoise WITHOUT
+    off-manifold invention (the occluded back-side is absent in BOTH clouds)."""
     from scipy.spatial import KDTree
     part = target
     if len(part) > 200:
         tree = KDTree(part)
-        drop = np.zeros(len(part), bool)
-        for _ in range(int(rng.integers(3, 9))):
+        keep = np.ones(len(part), bool)
+        # (a) leaf-scale heavy thinning -> very-gappy-but-spanning leaves
+        for _ in range(int(rng.integers(1, 4))):
             ci = int(rng.integers(len(part)))
-            drop[tree.query_ball_point(part[ci], rng.uniform(1.0, 3.5))] = True
-        if drop.mean() < 0.55:          # never gut the whole cloud
-            part = part[~drop]
+            idx = np.fromiter(tree.query_ball_point(part[ci], rng.uniform(6.0, 18.0)),
+                              dtype=np.int64)
+            if len(idx) > 30:
+                thin = rng.random(len(idx)) > rng.uniform(0.08, 0.22)
+                keep[idx[thin]] = False
+        # (b) hard gouges -> 2cm+ collinear bridges
+        for _ in range(int(rng.integers(2, 7))):
+            ci = int(rng.integers(len(part)))
+            keep[tree.query_ball_point(part[ci], rng.uniform(1.0, 3.5))] = False
+        if keep.mean() > 0.15:          # never gut the whole cloud
+            part = part[keep]
     vox = float(np.clip(0.012 * np.ptp(target[:, 2]), 0.1, 0.6))
     part = voxel_down(part, vox)
     part = part + rng.normal(0, noise_mm / 10.0, part.shape)
