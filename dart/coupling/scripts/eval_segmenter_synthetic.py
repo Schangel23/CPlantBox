@@ -157,7 +157,7 @@ def main():
     ap.add_argument("--day_hi", type=int, default=92)
     ap.add_argument("--n_sample", type=int, default=16384)
     ap.add_argument("--seed0", type=int, default=0)
-    ap.add_argument("--fill", choices=["none", "directional", "combined"], default="none")
+    ap.add_argument("--fill", choices=["none", "directional", "combined", "maize"], default="none")
     ap.add_argument("--nsk", type=int, default=400, help="skeleton nodes")
     ap.add_argument("--min_leaf", type=float, default=3.0, help="min leaf/branch len cm")
     ap.add_argument("--prune", choices=["length", "support"], default="length")
@@ -193,6 +193,14 @@ def main():
             add = cf.combined_fill(pts, frng, return_added_only=True)
             if len(add):
                 # added points inherit the GT label of their nearest ORIGINAL point
+                _, ni = cKDTree(orig_pts).query(add)
+                pts = np.vstack([pts, add]); gt = np.concatenate([gt, gt[ni]])
+        if a.fill == "maize":
+            import maize_leaf_fill as mlf
+            orig_pts = pts.copy()
+            add = mlf.maize_leaf_fill(pts, frng, return_added_only=True)
+            if len(add):
+                # within-footprint fill: nearest original is the same leaf -> clean label
                 _, ni = cKDTree(orig_pts).query(add)
                 pts = np.vstack([pts, add]); gt = np.concatenate([gt, gt[ni]])
         organs = mg.segment_plant_pseudostem(pts, n_skel_nodes=a.nsk,
