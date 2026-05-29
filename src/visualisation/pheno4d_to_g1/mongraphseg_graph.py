@@ -540,7 +540,7 @@ def assign_points_to_instances(points, node_positions, instances):
     return labels
 
 
-def segment_plant_pseudostem(points, n_skel_nodes=250, min_leaf_len_cm=3.0,
+def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
                              angle_threshold_deg=50, prune="length",
                              support_frac=0.02, return_debug=False):
     """No-stem segmentation for young maize: pseudostem bundle + leaves.

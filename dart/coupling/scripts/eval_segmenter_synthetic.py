@@ -158,7 +158,7 @@ def main():
     ap.add_argument("--n_sample", type=int, default=16384)
     ap.add_argument("--seed0", type=int, default=0)
     ap.add_argument("--fill", choices=["none", "directional", "combined"], default="none")
-    ap.add_argument("--nsk", type=int, default=250, help="skeleton nodes")
+    ap.add_argument("--nsk", type=int, default=400, help="skeleton nodes")
     ap.add_argument("--min_leaf", type=float, default=3.0, help="min leaf/branch len cm")
     ap.add_argument("--prune", choices=["length", "support"], default="length")
     ap.add_argument("--support_frac", type=float, default=0.02)
