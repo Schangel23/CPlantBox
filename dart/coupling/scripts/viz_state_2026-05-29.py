@@ -63,7 +63,7 @@ def main():
     for f in files:
         d = np.load(f); pts, gt = d["pts"], d["gt"]
         organs = mg.segment_plant_pseudostem(pts, n_skel_nodes=400, assign="geodesic",
-                                             pseudostem_basal_only=True, split_merged=True)
+                                             pseudostem_basal_only=True, split_components=True)
         pred = pred_labels(organs, pts)
         rec, ng, npd = recall_at(gt, pred)
         recs.append((rec, ng, npd, f, pts, gt, pred))
@@ -82,11 +82,11 @@ def main():
         draw(axes[r, c], pts, gt, f"GT [{tag} #{name}]  {ng} true leaves")
         draw(axes[r, c + 1], pts, pred,
              f"PRED  {npd} leaves  recall@.5 = {rec*100:.0f}%")
-    fig.suptitle(f"MonGraphSeg winning stack (basal + split + geodesic full-path)   |   "
+    fig.suptitle(f"MonGraphSeg winning stack (basal + geodesic + component-split)   |   "
                  f"mean recall@.5 = {overall*100:.0f}%   (n={n}, GT|PRED pairs)",
                  fontsize=13)
     fig.tight_layout(rect=(0, 0, 1, 0.97))
-    out = "dart/coupling/output/mongraphseg_state_2026-05-29.png"
+    out = "dart/coupling/output/mongraphseg_state_compsplit_2026-05-29.png"
     fig.savefig(out, dpi=120); print("wrote", out)
 
     # per-plant recall distribution (the headline reassessment signal)
@@ -97,9 +97,9 @@ def main():
     ax.axvline(50, color="green", ls=":", label="recall@.5 threshold band")
     ax.set_xlabel("per-plant recall@.5 (%)"); ax.set_ylabel("# plants")
     ax.set_title(f"Per-plant recall spread (n={n}): best {pr.max():.0f}%, "
-                 f"worst {pr.min():.0f}%, none above ~71%"); ax.legend()
+                 f"worst {pr.min():.0f}%, max {pr.max():.0f}%"); ax.legend()
     fig2.tight_layout()
-    out2 = "dart/coupling/output/mongraphseg_recall_hist_2026-05-29.png"
+    out2 = "dart/coupling/output/mongraphseg_recall_hist_compsplit_2026-05-29.png"
     fig2.savefig(out2, dpi=120); print("wrote", out2)
     print(f"per-plant recall: {sorted([round(r[0]*100) for r in recs], reverse=True)}")
 
