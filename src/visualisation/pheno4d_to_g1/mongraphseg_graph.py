@@ -35,7 +35,12 @@ import networkx as nx
 from scipy.spatial import KDTree
 from scipy.sparse import csr_matrix, diags, eye
 from scipy.sparse.linalg import spsolve
-from scipy.sparse.csgraph import minimum_spanning_tree
+from scipy.sparse.csgraph import dijkstra, minimum_spanning_tree
+
+try:
+    from .geodesic_assignment import build_knn_graph
+except ImportError:  # direct script import via sys.path
+    from geodesic_assignment import build_knn_graph
 
 
 # ── Phase 2: Laplacian contraction ────────────────────────────────────────
@@ -621,9 +626,31 @@ def extract_pseudostem_and_leaves(T, start, min_leaf_solo_len_cm=3.0):
     lid = 1
     for t in sorted(paths, key=lambda n: T.nodes[n]["pos"][2]):
         p = paths[t]
-        # insertion = highest path index still shared with another leaf
+        # Prefer the lowest shared node where this tip path turns out of the
+        # bundle; fall back to the original highest-shared rule when the path
+        # has no clear angular divergence.
         shared_idx = [i for i, n in enumerate(p) if node_use[n] >= 2]
         i0 = max(shared_idx) if shared_idx else 0
+        divergence_idx = None
+        for i in shared_idx:
+            if i <= 0 or i >= len(p) - 1:
+                continue
+            back = max(0, i - 2)
+            fwd = min(len(p) - 1, i + 2)
+            vin = T.nodes[p[i]]["pos"] - T.nodes[p[back]]["pos"]
+            vout = T.nodes[p[fwd]]["pos"] - T.nodes[p[i]]["pos"]
+            lin = float(np.linalg.norm(vin))
+            lout = float(np.linalg.norm(vout))
+            if lin < 1e-9 or lout < 1e-9:
+                continue
+            angle = np.degrees(np.arccos(np.clip(
+                float(vin @ vout) / (lin * lout), -1.0, 1.0)))
+            radial = float(np.linalg.norm(vout[:2]))
+            if angle >= 25.0 and radial / max(lout, 1e-9) >= 0.25:
+                divergence_idx = i
+                break
+        if divergence_idx is not None:
+            i0 = divergence_idx
         leaf_nodes = p[i0:]              # insertion node + emerged blade
         if len(leaf_nodes) < 2:
             continue
@@ -663,10 +690,110 @@ def assign_points_to_instances(points, node_positions, instances):
     return labels
 
 
+def assign_points_geodesic_instances(points, node_positions, leaf_dict,
+                                     pseudostem_edges, k=10,
+                                     max_edge_cm=3.0, distal_seed_start=0.5,
+                                     distal_seed_end=1.0,
+                                     fallback_labels=None,
+                                     return_debug=False):
+    """Assign cloud points by multi-source geodesic distance on a kNN graph.
+
+    Label 0 is the pseudostem. Leaf labels match ``leaf_dict`` ids. Leaf seeds
+    are cloud points whose nearest skeleton node lies on the distal portion of
+    each insertion-to-tip leaf path; pseudostem seeds are points nearest to any
+    skeleton node used by a pseudostem edge.
+    """
+    points = np.asarray(points, float)
+    n = len(points)
+    labels = np.zeros(n, dtype=int)
+    if n == 0:
+        return (labels, {}) if return_debug else labels
+
+    node_ids = list(node_positions)
+    if not node_ids:
+        return (labels, {}) if return_debug else labels
+    node_arr = np.array([node_positions[nid] for nid in node_ids], dtype=float)
+    nearest_node_idx = KDTree(node_arr).query(points)[1]
+    nearest_node = np.array([node_ids[int(i)] for i in nearest_node_idx])
+
+    ps_nodes = set()
+    for a_id, b_id in pseudostem_edges:
+        ps_nodes.add(a_id)
+        ps_nodes.add(b_id)
+
+    seed_by_label = {0: np.where(np.isin(nearest_node, list(ps_nodes)))[0]}
+
+    for lid, path in sorted(leaf_dict.items()):
+        if len(path) < 2:
+            continue
+        seg_len = np.array([
+            np.linalg.norm(node_positions[path[i + 1]] - node_positions[path[i]])
+            for i in range(len(path) - 1)
+        ])
+        total = float(seg_len.sum())
+        if total <= 1e-12:
+            distal_nodes = {path[-1]}
+        else:
+            cum = np.concatenate([[0.0], np.cumsum(seg_len)]) / total
+            lo = min(distal_seed_start, distal_seed_end)
+            hi = max(distal_seed_start, distal_seed_end)
+            distal_nodes = {
+                node for node, frac in zip(path, cum)
+                if lo <= frac <= hi
+            }
+            if not distal_nodes:
+                distal_nodes = {path[-1]}
+        seed_by_label[lid] = np.where(np.isin(nearest_node, list(distal_nodes)))[0]
+
+    active = [(lab, seeds) for lab, seeds in seed_by_label.items() if len(seeds)]
+    if not active:
+        if fallback_labels is not None:
+            labels = np.asarray(fallback_labels, dtype=int).copy()
+        return (labels, {"seed_by_label": seed_by_label}) if return_debug else labels
+
+    graph = build_knn_graph(points, k=k, max_edge_cm=max_edge_cm)
+
+    # Add one zero-cost super-source per label, then run multi-source Dijkstra.
+    aug = graph.tolil()
+    aug.resize((n + len(active), n + len(active)))
+    source_labels = []
+    for src_offset, (lab, seeds) in enumerate(active):
+        src = n + src_offset
+        source_labels.append(lab)
+        aug[src, np.asarray(seeds, dtype=int)] = 1e-9
+    aug = aug.tocsr()
+    aug = aug.maximum(aug.T)
+
+    dmat = dijkstra(
+        aug, directed=False, indices=np.arange(n, n + len(active))
+    )[:, :n]
+    reachable = np.isfinite(dmat).any(axis=0)
+    best = np.argmin(dmat[:, reachable], axis=0)
+    labels[reachable] = np.array(source_labels, dtype=int)[best]
+
+    if fallback_labels is not None and np.any(~reachable):
+        labels[~reachable] = np.asarray(fallback_labels, dtype=int)[~reachable]
+
+    if return_debug:
+        debug = {
+            "knn_graph": graph,
+            "seed_by_label": seed_by_label,
+            "source_labels": source_labels,
+            "geodesic_dist": dmat,
+            "nearest_node": nearest_node,
+        }
+        return labels, debug
+    return labels
+
+
 def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
                              angle_threshold_deg=50, prune="length",
                              support_frac=0.02, recover_branches=False,
                              recovery_angle_deg=35.0, contraction_iters=8,
+                             assign="segment", geodesic_k=10,
+                             geodesic_max_edge_cm=3.0,
+                             distal_seed_start=0.5,
+                             distal_seed_end=1.0,
                              return_debug=False):
     """No-stem segmentation for young maize: pseudostem bundle + leaves.
 
@@ -706,12 +833,30 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
     for lid, path in leaf_dict.items():
         edges = [(path[i], path[i + 1]) for i in range(len(path) - 1)]
         instances.append((lid + 1, edges))
-    labels = assign_points_to_instances(points, node_positions, instances)
+    labels_segment = assign_points_to_instances(points, node_positions, instances)
+    if assign == "segment":
+        labels = labels_segment
+        label_for_pseudostem = 1
+        label_for_leaf = lambda lid: lid + 1
+        geodesic_debug = None
+    elif assign == "geodesic":
+        labels, geodesic_debug = assign_points_geodesic_instances(
+            points, node_positions, leaf_dict, ps_edges,
+            k=geodesic_k, max_edge_cm=geodesic_max_edge_cm,
+            distal_seed_start=distal_seed_start,
+            distal_seed_end=distal_seed_end,
+            fallback_labels=np.where(labels_segment == 1, 0,
+                                     np.maximum(labels_segment - 1, 0)),
+            return_debug=True)
+        label_for_pseudostem = 0
+        label_for_leaf = lambda lid: lid
+    else:
+        raise ValueError("assign must be 'segment' or 'geodesic'")
 
-    organs = {"pseudostem": points[labels == 1]}
+    organs = {"pseudostem": points[labels == label_for_pseudostem]}
     out_id = 0
     for lid in sorted(leaf_dict):
-        pts = points[labels == lid + 1]
+        pts = points[labels == label_for_leaf(lid)]
         if len(pts) == 0:
             continue
         out_id += 1
@@ -721,7 +866,10 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
         return organs
     debug = {"tree": T, "start": start, "pseudostem_edges": ps_edges,
              "leaf_dict": leaf_dict, "labels": labels,
-             "node_positions": node_positions, "initial_graph": G}
+             "node_positions": node_positions, "initial_graph": G,
+             "assign": assign}
+    if geodesic_debug is not None:
+        debug["geodesic"] = geodesic_debug
     return organs, debug
 
 

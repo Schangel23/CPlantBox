@@ -162,6 +162,11 @@ def main():
     ap.add_argument("--min_leaf", type=float, default=3.0, help="min leaf/branch len cm")
     ap.add_argument("--prune", choices=["length", "support"], default="length")
     ap.add_argument("--support_frac", type=float, default=0.02)
+    ap.add_argument("--assign", choices=["segment", "geodesic"], default="segment")
+    ap.add_argument("--geodesic_k", type=int, default=10)
+    ap.add_argument("--geodesic_max_edge_cm", type=float, default=3.0)
+    ap.add_argument("--distal_seed_start", type=float, default=0.5)
+    ap.add_argument("--distal_seed_end", type=float, default=1.0)
     a = ap.parse_args()
 
     rows = []
@@ -204,7 +209,14 @@ def main():
                 _, ni = cKDTree(orig_pts).query(add)
                 pts = np.vstack([pts, add]); gt = np.concatenate([gt, gt[ni]])
         organs = mg.segment_plant_pseudostem(pts, n_skel_nodes=a.nsk,
-                                              min_leaf_len_cm=a.min_leaf, prune=a.prune, support_frac=a.support_frac)
+                                              min_leaf_len_cm=a.min_leaf,
+                                              prune=a.prune,
+                                              support_frac=a.support_frac,
+                                              assign=a.assign,
+                                              geodesic_k=a.geodesic_k,
+                                              geodesic_max_edge_cm=a.geodesic_max_edge_cm,
+                                              distal_seed_start=a.distal_seed_start,
+                                              distal_seed_end=a.distal_seed_end)
         s = score(gt, predicted_labels(organs, pts))
         if s is None:
             continue
@@ -220,7 +232,7 @@ def main():
         pa = np.array([r["pt_acc"] for r in rows])
         g5 = np.array([r["iou_ge50"] for r in rows])
         ng = np.array([r["n_gt"] for r in rows])
-        print(f"\n=== fill={a.fill}  N={len(rows)} ===")
+        print(f"\n=== fill={a.fill} assign={a.assign}  N={len(rows)} ===")
         print(f"count-err   mean {ce.mean():+.2f}  abs {np.abs(ce).mean():.2f}")
         print(f"mean IoU    {mi.mean():.3f}")
         print(f"recall@.5   {g5.sum()}/{ng.sum()} leaves ({100*g5.sum()/ng.sum():.0f}%)")
