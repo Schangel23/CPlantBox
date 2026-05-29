@@ -885,6 +885,74 @@ def assign_points_regiongrow_instances(points, node_positions, leaf_dict,
     return labels
 
 
+def estimate_tangents(points, k=16):
+    """Per-point ribbon direction = LARGEST-eigenvalue eigenvector of the local
+    covariance (the long axis of a leaf-blade ribbon). Unoriented."""
+    points = np.asarray(points, float)
+    n = len(points)
+    if n < 3:
+        return np.tile([0.0, 0.0, 1.0], (n, 1))
+    kk = min(k, n)
+    idx = KDTree(points).query(points, k=kk)[1]
+    nb = points[idx]
+    nb = nb - nb.mean(axis=1, keepdims=True)
+    cov = np.einsum("nki,nkj->nij", nb, nb) / kk
+    _, v = np.linalg.eigh(cov)
+    return v[:, :, 2]
+
+
+def split_ribbon_leaf_instances(points, leaf_id, max_edge_cm=2.0,
+                                tangent_tol_deg=35.0, tangent_k=16,
+                                knn_k=12, min_support=50):
+    """Split predicted leaf instances that fused CROSSING blades by ribbon
+    direction-continuity.
+
+    Overlapping young whorls fail component-split because crossing blades have
+    no spatial gap (one connected component). But each blade is a smooth ribbon
+    with a continuous local tangent, and two crossing blades meet at a large
+    tangent discontinuity. We gate a short-edge kNN graph by tangent alignment:
+    an edge survives only if both endpoints' local ribbon directions agree
+    within ``tangent_tol_deg``. The crossing is severed (mismatched tangents)
+    while each smoothly-curving blade stays connected; connected components are
+    the separated ribbons. Transferable cue (holds in sim AND real), unlike
+    learned density features.
+    """
+    from geodesic_assignment import build_knn_graph
+    from scipy.sparse.csgraph import connected_components as _cc
+    points = np.asarray(points, float)
+    leaf_id = np.asarray(leaf_id, int).copy()
+    next_id = int(leaf_id.max()) + 1 if leaf_id.max() > 0 else 1
+    for lid in [x for x in np.unique(leaf_id) if x > 0]:
+        idx = np.where(leaf_id == lid)[0]
+        if len(idx) < 2 * min_support:
+            continue
+        P = points[idx]
+        tan = estimate_tangents(P, k=tangent_k)
+        G = build_knn_graph(P, k=knn_k, max_edge_cm=max_edge_cm).tocoo()
+        cosang = np.abs(np.einsum("ij,ij->i", tan[G.row], tan[G.col]))
+        keep = np.degrees(np.arccos(np.clip(cosang, 0.0, 1.0))) <= tangent_tol_deg
+        W = csr_matrix((G.data[keep], (G.row[keep], G.col[keep])),
+                       shape=(len(P), len(P)))
+        W = W.maximum(W.T)
+        _, lab = _cc(W, directed=False)
+        sizes = np.bincount(lab)
+        big = np.where(sizes >= min_support)[0]
+        if len(big) < 2:
+            continue
+        for j, b in enumerate(big):
+            leaf_id[idx[lab == b]] = lid if j == 0 else next_id
+            if j > 0:
+                next_id += 1
+        small = idx[~np.isin(lab, big)]
+        if len(small):
+            trees = [KDTree(points[idx[lab == b]]) for b in big]
+            db = np.column_stack([t.query(points[small])[0] for t in trees])
+            nearest_big = big[np.argmin(db, axis=1)]
+            for s, b in zip(small, nearest_big):
+                leaf_id[s] = leaf_id[idx[lab == b][0]]
+    return leaf_id
+
+
 def split_components_leaf_instances(points, leaf_id, max_edge_cm=1.5,
                                     knn_k=12, min_support=50):
     """Split predicted leaf instances by spatial connected components.
@@ -1060,6 +1128,9 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
                              split_merged=False,
                              split_components=False,
                              split_component_max_edge_cm=1.5,
+                             split_ribbon=False,
+                             split_ribbon_max_edge_cm=2.0,
+                             split_ribbon_tangent_tol_deg=35.0,
                              split_min_branch_len_cm=12.0,
                              split_min_support=100,
                              split_tip_angle_min_deg=60.0,
@@ -1163,6 +1234,11 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
         if split_components:
             leaf_id = split_components_leaf_instances(
                 points, leaf_id, max_edge_cm=split_component_max_edge_cm,
+                min_support=split_min_support)
+        if split_ribbon:
+            leaf_id = split_ribbon_leaf_instances(
+                points, leaf_id, max_edge_cm=split_ribbon_max_edge_cm,
+                tangent_tol_deg=split_ribbon_tangent_tol_deg,
                 min_support=split_min_support)
 
     organs = {"pseudostem": points[ps_mask]}

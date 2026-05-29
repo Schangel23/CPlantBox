@@ -193,6 +193,10 @@ def main():
     ap.add_argument("--no_split_components", dest="split_components",
                     action="store_false", help="disable spatial component split")
     ap.add_argument("--split_component_max_edge_cm", type=float, default=1.5)
+    ap.add_argument("--split_ribbon", action="store_true",
+                    help="split crossing blades by tangent-continuity (whorls)")
+    ap.add_argument("--split_ribbon_max_edge_cm", type=float, default=2.0)
+    ap.add_argument("--split_ribbon_tangent_tol_deg", type=float, default=35.0)
     ap.add_argument("--split_min_branch_len_cm", type=float, default=12.0)
     ap.add_argument("--split_min_support", type=int, default=100)
     ap.add_argument("--split_tip_angle_min_deg", type=float, default=60.0)
@@ -268,6 +272,9 @@ def main():
                                               split_merged=a.split_merged,
                                               split_components=a.split_components,
                                               split_component_max_edge_cm=a.split_component_max_edge_cm,
+                                              split_ribbon=a.split_ribbon,
+                                              split_ribbon_max_edge_cm=a.split_ribbon_max_edge_cm,
+                                              split_ribbon_tangent_tol_deg=a.split_ribbon_tangent_tol_deg,
                                               split_min_branch_len_cm=a.split_min_branch_len_cm,
                                               split_min_support=a.split_min_support,
                                               split_tip_angle_min_deg=a.split_tip_angle_min_deg)
