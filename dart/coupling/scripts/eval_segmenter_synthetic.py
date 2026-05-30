@@ -42,6 +42,7 @@ except ModuleNotFoundError:
         occlude_depthbuffer, scanner_viewpoint, ground_up_dropout, sector_loss,
         within_leaf_holes)
 import mongraphseg_graph as mg
+from dart.coupling.scripts.azimuth_hybrid import azimuth_refine
 
 DEFAULT_XML = "dart/coupling/data/maize_calibrated.xml"
 
@@ -181,6 +182,11 @@ def main():
     ap.add_argument("--prune", choices=["length", "support"], default="length")
     ap.add_argument("--support_frac", type=float, default=0.02)
     ap.add_argument("--assign", choices=["segment", "geodesic", "regiongrow"], default="segment")
+    ap.add_argument("--attach", action="store_true",
+                    help="apply unsupervised azimuth-hybrid refinement after baseline segmentation")
+    ap.add_argument("--attach_tau_deg", type=float, default=50.0)
+    ap.add_argument("--attach_min_phi_sep_deg", type=float, default=40.0)
+    ap.add_argument("--attach_high_r_frac", type=float, default=0.5)
     ap.add_argument("--normal_k", type=int, default=16)
     ap.add_argument("--crease_deg", type=float, default=45.0)
     ap.add_argument("--crease_penalty", type=float, default=8.0)
@@ -299,7 +305,13 @@ def main():
                                               split_min_branch_len_cm=a.split_min_branch_len_cm,
                                               split_min_support=a.split_min_support,
                                               split_tip_angle_min_deg=a.split_tip_angle_min_deg)
-        s = score(gt, predicted_labels(organs, pts))
+        pred = predicted_labels(organs, pts)
+        if a.attach:
+            pred = azimuth_refine(pts, pred,
+                                  tau_deg=a.attach_tau_deg,
+                                  min_phi_sep_deg=a.attach_min_phi_sep_deg,
+                                  high_r_frac=a.attach_high_r_frac)
+        s = score(gt, pred)
         if s is None:
             continue
         s.update(seed=seed, day=day, npts=len(pts))
@@ -314,7 +326,8 @@ def main():
         pa = np.array([r["pt_acc"] for r in rows])
         g5 = np.array([r["iou_ge50"] for r in rows])
         ng = np.array([r["n_gt"] for r in rows])
-        print(f"\n=== fill={a.fill} assign={a.assign}  N={len(rows)} ===")
+        attach = " attach=on" if a.attach else ""
+        print(f"\n=== fill={a.fill} assign={a.assign}{attach}  N={len(rows)} ===")
         print(f"count-err   mean {ce.mean():+.2f}  abs {np.abs(ce).mean():.2f}")
         print(f"mean IoU    {mi.mean():.3f}")
         print(f"recall@.5   {g5.sum()}/{ng.sum()} leaves ({100*g5.sum()/ng.sum():.0f}%)")
