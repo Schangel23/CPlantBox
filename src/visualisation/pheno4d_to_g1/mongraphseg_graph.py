@@ -1112,6 +1112,300 @@ def split_merged_leaf_instances(points, leaf_id, ps_mask, knn_k=8,
     return leaf_id
 
 
+def split_tipseed_leaf_instances(points, leaf_id, ps_mask, knn_k=12,
+                                 max_edge_cm=None, min_branch_len_cm=12.0,
+                                 min_tip_sep_cm=8.0, min_support=100,
+                                 saddle_frac_max=0.6, max_subleaves=4):
+    """Split fused blades by TIP-SEEDED competitive growth gated on a
+    base-bundle SADDLE test (not base->tip divergence).
+
+    The dominant residual merge is DISTICHOUS same-side leaves: two blades at
+    the SAME azimuth, distinct at their tips but fused through the shared basal
+    bundle. ``split_merged`` rejects these because its base->tip direction gate
+    sees near-parallel vectors; the local cuts (gap / tangent / crease) also
+    fail at the bundle, where the blades look identical. Every cue that bites is
+    local, and at the bundle there is nothing local to bite on.
+
+    This routine seeds from the distinct TIPS instead (geodesic maxima from the
+    base, where the visual shows the blades ARE separable) and decides
+    separation by TOPOLOGY rather than angle: rooting a shortest-path tree at
+    the base, two tips are accepted as separate leaves when their lowest common
+    ancestor sits LOW -- a saddle whose geodesic-from-base is a small fraction
+    (``saddle_frac_max``) of the tip distances, i.e. the ribbons diverge down at
+    the bundle. A single folded blade yields two maxima that diverge HIGH (large
+    saddle) and is left intact. Euclidean tip separation replaces the angular
+    gate, so same-azimuth blades are no longer suppressed. Points are then grown
+    competitively to the nearest kept tip (multi-source geodesic), which splits
+    the shared bundle along its geodesic watershed -- imperfect there, but each
+    blade keeps its own tip + lamina, which is what clears the 0.5-IoU bar.
+    """
+    from geodesic_assignment import build_knn_graph
+
+    points = np.asarray(points, float)
+    leaf_id = np.asarray(leaf_id, int).copy()
+    ps_pts = points[ps_mask] if ps_mask is not None and ps_mask.any() else None
+    ps_tree = KDTree(ps_pts) if ps_pts is not None and len(ps_pts) else None
+    next_id = int(leaf_id.max()) + 1 if leaf_id.max() > 0 else 1
+
+    def _lca_geo(a, b, pred, geo, base):
+        """Geodesic-from-base of the lowest common ancestor of tips a, b in the
+        base-rooted shortest-path tree (the saddle between the two ribbons)."""
+        anc = set()
+        cur = a
+        while cur >= 0 and cur != base:
+            anc.add(cur)
+            cur = pred[cur]
+        anc.add(base)
+        cur = b
+        while cur >= 0 and cur != base:
+            if cur in anc:
+                return geo[cur]
+            cur = pred[cur]
+        return geo[base]
+
+    for lid in [x for x in np.unique(leaf_id) if x > 0]:
+        idx = np.where(leaf_id == lid)[0]
+        if len(idx) < 2 * min_support:
+            continue
+        P = points[idx]
+        if max_edge_cm is None:
+            d = KDTree(P).query(P, k=min(4, len(P)))[0]
+            edge = float(np.clip(3.0 * np.median(d[:, 1:]), 1.5, 6.0))
+        else:
+            edge = max_edge_cm
+        G = build_knn_graph(P, k=knn_k, max_edge_cm=edge)
+
+        if ps_tree is not None:
+            base = int(np.argmin(ps_tree.query(P)[0]))
+        else:
+            base = int(np.argmin(P[:, 2]))
+
+        geo, pred = dijkstra(G, directed=False, indices=base,
+                             return_predecessors=True)
+        fin = np.isfinite(geo)
+        if fin.sum() < min_support:
+            continue
+
+        # tips = geodesic local maxima reachable from the base
+        Gc = G.tocsr()
+        tips = []
+        for i in np.where(fin)[0]:
+            if geo[i] < min_branch_len_cm:
+                continue
+            nbrs = Gc.indices[Gc.indptr[i]:Gc.indptr[i + 1]]
+            nbrs = [n for n in nbrs if fin[n]]
+            if nbrs and all(geo[i] >= geo[n] for n in nbrs):
+                tips.append(i)
+        if len(tips) < 2:
+            continue
+
+        # farthest-first, with euclidean dedupe AND the base-bundle saddle gate
+        tips = sorted(tips, key=lambda t: -geo[t])
+        kept = [tips[0]]
+        for t in tips[1:]:
+            if any(np.linalg.norm(P[t] - P[k]) <= min_tip_sep_cm for k in kept):
+                continue
+            diverges_low = True
+            for k in kept:
+                saddle = _lca_geo(t, k, pred, geo, base)
+                denom = max(min(geo[t], geo[k]), 1e-6)
+                if saddle / denom > saddle_frac_max:
+                    diverges_low = False
+                    break
+            if diverges_low:
+                kept.append(t)
+        kept = kept[:max_subleaves]
+        if len(kept) < 2:
+            continue
+
+        # competitive growth: each point to its nearest kept tip (geodesic)
+        dmat = dijkstra(G, directed=False, indices=kept)
+        reach = np.isfinite(dmat).any(axis=0)
+        sub = np.full(len(P), -1, int)
+        sub[reach] = np.argmin(dmat[:, reach], axis=0)
+        if (~reach).any():
+            sub[~reach] = KDTree(P[kept]).query(P[~reach])[1]
+
+        labels_u, counts = np.unique(sub, return_counts=True)
+        big = labels_u[counts >= min_support]
+        if len(big) < 2:
+            continue
+        if not np.isin(sub, big).all():
+            big_tips = [kept[b] for b in big]
+            btree = KDTree(P[big_tips])
+            small = ~np.isin(sub, big)
+            sub[small] = big[btree.query(P[small])[1]]
+        for j, b in enumerate(big):
+            tgt = lid if j == 0 else next_id
+            if j > 0:
+                next_id += 1
+            leaf_id[idx[sub == b]] = tgt
+    return leaf_id
+
+
+def _persistent_tips(Gcsr, geo, persistence_cm, min_branch_len_cm):
+    """0-dim topological-persistence peaks of the geodesic field ``geo`` over the
+    graph ``Gcsr``. A peak (geodesic local max = blade tip) is kept if it persists
+    -- i.e. when its basin merges into a higher one at a saddle, the drop
+    ``peak - saddle`` is >= ``persistence_cm``. Scale-adaptive: a short top leaf
+    (peak ~10 cm above its collar) and a long bottom leaf (peak ~70 cm) are both
+    kept, while shallow within-blade margin bumps die at shallow saddles and are
+    discarded. The global maximum never dies and is always a tip. Returns the
+    node indices of surviving peaks.
+    """
+    n = len(geo)
+    fin = np.isfinite(geo)
+    order = [i for i in np.argsort(-geo) if fin[i]]
+    parent = np.full(n, -1)        # union-find: node -> representative
+    peak = {}                       # comp root -> its peak node
+    peakval = {}                    # comp root -> peak geodesic value
+    tips = []
+
+    def find(x):
+        root = x
+        while parent[root] != root:
+            root = parent[root]
+        while parent[x] != root:
+            parent[x], x = root, parent[x]
+        return root
+
+    for i in order:
+        nb = Gcsr.indices[Gcsr.indptr[i]:Gcsr.indptr[i + 1]]
+        roots = list({int(find(j)) for j in nb if parent[j] != -1})
+        parent[i] = i
+        if not roots:                       # new basin born at this peak
+            peak[i] = i; peakval[i] = geo[i]
+            continue
+        roots.sort(key=lambda r: -peakval[r])
+        main = roots[0]
+        parent[i] = main
+        for r in roots[1:]:                 # lower basin dies into main at geo[i]
+            if peakval[r] - geo[i] >= persistence_cm and geo[peak[r]] >= min_branch_len_cm:
+                tips.append(peak[r])
+            parent[r] = main                # union
+        # main absorbs i; peak/peakval of main unchanged (i is lower)
+    # the surviving global basin's peak is always a tip
+    if order:
+        groot = find(order[0])
+        if geo[peak[groot]] >= min_branch_len_cm:
+            tips.append(peak[groot])
+    return tips
+
+
+def relabel_leaves_tipdriven(points, leaf_mask, base_pts, knn_k=12,
+                             max_edge_cm=None, min_branch_len_cm=8.0,
+                             min_tip_geo_sep_cm=20.0, persistence_cm=8.0,
+                             source_band_cm=3.0,
+                             min_support=80, max_leaves=40):
+    """Tip-DRIVEN leaf instance labelling on the non-stem surface.
+
+    The skeleton-contraction core sets the instance count from the medial axis,
+    which FUSES touching distichous blades into one branch -> chronic under-count
+    that no assign mode or post-hoc split recovers (the split bleeds across the
+    shared bundle). This routine inverts the dependency: the instance count comes
+    from the leaf TIPS, which the diagnosis showed ARE separable even when the
+    bases are fused.
+
+    On the non-stem surface graph we grow a geodesic field from the collar band
+    (leaf points adjacent to the stem) and seed tips by GEODESIC farthest-point
+    sampling with a minimum geodesic separation: the global farthest point is a
+    tip, then the next farthest point whose geodesic distance to every existing
+    tip exceeds ``min_tip_geo_sep_cm``, and so on while the farthest qualifying
+    point is still a real blade (>= ``min_branch_len_cm`` from the collar). Two
+    margin bumps on ONE blade are geodesically close and suppressed; two stacked
+    same-azimuth blades are geodesically far (the path dips to the bundle and
+    back) so both survive. Every leaf point is then assigned to its nearest tip;
+    the stem acts as a hard barrier (it is absent from the graph), so flow from a
+    tip cannot leak across the plant. Transferable geometry -- no learned stats.
+
+    ``leaf_mask``: bool per-point, candidate leaf points (non-stem).
+    ``base_pts``: (M,3) stem/bundle points (the barrier / collar anchor).
+    Returns a per-point ``leaf_id`` over ALL points (0 = non-leaf/unassigned).
+    """
+    from geodesic_assignment import build_knn_graph
+
+    points = np.asarray(points, float)
+    leaf_id = np.zeros(len(points), int)
+    idx = np.where(leaf_mask)[0]
+    if len(idx) < min_support:
+        return leaf_id
+    P = points[idx]
+
+    if max_edge_cm is None:
+        d = KDTree(P).query(P, k=min(4, len(P)))[0]
+        edge = float(np.clip(3.0 * np.median(d[:, 1:]), 1.5, 6.0))
+    else:
+        edge = max_edge_cm
+    G = build_knn_graph(P, k=knn_k, max_edge_cm=edge)
+
+    # collar sources = leaf points adjacent to the stem; else global lowest-z
+    if base_pts is not None and len(base_pts):
+        dstem = KDTree(np.asarray(base_pts, float)).query(P)[0]
+        src = np.where(dstem <= source_band_cm)[0]
+        if len(src) == 0:
+            src = np.array([int(np.argmin(dstem))])
+    else:
+        src = np.array([int(np.argmin(P[:, 2]))])
+
+    geo = dijkstra(G, directed=False, indices=src)
+    geo = geo.min(axis=0) if geo.ndim == 2 else geo
+    fin = np.isfinite(geo)
+    # any unreachable component (occlusion / weak link): seed it from its lowest pt
+    extra_src = []
+    if (~fin).sum() >= min_support:
+        comp = np.where(~fin)[0]
+        extra_src.append(int(comp[np.argmin(P[comp, 2])]))
+        if extra_src:
+            g2 = dijkstra(G, directed=False, indices=extra_src)
+            g2 = g2.min(axis=0) if g2.ndim == 2 else g2
+            geo = np.where(np.isfinite(geo), geo, g2)
+            fin = np.isfinite(geo)
+
+    # tip seeding: scale-adaptive topological-persistence peaks of the geo field
+    tips = _persistent_tips(G.tocsr(), geo, persistence_cm, min_branch_len_cm)
+    # collapse any peaks that ended up geodesically near each other (one blade,
+    # twin margin maxima that both cleared persistence): keep the farther one
+    if len(tips) > 1 and min_tip_geo_sep_cm > 0:
+        tips = sorted(tips, key=lambda t: -geo[t])
+        kept = [tips[0]]
+        dk = dijkstra(G, directed=False, indices=kept[0])
+        for t in tips[1:]:
+            if np.isfinite(dk[t]) and dk[t] <= min_tip_geo_sep_cm:
+                continue
+            kept.append(t)
+            dt = dijkstra(G, directed=False, indices=t)
+            dk = np.minimum(dk, np.where(np.isfinite(dt), dt, np.inf))
+        tips = kept
+    tips = tips[:max_leaves]
+    if not tips:
+        return leaf_id
+
+    # assign each leaf point to its nearest tip (multi-source geodesic)
+    dmat = dijkstra(G, directed=False, indices=tips)
+    dmat = dmat if dmat.ndim == 2 else dmat[None, :]
+    reach = np.isfinite(dmat).any(axis=0)
+    sub = np.full(len(P), -1, int)
+    sub[reach] = np.argmin(np.where(np.isfinite(dmat), dmat, np.inf)[:, reach],
+                           axis=0)
+    if (~reach).any():
+        sub[~reach] = KDTree(P[tips]).query(P[~reach])[1]
+
+    # support floor: fold tiny instances into the nearest surviving tip
+    labels_u, counts = np.unique(sub, return_counts=True)
+    big = labels_u[counts >= min_support]
+    if len(big) == 0:
+        big = labels_u[[np.argmax(counts)]]
+    if not np.isin(sub, big).all():
+        big_tips = [tips[b] for b in big]
+        btree = KDTree(P[big_tips])
+        small = ~np.isin(sub, big)
+        sub[small] = big[btree.query(P[small])[1]]
+
+    for new_id, b in enumerate(big, start=1):
+        leaf_id[idx[sub == b]] = new_id
+    return leaf_id
+
+
 def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
                              angle_threshold_deg=50, prune="length",
                              support_frac=0.02, recover_branches=False,
@@ -1131,6 +1425,13 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
                              split_ribbon=False,
                              split_ribbon_max_edge_cm=2.0,
                              split_ribbon_tangent_tol_deg=35.0,
+                             split_tipseed=False,
+                             split_tipseed_saddle_frac_max=0.6,
+                             split_tipseed_min_tip_sep_cm=8.0,
+                             tipdriven=False,
+                             tipdriven_min_tip_geo_sep_cm=20.0,
+                             tipdriven_min_branch_len_cm=8.0,
+                             tipdriven_persistence_cm=8.0,
                              split_min_branch_len_cm=12.0,
                              split_min_support=100,
                              split_tip_angle_min_deg=60.0,
@@ -1224,7 +1525,19 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
     for lid in sorted(leaf_dict):
         leaf_id[labels == label_for_leaf(lid)] = lid
 
-    if leaf_id.max() > 0:
+    # Tip-driven override: discard the skeleton's (merge-capped) leaf instances
+    # and relabel the non-stem surface from leaf tips. Instance count then comes
+    # from the separable tips, not the fusing medial axis. The pseudostem mask is
+    # the barrier; everything not pseudostem is candidate leaf surface.
+    if tipdriven:
+        leaf_id = relabel_leaves_tipdriven(
+            points, ~ps_mask, points[ps_mask],
+            min_tip_geo_sep_cm=tipdriven_min_tip_geo_sep_cm,
+            min_branch_len_cm=tipdriven_min_branch_len_cm,
+            persistence_cm=tipdriven_persistence_cm,
+            min_support=max(split_min_support // 2, 40))
+
+    if leaf_id.max() > 0 and not tipdriven:
         if split_merged:
             leaf_id = split_merged_leaf_instances(
                 points, leaf_id, ps_mask,
@@ -1240,6 +1553,13 @@ def segment_plant_pseudostem(points, n_skel_nodes=400, min_leaf_len_cm=3.0,
                 points, leaf_id, max_edge_cm=split_ribbon_max_edge_cm,
                 tangent_tol_deg=split_ribbon_tangent_tol_deg,
                 min_support=split_min_support)
+        if split_tipseed:
+            leaf_id = split_tipseed_leaf_instances(
+                points, leaf_id, ps_mask,
+                min_branch_len_cm=split_min_branch_len_cm,
+                min_support=split_min_support,
+                saddle_frac_max=split_tipseed_saddle_frac_max,
+                min_tip_sep_cm=split_tipseed_min_tip_sep_cm)
 
     organs = {"pseudostem": points[ps_mask]}
     out_id = 0

@@ -174,6 +174,9 @@ def main():
     ap.add_argument("--fill", choices=["none", "directional", "combined", "maize"], default="none")
     ap.add_argument("--nsk", type=int, default=400, help="skeleton nodes")
     ap.add_argument("--contraction_iters", type=int, default=8)
+    ap.add_argument("--recover_branches", action="store_true",
+                    help="recover leaf branches off junctions in the dense graph (anti-merge)")
+    ap.add_argument("--recovery_angle_deg", type=float, default=35.0)
     ap.add_argument("--min_leaf", type=float, default=3.0, help="min leaf/branch len cm")
     ap.add_argument("--prune", choices=["length", "support"], default="length")
     ap.add_argument("--support_frac", type=float, default=0.02)
@@ -197,6 +200,15 @@ def main():
                     help="split crossing blades by tangent-continuity (whorls)")
     ap.add_argument("--split_ribbon_max_edge_cm", type=float, default=2.0)
     ap.add_argument("--split_ribbon_tangent_tol_deg", type=float, default=35.0)
+    ap.add_argument("--split_tipseed", action="store_true",
+                    help="tip-seeded growth split, saddle-gated (distichous same-side blades)")
+    ap.add_argument("--split_tipseed_saddle_frac_max", type=float, default=0.6)
+    ap.add_argument("--split_tipseed_min_tip_sep_cm", type=float, default=8.0)
+    ap.add_argument("--tipdriven", action="store_true",
+                    help="tip-DRIVEN relabel: instance count from leaf tips, not skeleton (anti-merge)")
+    ap.add_argument("--tipdriven_min_tip_geo_sep_cm", type=float, default=20.0)
+    ap.add_argument("--tipdriven_min_branch_len_cm", type=float, default=8.0)
+    ap.add_argument("--tipdriven_persistence_cm", type=float, default=8.0)
     ap.add_argument("--split_min_branch_len_cm", type=float, default=12.0)
     ap.add_argument("--split_min_support", type=int, default=100)
     ap.add_argument("--split_tip_angle_min_deg", type=float, default=60.0)
@@ -256,6 +268,8 @@ def main():
                 pts = np.vstack([pts, add]); gt = np.concatenate([gt, gt[ni]])
         organs = mg.segment_plant_pseudostem(pts, n_skel_nodes=a.nsk,
                                               contraction_iters=a.contraction_iters,
+                                              recover_branches=a.recover_branches,
+                                              recovery_angle_deg=a.recovery_angle_deg,
                                               min_leaf_len_cm=a.min_leaf,
                                               prune=a.prune,
                                               support_frac=a.support_frac,
@@ -275,6 +289,13 @@ def main():
                                               split_ribbon=a.split_ribbon,
                                               split_ribbon_max_edge_cm=a.split_ribbon_max_edge_cm,
                                               split_ribbon_tangent_tol_deg=a.split_ribbon_tangent_tol_deg,
+                                              split_tipseed=a.split_tipseed,
+                                              split_tipseed_saddle_frac_max=a.split_tipseed_saddle_frac_max,
+                                              split_tipseed_min_tip_sep_cm=a.split_tipseed_min_tip_sep_cm,
+                                              tipdriven=a.tipdriven,
+                                              tipdriven_min_tip_geo_sep_cm=a.tipdriven_min_tip_geo_sep_cm,
+                                              tipdriven_min_branch_len_cm=a.tipdriven_min_branch_len_cm,
+                                              tipdriven_persistence_cm=a.tipdriven_persistence_cm,
                                               split_min_branch_len_cm=a.split_min_branch_len_cm,
                                               split_min_support=a.split_min_support,
                                               split_tip_angle_min_deg=a.split_tip_angle_min_deg)
