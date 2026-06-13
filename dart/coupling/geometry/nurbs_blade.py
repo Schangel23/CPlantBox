@@ -455,7 +455,15 @@ def loft_leaf_nurbs(
         # length keeps scaling linearly. Mature endpoint (scale=1.0) is
         # bit-for-bit unchanged. Floor at 0.15 so very-young emerging
         # leaves have a visible but narrower blade.
-        width_maturity = max(0.15, min(1.0, scale / 0.50))
+        # Width matures ~2x faster than length for the synthetic/MF3D donors
+        # (young blades proportionally wider). A faithful field donor (raw_donor)
+        # already carries the real per-stage aspect, so applying this decoupling
+        # on top makes young/mid leaves render full-width-but-short — wide
+        # "blobs". For raw_donor keep width locked to length (aspect preserved).
+        if bool(organ.get("raw_donor", False)):
+            width_maturity = scale
+        else:
+            width_maturity = max(0.15, min(1.0, scale / 0.50))
         cps_local = cps_local.copy()
         cps_local[..., 0] *= width_maturity   # lateral (blade width)
         cps_local[..., 1] *= scale            # droop axis
