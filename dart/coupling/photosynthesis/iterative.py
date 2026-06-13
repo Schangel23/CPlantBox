@@ -439,7 +439,7 @@ def _extract_gs_from_solve(plant, sim_time, par_umol, tleaf, rh, soil_psi_cm,
     hm.read_photosynthesis_parameters(filename=get_photosynthesis_json())
     hm.read_phloem_parameters(filename=get_phloem_json())
 
-    # Per-segment Chl from LOPS profiles
+    # Per-segment effective Chl from LOPS seasonal top value + Wang2026 height profile
     chl_per_seg = get_chl_per_segment(sim_time, plant)
     seg_check = plant.getSegmentIds(4)
     if len(chl_per_seg) == len(seg_check):

@@ -209,7 +209,8 @@ def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
     hm.read_photosynthesis_parameters(filename=get_photosynthesis_json())
     hm.read_phloem_parameters(filename=get_phloem_json())
 
-    # Override Chl from LOPS per-position profiles (per-segment mode)
+    # Override Chl with the LOPS seasonal top value + Wang2026 height profile
+    # (per-segment mode).
     chl_per_seg = get_chl_per_segment(sim_time, plant)
     seg_leaves_idx_check = plant.getSegmentIds(4)
     if len(chl_per_seg) == len(seg_leaves_idx_check):

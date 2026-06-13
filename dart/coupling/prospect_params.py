@@ -17,6 +17,7 @@ Literature references:
 """
 
 import json
+import math
 from functools import lru_cache
 from pathlib import Path
 
@@ -32,6 +33,13 @@ from .config import get_species, get_species_name
 _STAGES_OVERRIDE: list | None = None
 _VCMAX_CHL1_OVERRIDE: float | None = None
 _VCMAX_CHL2_OVERRIDE: float | None = None
+
+# Wang et al. (2026, Agric. For. Meteorol.) found that a simple empirical
+# Vcmax25 profile performed close to measured profiles for soybean GPP:
+# Vcmax25_l = Vcmax25_top * exp(0.64 * l), with l = 0 at canopy top and
+# l = -1 at canopy bottom.  We express the same profile against relative
+# height z/h (0 bottom, 1 top): exp(0.64 * (z/h - 1)).
+WANG2026_VCMAX_PROFILE_K = 0.64
 
 
 def set_overrides(
@@ -157,6 +165,34 @@ def vcmax25_from_cab(cab_ug_cm2: float) -> float:
     chl1 = _VCMAX_CHL1_OVERRIDE if _VCMAX_CHL1_OVERRIDE is not None else sp["vcmax_chl1"]
     chl2 = _VCMAX_CHL2_OVERRIDE if _VCMAX_CHL2_OVERRIDE is not None else sp["vcmax_chl2"]
     return chl1 * cab_ug_cm2 + chl2
+
+
+def cab_from_vcmax25(vcmax25_umol_m2_s: float) -> float:
+    """Invert the active Vcmax-Chl model to an effective Chl value.
+
+    CPlantBox's photosynthesis module accepts per-segment ``Chl`` rather than
+    a direct per-segment Vcmax25 vector.  This inverse lets us impose a
+    Wang-style Vcmax25 profile while still using the existing CPlantBox API.
+    The returned value is therefore an effective photosynthetic Chl, not a
+    claim that optical Cab has changed by the same amount.
+    """
+    sp = get_species()
+    chl1 = _VCMAX_CHL1_OVERRIDE if _VCMAX_CHL1_OVERRIDE is not None else sp["vcmax_chl1"]
+    chl2 = _VCMAX_CHL2_OVERRIDE if _VCMAX_CHL2_OVERRIDE is not None else sp["vcmax_chl2"]
+    if abs(chl1) < 1e-12:
+        raise ValueError("Cannot invert Vcmax-Chl model with zero slope")
+    return (vcmax25_umol_m2_s - chl2) / chl1
+
+
+def wang2026_vcmax_multiplier(relative_height: float) -> float:
+    """Empirical Vcmax25 multiplier from Wang et al. (2026).
+
+    ``relative_height`` is z/h, clamped to [0, 1], where 0 is the canopy
+    bottom and 1 is the top.  The multiplier is 1.0 at the top and about
+    0.53 at the bottom for k=0.64.
+    """
+    z_over_h = min(max(float(relative_height), 0.0), 1.0)
+    return math.exp(WANG2026_VCMAX_PROFILE_K * (z_over_h - 1.0))
 
 
 def get_prospect_params(day: float) -> dict:
@@ -390,11 +426,113 @@ def get_prospect_params_per_position(day: float, n_leaves: int) -> list[dict]:
     return result
 
 
+def _leaf_attachment_z_cm(organ) -> float:
+    """Return a leaf's attachment height in cm, or NaN if unavailable."""
+    try:
+        nodes = organ.getNodes()
+    except Exception:
+        return float("nan")
+    if not nodes:
+        return float("nan")
+    try:
+        return float(nodes[0].z)
+    except AttributeError:
+        try:
+            return float(nodes[0][2])
+        except Exception:
+            return float("nan")
+
+
+def relative_heights_from_leaf_organs(leaf_organs: list) -> list[float]:
+    """Compute z/h relative heights for leaves from attachment z.
+
+    Wang et al. bin traits by relative canopy height.  For maize we use leaf
+    attachment height along the main stem, which is the stable CPlantBox
+    analogue of node/leaf height and avoids drooping tips reordering mature
+    leaves.  If geometry is absent, fall back to ordinal position fractions.
+    """
+    n_leaves = len(leaf_organs)
+    if n_leaves < 1:
+        return []
+
+    z = np.array([_leaf_attachment_z_cm(o) for o in leaf_organs], dtype=float)
+    if np.isfinite(z).sum() == n_leaves and float(z.max() - z.min()) > 1e-9:
+        return ((z - z.min()) / (z.max() - z.min())).astype(float).tolist()
+
+    if n_leaves == 1:
+        return [1.0]
+    return np.linspace(0.0, 1.0, n_leaves).astype(float).tolist()
+
+
+def get_prospect_params_per_relative_height(
+    day: float,
+    relative_heights: list[float],
+    *,
+    apply_wang_vcmax_profile: bool = False,
+) -> list[dict]:
+    """Return PROSPECT-like dicts for leaves at relative canopy heights.
+
+    Cab and N are interpolated from the current seasonal LOPS profile using
+    ``z/h`` instead of ordinal leaf position.  When
+    ``apply_wang_vcmax_profile`` is true, Cab is converted to an effective
+    photosynthetic Chl that imposes Wang et al.'s empirical Vcmax25 profile
+    while leaving the top-canopy seasonal value unchanged.
+    """
+    n_leaves = len(relative_heights)
+    base = get_prospect_params(day)
+    if n_leaves < 1:
+        return []
+
+    stage = get_lops_stage(day)
+    if stage is None:
+        params = [dict(base) for _ in range(n_leaves)]
+    else:
+        lops_data = _load_lops_profiles()
+        const = lops_data["constant_params"]
+        positions = stage["positions"]
+        lops_pos = np.array([p["position"] for p in positions], dtype=float)
+        lops_cab = np.array([p["Cab"] for p in positions], dtype=float)
+        lops_n = np.array([p["N"] for p in positions], dtype=float)
+        lops_frac = (
+            (lops_pos - lops_pos.min())
+            / max(float(lops_pos.max() - lops_pos.min()), 1.0)
+        )
+        leaf_frac = np.clip(np.array(relative_heights, dtype=float), 0.0, 1.0)
+        interp_cab = np.interp(leaf_frac, lops_frac, lops_cab)
+        interp_n = np.interp(leaf_frac, lops_frac, lops_n)
+        params = []
+        for cab, n_val in zip(interp_cab, interp_n):
+            params.append({
+                "Cab": float(cab),
+                "N": float(n_val),
+                "Car": const["Car"],
+                "Cw": base["Cw"],
+                "Cm": base["Cm"],
+                "CBrown": const["CBrown"],
+                "anthocyanin": const["anthocyanin"],
+            })
+
+    if apply_wang_vcmax_profile:
+        rel = np.clip(np.array(relative_heights, dtype=float), 0.0, 1.0)
+        top_idx = int(np.argmax(rel)) if len(rel) else 0
+        top_vcmax = vcmax25_from_cab(params[top_idx]["Cab"])
+        for p, z_over_h in zip(params, relative_heights):
+            profiled_vcmax = top_vcmax * wang2026_vcmax_multiplier(z_over_h)
+            p["Cab"] = max(0.0, cab_from_vcmax25(profiled_vcmax))
+            p["Vcmax25"] = profiled_vcmax
+            p["Vcmax25_multiplier"] = wang2026_vcmax_multiplier(z_over_h)
+
+    return params
+
+
 def get_chl_per_segment(day: float, plant) -> list[float]:
-    """Build per-leaf-segment Chl array from LOPS profiles.
+    """Build per-leaf-segment effective Chl for CPlantBox photosynthesis.
 
     Returns list of length n_leaf_segments, suitable for hm.Chl = [...].
-    Each organ's segments get the Cab value of that organ's canopy position.
+    Each organ's segments get an effective Chl value derived from its relative
+    attachment height.  The top-canopy seasonal value comes from LOPS, then
+    Wang et al.'s empirical Vcmax25 profile is imposed through the inverse
+    Chl->Vcmax relation.
 
     CPlantBox's getMeanOrSegData() in Photosynthesis.h switches to per-segment
     mode when Chl.size() == seg_leaves_idx.size().
@@ -407,12 +545,14 @@ def get_chl_per_segment(day: float, plant) -> list[float]:
     if n_leaves == 0:
         return [get_chl_for_photosynthesis(day)]
 
-    per_pos = get_prospect_params_per_position(day, n_leaves)
+    relative_heights = relative_heights_from_leaf_organs(leaf_organs)
+    per_leaf = get_prospect_params_per_relative_height(
+        day, relative_heights, apply_wang_vcmax_profile=True)
 
     chl_per_seg = []
     for i, organ in enumerate(leaf_organs):
         n_segs = len(organ.getSegments())
-        cab = per_pos[i]["Cab"]
+        cab = per_leaf[i]["Cab"]
         chl_per_seg.extend([cab] * n_segs)
 
     return chl_per_seg

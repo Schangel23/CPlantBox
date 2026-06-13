@@ -646,7 +646,7 @@ def run_photosynthesis(plant, sim_time, output_prefix,
     hm.read_photosynthesis_parameters(filename=get_photosynthesis_json())
     hm.read_phloem_parameters(filename=get_phloem_json())
 
-    # Per-segment Chl from LOPS per-position profiles
+    # Per-segment effective Chl: LOPS seasonal top value + Wang2026 height profile
     chl_per_seg = get_chl_per_segment(sim_time, plant)
     seg_leaves_check = plant.getSegmentIds(4)
     if len(chl_per_seg) == len(seg_leaves_check):
@@ -655,7 +655,7 @@ def run_photosynthesis(plant, sim_time, output_prefix,
         vcmax_range = f"[{vcmax25_from_cab(cab_min):.1f}, {vcmax25_from_cab(cab_max):.1f}]"
         print(f"  PhotoType={'C4' if hm.PhotoType == 1 else 'C3'}, "
               f"Vcmax range={vcmax_range} umol m-2 s-1 "
-              f"(Cab range=[{cab_min:.1f}, {cab_max:.1f}] ug/cm2, "
+              f"(effective Chl range=[{cab_min:.1f}, {cab_max:.1f}] ug/cm2, "
               f"{len(chl_per_seg)} segs)")
     else:
         vcmax_umol = (hm.VcmaxrefChl1 * hm.Chl[0] + hm.VcmaxrefChl2)
