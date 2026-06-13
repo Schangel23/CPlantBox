@@ -189,6 +189,26 @@ def _apply_shared_params(plant, params: dict) -> None:
         lp.tropismS = params["leaf_tropismS"]
 
 
+import os as _os
+_BLADE_DONORS_PATH = _os.environ.get("FIT_BLADE_DONORS")
+_BLADE_DONORS = (np.load(_BLADE_DONORS_PATH)
+                 if _BLADE_DONORS_PATH and _os.path.exists(_BLADE_DONORS_PATH) else None)
+
+
+def _align_leaf(g: np.ndarray) -> np.ndarray:
+    """Canonicalise a leaf CP grid for shape+droop comparison: collar (u=0
+    centroid) -> origin, then rotate about +z so the tip's horizontal direction
+    points +x. Removes leaf POSITION and AZIMUTH (which the absolute CP-L2 would
+    otherwise let the optimiser game) while preserving SIZE and vertical DROOP."""
+    g = np.asarray(g, dtype=np.float64)
+    g = g - g[0].mean(axis=0)
+    tip = g[-1].mean(axis=0)
+    az = float(np.arctan2(tip[1], tip[0]))
+    c, s = np.cos(-az), np.sin(-az)
+    R = np.array([[c, -s, 0.0], [s, c, 0.0], [0.0, 0.0, 1.0]])
+    return g @ R.T
+
+
 def grow_and_get_cps(xml_path: str, day: float, params: dict
                      ) -> tuple[dict[int, np.ndarray], object]:
     """Grow a plant to ``day`` and return ``{organ_id: CPs}`` + mesh.
@@ -209,6 +229,29 @@ def grow_and_get_cps(xml_path: str, day: float, params: dict
                        enable_photosynthesis=False, mutate_lrp_pre_init=_mut)
 
     organs = extract_organs_for_lofter(plant)
+
+    # Blade-shape donor injection (FIT_BLADE_DONORS=<npy (n_rank, nu, nv, 3)>):
+    # give the predicted leaves the TARGET plant's real blade shape (per rank,
+    # by collar height, rescaled to lmax) so the CP-L2 measures architecture
+    # (size/pose) against like-shaped blades instead of penalising the MF3D-vs-
+    # target blade-outline gap (which the params would game by going erect+big).
+    if _BLADE_DONORS is not None:
+        leaves = [o for o in organs
+                  if o.get("type") == "leaf" and o.get("surface_cps_local") is not None]
+        leaves.sort(key=lambda o: float(np.asarray(o["collar_pos"]).reshape(3)[2]))
+        for i, o in enumerate(leaves):
+            if i >= len(_BLADE_DONORS):
+                break
+            d = np.asarray(_BLADE_DONORS[i], dtype=np.float64).copy()
+            mid = d[:, d.shape[1] // 2, :]
+            arc = float(np.sum(np.linalg.norm(np.diff(mid, axis=0), axis=1)))
+            ml = float(o.get("mature_length", 1.0))
+            if arc > 1e-9 and ml > 1e-9:
+                d = d * (ml / arc)
+            o["surface_cps_local"] = d
+            o["surface_n_u"], o["surface_n_v"] = d.shape[0], d.shape[1]
+            o["raw_donor"] = True
+
     mesh = loft_organs(organs, use_nurbs_backend=True,
                        subdivide=False, smooth=False)
 
@@ -269,7 +312,11 @@ def evaluate_multi_date(params_vec: np.ndarray,
             weight_xyz=1.0, weight_arc=0.5, weight_rank=0.5,
             pred_ranks=pred_ranks, target_ranks=target_ranks,
         )
-        stage_loss = cp_l2_loss(pred_cps, target_cps, match, reduction="mean")
+        # match by position/rank (above), but score on per-leaf-aligned grids so
+        # the loss reflects shape + size + droop, not leaf position/azimuth.
+        pa = {k: _align_leaf(v) for k, v in pred_cps.items()}
+        ta = {k: _align_leaf(v) for k, v in target_cps.items()}
+        stage_loss = cp_l2_loss(pa, ta, match, reduction="mean")
         total += stage_loss
         n_stages += 1
 
