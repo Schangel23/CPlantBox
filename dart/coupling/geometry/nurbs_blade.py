@@ -482,13 +482,20 @@ def loft_leaf_nurbs(
         offset_from_mid = (cps_local - midrib_col).copy()
         edge_off = np.linalg.norm(offset_from_mid[:, -1, :], axis=1)
         w_max = float(edge_off.max()) if edge_off.size else 0.0
-        if w_max > 1e-6:
+        # raw_donor: skip the homogenizing taper envelope / hard tip-pinch /
+        # procedural ruffle so a faithful scanned donor (FP4D/plant_01) keeps
+        # its real blade outline. These overrides exist only to make
+        # under-constrained MF3D donors render cleanly; with real per-stage
+        # geometry they are redundant. rounded_tip (V1 seedling leaf 0) is
+        # preserved regardless so the earliest-stage rounded blade stays alive.
+        rounded_tip = bool(organ.get("rounded_tip", False))
+        raw_donor = bool(organ.get("raw_donor", False))
+        if w_max > 1e-6 and (rounded_tip or not raw_donor):
             # Position 0 (V1 seedling leaf, Nielsen "rounded leaf #1") gets
             # a gentler envelope + active widening of narrow CPs and skips
             # the hard midrib pinch so the tip stays blunt/oval rather than
             # pointed. All other positions keep the production tapered-to-
             # point shape.
-            rounded_tip = bool(organ.get("rounded_tip", False))
             if rounded_tip:
                 taper_start = 0.85
                 taper_end = 0.55
@@ -541,18 +548,21 @@ def loft_leaf_nurbs(
         # per-leaf ruffle / twist / wave so aggregated libraries don't look
         # artificially smooth. In leaf-local frame the midrib tangent is +z
         # and the blade-normal is +y, so we pass constant tangents/normals.
-        arc_frac_u = np.linspace(0.0, 1.0, N_U)
-        tangents_local = np.tile(np.array([0.0, 0.0, 1.0]), (N_U, 1))
-        normals_local = np.tile(np.array([0.0, 1.0, 0.0]), (N_U, 1))
-        cps_local = _apply_deformations(
-            cps_local.copy(), arc_frac_u, tangents_local, normals_local, organ
-        )
-        # Re-pinch after deformations: edge-curl is strongest at the tip and
-        # would splay the last CP row back open. Collapse again to guarantee
-        # the NURBS surface terminates in a point — except for rounded-tip
-        # (pos 0, V1 seedling leaf) where the blunt oval must be preserved.
-        if not bool(organ.get("rounded_tip", False)):
-            cps_local[-1, :, :] = cps_local[-1, N_V // 2, :]
+        # Skipped for raw_donor: a faithful scan needs no synthetic ruffle.
+        if not raw_donor:
+            arc_frac_u = np.linspace(0.0, 1.0, N_U)
+            tangents_local = np.tile(np.array([0.0, 0.0, 1.0]), (N_U, 1))
+            normals_local = np.tile(np.array([0.0, 1.0, 0.0]), (N_U, 1))
+            cps_local = _apply_deformations(
+                cps_local.copy(), arc_frac_u, tangents_local, normals_local, organ
+            )
+            # Re-pinch after deformations: edge-curl is strongest at the tip
+            # and would splay the last CP row back open. Collapse again to
+            # guarantee the NURBS surface terminates in a point — except for
+            # rounded-tip (pos 0, V1 seedling leaf) where the blunt oval must
+            # be preserved.
+            if not rounded_tip:
+                cps_local[-1, :, :] = cps_local[-1, N_V // 2, :]
 
         # Compound sheath+blade path: when stem_radius and sheath_length are
         # present, wrap the blade CPs with closed-tube sheath rows + transition
