@@ -118,13 +118,22 @@ def _apply_shared_params(plant, params: dict) -> None:
 
 def grow_and_get_cps(xml_path: str, day: float, params: dict
                      ) -> tuple[dict[int, np.ndarray], object]:
-    """Grow a plant to ``day`` and return ``{organ_id: CPs}`` + mesh."""
-    plant = pb.Plant()
-    plant.readParameters(str(xml_path))
-    _apply_shared_params(plant, params)
-    setup_successor_where(plant)
-    plant.initialize(False)
-    plant.simulate(day)
+    """Grow a plant to ``day`` and return ``{organ_id: CPs}`` + mesh.
+
+    Grows via ``grow_plant`` (daily met forcing + IndexError recovery) rather
+    than a bare ``plant.simulate(day)``: the latter leaves the TT accumulator on
+    a constant fallback, so leaves emerge but never grow to size and the fit
+    can't match real leaf dimensions. The CMA-ES params are applied through
+    ``grow_plant``'s ``mutate_lrp_pre_init`` hook (pre-initialize, as before).
+    """
+    from dart.coupling.growth.grow import grow_plant
+
+    def _mut(pl):
+        _apply_shared_params(pl, params)
+        setup_successor_where(pl)
+
+    plant = grow_plant(str(xml_path), simulation_time=float(day), seed=0,
+                       enable_photosynthesis=False, mutate_lrp_pre_init=_mut)
 
     organs = extract_organs_for_lofter(plant)
     mesh = loft_organs(organs, use_nurbs_backend=True,
