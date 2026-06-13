@@ -130,9 +130,23 @@ def grow_and_get_cps(xml_path: str, day: float, params: dict
     mesh = loft_organs(organs, use_nurbs_backend=True,
                        subdivide=False, smooth=False)
 
-    pred_cps = {int(oid): np.asarray(cps, dtype=np.float64)
-                for oid, cps in (mesh.organ_cps or {}).items()
-                if np.asarray(cps).shape == (N_U, N_V, 3)}
+    # mesh.organ_cps is the COMPOUND sheath+blade grid (16x13) on the current
+    # lofter, not the canonical (N_U, N_V) blade grid the CP-L2 target uses.
+    # Re-loft each leaf with the sheath disabled and take loft_leaf_nurbs'
+    # canonical CP grid (result[8]) — world-posed, blade-only, matching the
+    # plant_01 blade targets (which carry no sheath).
+    from dart.coupling.geometry.nurbs_blade import loft_leaf_nurbs
+    pred_cps = {}
+    for o in organs:
+        if o.get("type") != "leaf" or o.get("surface_cps_local") is None:
+            continue
+        ob = dict(o); ob["sheath_length_cm"] = 0.0; ob["stem_radius_cm"] = 0.0
+        try:
+            grid = np.asarray(loft_leaf_nurbs(ob)[8], dtype=np.float64)
+        except Exception:
+            continue
+        if grid.shape == (N_U, N_V, 3):
+            pred_cps[int(o["organ_id"])] = grid
     return pred_cps, mesh
 
 

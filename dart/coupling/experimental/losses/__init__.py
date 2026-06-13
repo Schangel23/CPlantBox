@@ -11,7 +11,14 @@ Two families of loss are exposed:
     rank features. Used by the NURBS-parametric fitting pipeline.
 """
 
-from .chamfer import chamfer_distance, chamfer_distance_batch
+# chamfer is torch-native; make it optional so the pure-NumPy CP-L2 path
+# (cp_distance) works in environments without torch (e.g. the py3.14 cpbenv,
+# which has no torch wheel). Importers of chamfer_distance still get a clear
+# error at call time if torch is genuinely missing.
+try:
+    from .chamfer import chamfer_distance, chamfer_distance_batch
+except ImportError:  # torch not installed
+    chamfer_distance = chamfer_distance_batch = None
 from .cp_distance import (
     cp_l2_loss,
     hungarian_leaf_match,
