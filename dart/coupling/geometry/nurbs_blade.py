@@ -425,9 +425,20 @@ def loft_leaf_nurbs(
     if cps_local is not None:
         from .canonical_library import from_local_frame, build_compound_leaf_cps
         cps_local = np.asarray(cps_local, dtype=np.float64)
-        if cps_local.shape != (N_U, N_V, 3):
+        # The canonical MF3D / XML path is exactly (N_U, N_V, 3) and runs the
+        # full synthetic taper/ruffle below (which hard-index N_U/N_V). Faithful
+        # field donors (e.g. hand-labelled FP4D blades) may carry a richer,
+        # uniform grid (any odd N_V) — accept it, but only on the raw_donor path
+        # where those synthetic deformations are skipped, so the higher
+        # resolution survives untouched. The (N_U, N_V, 3) path is unchanged.
+        if cps_local.ndim != 3 or cps_local.shape[-1] != 3 or cps_local.shape[1] % 2 == 0:
             raise ValueError(
-                f"surface_cps_local must be {(N_U, N_V, 3)}; got {cps_local.shape}"
+                f"surface_cps_local must be (n_u, odd n_v, 3); got {cps_local.shape}"
+            )
+        if cps_local.shape != (N_U, N_V, 3) and not bool(organ.get("raw_donor", False)):
+            raise ValueError(
+                f"non-canonical CP grid {cps_local.shape[:2]} requires raw_donor=True "
+                f"(synthetic taper/ruffle assume {(N_U, N_V)})"
             )
         mature_length = float(organ.get("mature_length", 1.0))
         current_length = float(organ.get("current_length", mature_length))
