@@ -67,6 +67,79 @@ DEFAULT_BOUNDS = [
 ]
 DEFAULT_X0 = [150.0, 2.5, 14.0, 4.0, 60.0, 2.5, 0.7, 0.03]
 
+# Per-rank mode: fit lmax / areaMax / theta independently for each leaf subtype
+# the target plant covers (warm-started from the template XML's per-rank values,
+# tight bounds so CMA-ES refines rather than searches blind), plus shared
+# leaf r / tropismS and the 4 stem params. The 8-shared-param fit can't express
+# plant_01's per-rank size + droop profile; this can.
+PER_RANK_SUBTYPES = list(range(2, 14))   # ranks 0-11 (plant_01 coverage)
+
+
+def _xml_leaf_val(root, st, name, default):
+    for lf in root.iter("leaf"):
+        if int(lf.get("subType")) == st:
+            for p in lf:
+                if p.get("name") == name:
+                    return float(p.get("value"))
+    return default
+
+
+def build_per_rank_spec(xml_path):
+    """(bounds, x0) for per-rank fitting, warm-started from xml_path."""
+    import xml.etree.ElementTree as ET
+    root = ET.parse(xml_path).getroot()
+    stem = next(s for s in root.iter("stem") if s.get("subType") == "1")
+
+    def sv(name, d):
+        for p in stem:
+            if p.get("name") == name:
+                return float(p.get("value"))
+        return d
+
+    bounds, x0 = [], []
+
+    def add(nm, cur, lo, hi):
+        bounds.append((nm, lo, hi)); x0.append(float(np.clip(cur, lo, hi)))
+
+    add("stem_lmax", sv("lmax", 159), 50.0, 300.0)
+    add("stem_r", sv("r", 2.0), 0.5, 10.0)
+    add("stem_ln", sv("ln", 10.0), 4.0, 25.0)
+    add("stem_lb", sv("lb", 5.0), 1.0, 12.0)
+    add("leaf_r", _xml_leaf_val(root, 2, "r", 3.0), 0.5, 8.0)
+    add("leaf_tropismS", _xml_leaf_val(root, 2, "tropismS", 0.05), 0.001, 0.5)
+    for st in PER_RANK_SUBTYPES:
+        lm = _xml_leaf_val(root, st, "lmax", 40.0)
+        am = _xml_leaf_val(root, st, "areaMax", 200.0)
+        th = _xml_leaf_val(root, st, "theta", 0.7)
+        add(f"leaf_lmax_{st}", lm, max(5.0, 0.5 * lm), 1.6 * lm)
+        add(f"leaf_areaMax_{st}", am, max(10.0, 0.5 * am), 1.8 * am)
+        add(f"leaf_theta_{st}", th, 0.1, 1.5)
+    return bounds, np.array(x0)
+
+
+def _apply_per_rank_params(plant, params: dict) -> None:
+    sp = plant.getOrganRandomParameter(3, 1)
+    sp.lmax = params["stem_lmax"]; sp.r = params["stem_r"]
+    sp.ln = params["stem_ln"]; sp.lb = params["stem_lb"]
+    for st in range(2, 22):
+        try:
+            lp = plant.getOrganRandomParameter(4, st)
+        except Exception:
+            break
+        lp.r = params["leaf_r"]; lp.tropismS = params["leaf_tropismS"]
+        if f"leaf_lmax_{st}" in params:   # per-rank ranks; others keep baseline
+            lp.lmax = params[f"leaf_lmax_{st}"]
+            lp.areaMax = params[f"leaf_areaMax_{st}"]
+            lp.theta = params[f"leaf_theta_{st}"]
+
+
+def _apply_params(plant, params: dict) -> None:
+    """Dispatch: per-rank if the vector carries per-rank keys, else shared."""
+    if any(k.startswith("leaf_lmax_") for k in params):
+        _apply_per_rank_params(plant, params)
+    else:
+        _apply_shared_params(plant, params)
+
 
 # ---------------------------------------------------------------------------
 # Date / day utilities
@@ -129,7 +202,7 @@ def grow_and_get_cps(xml_path: str, day: float, params: dict
     from dart.coupling.growth.grow import grow_plant
 
     def _mut(pl):
-        _apply_shared_params(pl, params)
+        _apply_params(pl, params)
         setup_successor_where(pl)
 
     plant = grow_plant(str(xml_path), simulation_time=float(day), seed=0,
@@ -303,6 +376,9 @@ def main() -> None:
     parser.add_argument("--day-offset", type=float, default=20.0,
                         help="Simulation day corresponding to the earliest "
                              "scan date (default: 20).")
+    parser.add_argument("--per-rank", action="store_true",
+                        help="Fit per-rank leaf lmax/areaMax/theta (warm-started "
+                             "from --xml) instead of 8 shared params.")
     parser.add_argument("--verbose", "-v", action="store_true")
     args = parser.parse_args()
 
@@ -341,12 +417,18 @@ def main() -> None:
     ensure_xml_has_all_subtypes(xml_path, str(prep_xml), positions)
     xml_path = str(prep_xml)
 
-    # 4) CMA-ES over shared params, objective = mean CP-L2 across dates.
-    bounds = list(DEFAULT_BOUNDS)
+    # 4) CMA-ES, objective = mean CP-L2 across dates.
+    if args.per_rank:
+        bounds, x0 = build_per_rank_spec(xml_path)
+        x0 = list(x0)
+        print(f"  Per-rank fit: {len(bounds)} params "
+              f"({len(PER_RANK_SUBTYPES)} ranks x3 + 6 shared), warm-started.")
+    else:
+        bounds = list(DEFAULT_BOUNDS)
+        x0 = DEFAULT_X0
     lo = [b[1] for b in bounds]
     hi = [b[2] for b in bounds]
     ranges = [h - l for l, h in zip(lo, hi)]
-    x0 = DEFAULT_X0
     x0_scaled = [float(np.clip((v - lo[i]) / ranges[i], 0.02, 0.98))
                  for i, v in enumerate(x0)]
 
