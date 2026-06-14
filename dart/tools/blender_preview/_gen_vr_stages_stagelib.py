@@ -54,11 +54,10 @@ def grow_one(day: int) -> dict | None:
         plant, species="maize", skip_roots=True,
         **get_plantsim_feature_kwargs_from_env(),
     )
-    # Full cultivar: blade shape + per-rank pose (insertion angle) + width trim +
-    # fractional collar placement (collar height as a fraction of the current
-    # stem height, so leaves distribute stage-correctly on any stem length).
-    rep = apply_plant01_cultivar(organs, vstage=int(counts["collared"]),
-                                 place_collars=True)
+    # Full cultivar: blade-shape blend + per-rank pose (insertion angle) + width
+    # trim. Collar heights come from the native (S3-blended) CPlantBox stem
+    # (place_collars defaults False) so stem and leaves agree by construction.
+    rep = apply_plant01_cultivar(organs, vstage=int(counts["collared"]))
     nsw = len(rep)
     mesh = loft_organs(organs, stem_sides=8, use_nurbs_backend=True)
     mesh.to_obj(str(out_path), group_by_organ=True, write_materials=True)
