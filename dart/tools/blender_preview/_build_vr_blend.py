@@ -10,6 +10,7 @@ Reads OBJs from ``dart/coupling/output/vr_stages/*.obj`` (paired with sidecar
 """
 from __future__ import annotations
 
+import os
 import re
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -20,7 +21,11 @@ import bpy
 # Script lives at dart/tools/blender_preview/<name>.py → parents[3] = project root.
 HERE = Path(__file__).resolve()
 PROJECT_ROOT = HERE.parents[3]
-OUT_DIR = PROJECT_ROOT / "dart" / "coupling" / "output" / "vr_stages"
+# COUPLING_VR_OUTDIR lets the staged variant build its own blend without
+# clobbering the baseline (same env var _gen_vr_stages* honour).
+OUT_DIR = Path(os.environ.get(
+    "COUPLING_VR_OUTDIR",
+    PROJECT_ROOT / "dart" / "coupling" / "output" / "vr_stages"))
 BLEND_PATH = OUT_DIR / "vr_stages_row.blend"
 DEFAULT_XML = PROJECT_ROOT / "dart" / "coupling" / "data" / "maize_calibrated.xml"
 
@@ -37,12 +42,20 @@ LABEL_SCALE = 0.10
 
 
 _DAY_RE = re.compile(r"day(\d{3})_(.+)")
+_CLK_RE = re.compile(r"clk(\d+)p(\d+)")
 
 
 def parse_stem(stem: str) -> tuple[int, str]:
-    """OBJ filename stem 'maize_day055_V8' → (55, 'V8')."""
+    """OBJ filename stem -> (sort_key, label).
+    'maize_day055_V8' -> (55, 'V8'); 'maize_clk12p75' -> (1275, 'clk12.75')."""
     m = _DAY_RE.search(stem)
-    return (int(m.group(1)), m.group(2)) if m else (9999, stem)
+    if m:
+        return int(m.group(1)), m.group(2)
+    c = _CLK_RE.search(stem)
+    if c:
+        whole, frac = c.group(1), c.group(2)
+        return int(whole) * 100 + int(frac), f"clk{whole}.{frac}"
+    return 9999, stem
 
 
 def read_seed_pos_cm(xml_path: Path) -> tuple[float, float]:
@@ -162,27 +175,36 @@ def main() -> int:
 
     # Skip the *_dart.obj siblings (DART coord swizzle + cm→m scaling already
     # applied; Blender preview wants the raw cm/CPlantBox-coord OBJs).
-    objs = sorted(
-        (p for p in OUT_DIR.glob("maize_day*.obj")
-         if not p.stem.endswith("_dart")),
-        key=lambda p: parse_stem(p.stem),
-    )
-    if not objs:
-        print(f"ERROR: no OBJs in {OUT_DIR}")
-        return 1
-    print(f"Found {len(objs)} OBJ files in {OUT_DIR}")
-
-    seed_x_cm, seed_y_cm = read_seed_pos_cm(DEFAULT_XML)
-    seed_xy_m = (seed_x_cm * CM_TO_M, seed_y_cm * CM_TO_M)
-    print(f"seedPos (cm) = ({seed_x_cm:.1f}, {seed_y_cm:.1f}) "
-          f"→ recentre offset (m) = ({seed_xy_m[0]:.2f}, {seed_xy_m[1]:.2f})")
+    # New plant_01-faithful reconstruction emits 'maize_clk*.obj' already centred
+    # at the stem base (xy=0); legacy grow path emits 'maize_day*.obj' at seedPos.
+    clk_objs = sorted(OUT_DIR.glob("maize_clk*.obj"), key=lambda p: parse_stem(p.stem))
+    if clk_objs:
+        objs = clk_objs
+        seed_xy_m = (0.0, 0.0)        # reconstruction is already stem-centred
+        print(f"Found {len(objs)} clk OBJs (stem-centred, no seedPos offset)")
+    else:
+        objs = sorted(
+            (p for p in OUT_DIR.glob("maize_day*.obj")
+             if not p.stem.endswith("_dart")),
+            key=lambda p: parse_stem(p.stem),
+        )
+        if not objs:
+            print(f"ERROR: no OBJs in {OUT_DIR}")
+            return 1
+        print(f"Found {len(objs)} OBJ files in {OUT_DIR}")
+        seed_x_cm, seed_y_cm = read_seed_pos_cm(DEFAULT_XML)
+        seed_xy_m = (seed_x_cm * CM_TO_M, seed_y_cm * CM_TO_M)
+        print(f"seedPos (cm) = ({seed_x_cm:.1f}, {seed_y_cm:.1f}) "
+              f"→ recentre offset (m) = ({seed_xy_m[0]:.2f}, {seed_xy_m[1]:.2f})")
 
     clear_scene()
 
     for i, obj_path in enumerate(objs):
         day, label = parse_stem(obj_path.stem)
         x = i * ROW_SPACING_M
-        name = f"day{day:03d}_{label}"
+        is_clk = label.startswith("clk")
+        name = label if is_clk else f"day{day:03d}_{label}"
+        disp = label if is_clk else f"day{day:03d}\n{label}"
         print(f"  [{i:2d}] x={x:5.2f}m  {obj_path.name}")
 
         plant = import_and_join(obj_path, name, seed_xy_m)
@@ -193,7 +215,7 @@ def main() -> int:
         # Origin already at stem base (mesh-local 0,0,0); object.location
         # places origin at world (x, 0, 0), so stem base is at world (x, 0, 0).
 
-        add_label(f"day{day:03d}\n{label}", x, f"{name}_label")
+        add_label(disp, x, f"{name}_label")
 
     row_len = max(len(objs) * ROW_SPACING_M, 1.0)
     add_ground(row_len)
