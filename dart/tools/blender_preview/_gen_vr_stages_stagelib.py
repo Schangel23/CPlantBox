@@ -24,7 +24,7 @@ from pathlib import Path
 os.chdir("/home/lukas/PHD/CPlantBox")
 sys.path.insert(0, "/home/lukas/pointr")
 
-from dart.coupling.config import DEFAULT_XML
+from dart.coupling.config import DATA_DIR
 from dart.coupling.geometry import extract_organs_for_lofter, loft_organs
 from dart.coupling.geometry.cplantbox_adapter import (
     get_plantsim_feature_kwargs_from_env,
@@ -33,7 +33,15 @@ from dart.coupling.growth.grow import grow_plant
 from dart.coupling.growth.phenology import count_visible_leaves, detect_v_stage
 
 from dart.tools.blender_preview._gen_vr_stages import DAYS, SEED
-from plant01_cultivar import apply_plant01_cultivar
+from stage_donor_swap import apply_stage_donors
+
+# plant_01 (Mirza) cultivar: the *production trajectory* itself carries the FP4D
+# internode kinetics (per-rank t_col blend, S3), and apply_stage_donors swaps in
+# the FP4D blade shape per rank/stage (S1/S2 coverage-weighted ribbon blend).
+# We deliberately do NOT apply the pose/collar overrides (apply_plant01_cultivar):
+# they clump leaves and mangle the architecture. Keep the real growth, modify
+# only the blade shape (+ kinetics baked in the XML).
+CULTIVAR_XML = DATA_DIR / "maize_mirza_plant01.xml"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 OUT_DIR = Path(os.environ.get(
@@ -44,7 +52,7 @@ OUT_DIR = Path(os.environ.get(
 def grow_one(day: int) -> dict | None:
     t0 = time.time()
     print(f"\n=== Day {day:3d} (seed {SEED}) STAGE-LIB ===")
-    plant = grow_plant(str(DEFAULT_XML), simulation_time=day, seed=SEED,
+    plant = grow_plant(str(CULTIVAR_XML), simulation_time=day, seed=SEED,
                        enable_photosynthesis=False)
     label = detect_v_stage(plant)
     counts = count_visible_leaves(plant)
@@ -54,10 +62,10 @@ def grow_one(day: int) -> dict | None:
         plant, species="maize", skip_roots=True,
         **get_plantsim_feature_kwargs_from_env(),
     )
-    # Full cultivar: blade-shape blend + per-rank pose (insertion angle) + width
-    # trim. Collar heights come from the native (S3-blended) CPlantBox stem
-    # (place_collars defaults False) so stem and leaves agree by construction.
-    rep = apply_plant01_cultivar(organs, vstage=int(counts["collared"]))
+    # Blade-shape blend ONLY (coverage-weighted FP4D<->MF3D ribbon blend). The
+    # stem/collars come from the real grown plant (FP4D internode kinetics baked
+    # into the XML); no pose/collar override.
+    rep = apply_stage_donors(organs, vstage=int(counts["collared"]))
     nsw = len(rep)
     mesh = loft_organs(organs, stem_sides=8, use_nurbs_backend=True)
     mesh.to_obj(str(out_path), group_by_organ=True, write_materials=True)
