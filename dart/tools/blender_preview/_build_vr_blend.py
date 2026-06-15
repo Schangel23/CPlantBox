@@ -103,7 +103,11 @@ def import_and_join(obj_path: Path, name: str, seed_xy_m: tuple[float, float]):
     rigidly attached to the stem.
     """
     bpy.ops.object.select_all(action="DESELECT")
-    bpy.ops.wm.obj_import(filepath=str(obj_path), global_scale=CM_TO_M)
+    # Our OBJs are already Z-up (CPlantBox coords). Blender's obj_import default
+    # treats OBJ as Y-up and rotates -90deg about X, laying the plants on their
+    # side. Force Z-up / Y-forward so the stem stays vertical (+Z).
+    bpy.ops.wm.obj_import(filepath=str(obj_path), global_scale=CM_TO_M,
+                          forward_axis="Y", up_axis="Z")
     imported = list(bpy.context.selected_objects)
     if not imported:
         return None
