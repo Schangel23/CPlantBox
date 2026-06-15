@@ -22,7 +22,7 @@ from pathlib import Path
 os.chdir("/home/lukas/PHD/CPlantBox")
 sys.path.insert(0, "/home/lukas/pointr")
 
-from reconstruct_detailed import write_obj   # MEASURED geometry + production NURBS lofter/sheaths
+from reconstruct_detailed import write_obj   # MEASURED heights through the production NURBS lofter (no cultivar bolting)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 OUT_DIR = Path(os.environ.get(
