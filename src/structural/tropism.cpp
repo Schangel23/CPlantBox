@@ -4,6 +4,7 @@
 #include "soil.h"
 #include "sdf.h"
 #include "Root.h"
+#include "leafparameter.h"
 #include <stdlib.h>
 #include <cstdlib>
 
@@ -154,6 +155,39 @@ double Exotropism::tropismObjective(const Vector3d& pos, const Matrix3d& old, do
     return acos(s)/M_PI; // 0..1
 }
 
+
+/**
+ * DistalGravitropism: gravitropic pull that grades from weak (stiff, keeps the
+ * insertion heading) at the leaf base to strong (droops down) at the tip, so the
+ * blade arches over distally. @see DistalGravitropism in tropism.h. Defined here
+ * (not inline) because it needs LeafSpecificParameter::getK() for the arc-length
+ * fraction. Falls back to plain gravitropism for non-leaf organs.
+ */
+double DistalGravitropism::tropismObjective(const Vector3d& pos, const Matrix3d& old, double a, double b, double dx, const std::shared_ptr<Organ> o)
+{
+    Vector3d nh = old.times(Vector3d::rotAB(a,b));   // candidate new heading
+    double gravi = 0.5*(nh.z + 1.);                  // [0,1], 0 when pointing straight down
+
+    // keep-insertion-heading term (stiff proximal tissue), as in Exotropism
+    Vector3d ih = o->getiHeading0();
+    double ihl = ih.length(); if (ihl < 1e-9) ihl = 1.;
+    double ocl = old.column(0).length(); if (ocl < 1e-9) ocl = 1.;
+    double s = ih.times(nh) / (ihl * ocl);
+    if (s > 1.) s = 1.; if (s < -1.) s = -1.;
+    double exo = std::acos(s)/M_PI;                  // [0,1], 0 when aligned with insertion heading
+
+    // distal grading: frac = arc-length position of the node laid this growth step
+    double frac = 0.5;
+    auto lp = std::dynamic_pointer_cast<const LeafSpecificParameter>(o->param());
+    if (lp) {
+        double Lmax = lp->getK(); if (Lmax < 1e-9) Lmax = 1e-9;
+        frac = o->getLength(true) / Lmax;
+        if (frac < 0.) frac = 0.; if (frac > 1.) frac = 1.;
+    }
+    double g = std::pow(frac, std::max(ageSwitch, 1e-6));   // ageSwitch slot carries distalExp
+
+    return (1.0 - g)*exo + g*gravi;                  // base: keep heading; tip: go down
+}
 
 
 /**

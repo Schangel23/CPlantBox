@@ -312,6 +312,41 @@ public:
 };
 
 
+
+/**
+ * DistalGravitropism: gravitropic response whose strength grades along the organ,
+ * weak at the base (stiff, keeps the insertion heading) and strong toward the tip
+ * (floppy, droops downward). Models the real maize-leaf mechanics — stiff
+ * proximal tissue, slender distal tissue — so the blade arches over at the tip.
+ * Uniform (Anti)Gravitropism cannot do this: it bends the whole organ equally and
+ * saturates below the observed tip-curl / high-bow leaves.
+ *
+ *   frac = getLength(true) / getK()          // arc-length position of the node laid this step
+ *   g    = frac ^ distalExp                   // grading weight (distalExp passed via the ageSwitch ctor slot)
+ *   objective = (1-g) * keepInsertionHeading + g * gravitropic
+ *
+ * distalExp > 1 concentrates the curl toward the tip; distalExp = 0 reduces to
+ * plain gravitropism. Falls back to plain gravitropism for non-leaf organs.
+ */
+class DistalGravitropism : public Tropism
+{
+public:
+
+	DistalGravitropism(std::shared_ptr<Organism> plant, double n, double sigma, double distalExp = 2.0) :
+		Tropism(plant, n, sigma, distalExp) { } ///< distalExp reuses the ageSwitch slot
+
+	std::shared_ptr<Tropism> copy(std::shared_ptr<Organism> plant) override {
+		auto nt = std::make_shared<DistalGravitropism>(*this); // default copy constructor
+		nt->plant = plant;
+		return nt;
+	} ///< copy constructor
+
+	double tropismObjective(const Vector3d& pos, const Matrix3d& old, double a, double b, double dx, const std::shared_ptr<Organ> o) override;
+	///< getHeading() minimizes this function, @see TropismFunction (defined in tropism.cpp — needs LeafSpecificParameter)
+
+};
+
+
 } // end namespace CPlantBox
 
 #endif
