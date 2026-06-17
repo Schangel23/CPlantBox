@@ -716,6 +716,7 @@ void LeafRandomParameter::bindParameters()
     bindParameter("isPseudostem", &isPseudostem, "Do the leaf sheaths make a pseudostem?");
     bindParameter("collarLength", &collarLength, "Length of rigid collar zone (cm)", &collarLengths);
     bindParameter("tropismExponent", &tropismExponent, "Position-dependent tropism exponent (1=uniform, >1=tip-heavy)", &tropismExponents);
+    bindParameter("use_tropism_midrib", &use_tropism_midrib, "Use native tropism-grown leaf midrib nodes instead of surface-CP reprojection [0/1]");
     // Fournier coordination / thermal-time elongation (Step 2B)
     bindParameter("sl_ratio", &sl_ratio, "Sheath:lamina ratio [-]");
     bindParameter("use_thermal_elongation", &use_thermal_elongation, "Use thermal time elongation [0/1]");

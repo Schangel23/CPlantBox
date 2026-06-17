@@ -513,6 +513,7 @@ void Leaf::updateNodesFromSurfaceCPs()
 {
 	auto lrp = getLeafRandomParameter();
 	if (!lrp) return;
+	if (lrp->use_tropism_midrib) return;
 	const int n_u = lrp->surface_n_u;
 	const int n_v = lrp->surface_n_v;
 	const int v_mid = n_v / 2;

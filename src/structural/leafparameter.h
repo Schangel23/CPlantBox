@@ -164,6 +164,7 @@ public:
 	double collarLengths = 0.;			///< Standard deviation of collar length [cm]
 	double tropismExponent = 1.;		///< Exponent for position-dependent tropism strength (1=uniform, >1=tip-heavy)
 	double tropismExponents = 0.;		///< Standard deviation of tropism exponent
+	int use_tropism_midrib = 0;		///< 1 keeps native tropism-grown midrib nodes instead of surface-CP reprojection
 
 	/* curvature spline profile: defines position-dependent curvature along the leaf */
 	std::vector<double> leafCurvaturePhi = {};   ///< Normalized positions [0,1] along leaf for curvature profile knots
