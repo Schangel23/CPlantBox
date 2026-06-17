@@ -315,7 +315,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -441,7 +441,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -567,7 +567,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -693,7 +693,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -819,7 +819,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -945,7 +945,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -1071,7 +1071,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -1197,7 +1197,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -1323,7 +1323,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -1449,7 +1449,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -1575,7 +1575,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -1701,7 +1701,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -1827,7 +1827,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -1953,7 +1953,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
@@ -2079,7 +2079,7 @@
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
         <parameter name="tropismT" value="7" />
-        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_tropism_midrib" value="0" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
