@@ -347,6 +347,50 @@ public:
 };
 
 
+/**
+ * PrescribedMidribTropism: steers leaf growth along a MEASURED midrib curve
+ * carried as a parameter (the leaf's surface_cps NURBS grid), rather than via a
+ * generative physical law. This is the data-assimilation counterpart of the
+ * gravitropism family — the measured leaf shape becomes a model parameter the
+ * stock grower consumes through the native tropism dispatch, so the grown leaf
+ * reproduces the measured midrib WITHOUT the post-hoc node overwrite
+ * (Leaf::updateNodesFromSurfaceCPs, the mild shadow path). Gravitropism cannot
+ * replay an arbitrary measured arch (wrong direction, saturation); a prescribed
+ * tropism can, exactly.
+ *
+ * Mechanism: getUCHeading is overridden to return the exact (alpha,beta) that
+ * points the next growth step along the surface_cps v=midrib tangent at the
+ * current arc-length fraction (frac = getLength/lmax), mapped into world space
+ * through the SAME insertion frame as Leaf::updateNodesFromSurfaceCPs
+ * (x_local = tangent x UP, y_local = tangent x x_local, R = [x_local|y_local|tangent]).
+ * Deterministic — bypasses the stochastic dice — so the integral of the per-step
+ * headings reconstructs the measured midrib. Bend (this tropism) is decoupled
+ * from length (the growth function), both native. Falls back to keep-heading
+ * (straight) when no surface_cps midrib is available.
+ *
+ * Pair with LeafRandomParameter::use_tropism_midrib=1 so the surface-CP node
+ * reprojection in Leaf is skipped and the natively-grown midrib survives.
+ */
+class PrescribedMidribTropism : public Tropism
+{
+public:
+
+	PrescribedMidribTropism(std::shared_ptr<Organism> plant, double n, double sigma) :
+		Tropism(plant, n, sigma) { } ///< @see TropismFunction
+
+	std::shared_ptr<Tropism> copy(std::shared_ptr<Organism> plant) override {
+		auto nt = std::make_shared<PrescribedMidribTropism>(*this); // default copy constructor
+		nt->plant = plant;
+		return nt;
+	} ///< copy constructor
+
+	Vector2d getUCHeading(const Vector3d& pos, const Matrix3d& old, double dx,
+		const std::shared_ptr<Organ> o, int nodeIdx) override;
+	///< exact deterministic heading along the prescribed midrib tangent (defined in tropism.cpp)
+
+};
+
+
 } // end namespace CPlantBox
 
 #endif

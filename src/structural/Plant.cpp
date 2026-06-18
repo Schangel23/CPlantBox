@@ -429,6 +429,7 @@ std::shared_ptr<Tropism> Plant::createTropismFunction(int tt, double N, double s
     case tt_antigravi: return std::make_shared<AntiGravitropism>(shared_from_this(),N,sigma);
 	case tt_antigravi2gravi: return std::make_shared<AntiGravi2Gravitropism>(shared_from_this(),N,sigma, ageSwitch);
 	case tt_distalgravi: return std::make_shared<DistalGravitropism>(shared_from_this(),N,sigma, ageSwitch); // ageSwitch slot = distalExp
+	case tt_prescribed_midrib: return std::make_shared<PrescribedMidribTropism>(shared_from_this(),N,sigma); // steers growth along the leaf's surface_cps midrib (exact, deterministic)
     default: throw std::invalid_argument( "Plant::createTropismFunction() tropism type not implemented" );
     }
 }

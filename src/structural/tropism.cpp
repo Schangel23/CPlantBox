@@ -4,6 +4,7 @@
 #include "soil.h"
 #include "sdf.h"
 #include "Root.h"
+#include "Leaf.h"
 #include "leafparameter.h"
 #include <stdlib.h>
 #include <cstdlib>
@@ -187,6 +188,98 @@ double DistalGravitropism::tropismObjective(const Vector3d& pos, const Matrix3d&
     double g = std::pow(frac, std::max(ageSwitch, 1e-6));   // ageSwitch slot carries distalExp
 
     return (1.0 - g)*exo + g*gravi;                  // base: keep heading; tip: go down
+}
+
+
+/**
+ * PrescribedMidribTropism: returns the exact (alpha,beta) that steers the next
+ * growth step along the leaf's surface_cps v=midrib tangent at the current
+ * arc-length fraction, mapped to world space through the same insertion frame as
+ * Leaf::updateNodesFromSurfaceCPs. Deterministic (dice bypassed). @see
+ * PrescribedMidribTropism in tropism.h. Keep-heading fallback when unavailable.
+ */
+Vector2d PrescribedMidribTropism::getUCHeading(const Vector3d& pos, const Matrix3d& old, double dx,
+	const std::shared_ptr<Organ> o, int nodeIdx)
+{
+	if (!o) return Vector2d(0., 0.);
+	auto lrp = std::dynamic_pointer_cast<LeafRandomParameter>(o->getOrganRandomParameter());
+	if (!lrp) return Vector2d(0., 0.);
+	const int n_u = lrp->surface_n_u;
+	const int n_v = lrp->surface_n_v;
+	const int v_mid = n_v / 2;
+	if (n_u < 2 || n_v < 1) return Vector2d(0., 0.);
+
+	// Use the SAME shape source as Leaf::updateNodesFromSurfaceCPs — the
+	// maturity-blended effective grid, which is the FP4D ParametricLeafShape
+	// when a shape_distribution is loaded (NOT the raw pre-distribution LRP
+	// grid). Falls back to the raw grid if o is not a Leaf / effective empty.
+	std::vector<Vector3d> eff;
+	auto leaf = std::dynamic_pointer_cast<Leaf>(o);
+	if (leaf) eff = leaf->getEffectiveSurfaceCPs();
+	if ((int)eff.size() != n_u * n_v) eff = lrp->surface_cps;
+	if ((int)eff.size() < n_u * n_v) return Vector2d(0., 0.);
+
+	// midrib polyline (leaf-local) + arc-length
+	std::vector<Vector3d> mid; mid.reserve(n_u);
+	for (int iu = 0; iu < n_u; ++iu) mid.push_back(eff[iu * n_v + v_mid]);
+	std::vector<double> cum(n_u, 0.);
+	for (int iu = 1; iu < n_u; ++iu) {
+		Vector3d d = mid[iu].minus(mid[iu - 1]);
+		cum[iu] = cum[iu - 1] + std::sqrt(d.times(d));
+	}
+	const double total = cum.back();
+	if (total < 1e-9) return Vector2d(0., 0.);
+
+	// arc-length fraction of the growing tip → local midrib tangent there
+	const double Lmax = std::max(lrp->lmax, 1e-9);
+	double frac = o->getLength(true) / Lmax;
+	if (frac < 0.) frac = 0.; if (frac > 1.) frac = 1.;
+	const double target_s = frac * total;
+	int k = 0;
+	while (k < n_u - 2 && cum[k + 1] < target_s) ++k;   // segment [k, k+1]
+	Vector3d tan_l = mid[k + 1].minus(mid[k]);
+	double tll = std::sqrt(tan_l.times(tan_l));
+	if (tll < 1e-12) return Vector2d(0., 0.);
+	tan_l = tan_l.times(1. / tll);
+
+	// insertion frame (world), identical convention to Leaf::updateNodesFromSurfaceCPs
+	Vector3d tangent = o->getiHeading0();
+	double tl = std::sqrt(tangent.times(tangent));
+	if (tl < 1e-9) return Vector2d(0., 0.);
+	tangent = tangent.times(1. / tl);
+	Vector3d up(0., 0., 1.);
+	Vector3d x_local = tangent.cross(up);
+	double xl = std::sqrt(x_local.times(x_local));
+	if (xl < 1e-6) {
+		Vector3d alt = (std::abs(tangent.x) < 0.9) ? Vector3d(1., 0., 0.) : Vector3d(0., 1., 0.);
+		x_local = tangent.cross(alt);
+		xl = std::sqrt(x_local.times(x_local));
+	}
+	if (xl < 1e-12) return Vector2d(0., 0.);
+	x_local = x_local.times(1. / xl);
+	Vector3d y_local = tangent.cross(x_local);
+	double yl = std::sqrt(y_local.times(y_local));
+	if (yl < 1e-12) return Vector2d(0., 0.);
+	y_local = y_local.times(1. / yl);
+
+	// target world direction = R * tan_l, R = [x_local | y_local | tangent]
+	Vector3d tw(
+		x_local.x * tan_l.x + y_local.x * tan_l.y + tangent.x * tan_l.z,
+		x_local.y * tan_l.x + y_local.y * tan_l.y + tangent.y * tan_l.z,
+		x_local.z * tan_l.x + y_local.z * tan_l.y + tangent.z * tan_l.z);
+	double twl = std::sqrt(tw.times(tw));
+	if (twl < 1e-12) return Vector2d(0., 0.);
+	tw = tw.times(1. / twl);
+
+	// express target in the current ons frame: local = old^T * tw (orthonormal columns)
+	double lx = old.column(0).times(tw);
+	double ly = old.column(1).times(tw);
+	double lz = old.column(2).times(tw);
+	if (lx > 1.) lx = 1.; if (lx < -1.) lx = -1.;
+	// rotAB(a,b) = (cos a, sin a cos b, sin a sin b); invert to hit (lx,ly,lz)
+	const double a = std::acos(lx);
+	const double b = std::atan2(lz, ly);
+	return Vector2d(a, b);
 }
 
 
