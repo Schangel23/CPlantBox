@@ -166,13 +166,13 @@
         <parameter name="a" value="0.20000000000000001" dev="0.02" />
         <parameter name="basal_internode_cm" value="1" />
         <parameter name="collar_frac_of_dlin" value="1" />
-        <parameter name="cultivar_height_factor" value="1.75" dev="0.091999999999999998" />
+        <parameter name="cultivar_height_factor" value="1.34" dev="0.091999999999999998" />
         <parameter name="delayNGEnd" value="0" />
         <parameter name="delayNGStart" value="0" />
         <parameter name="dx" value="0.10000000000000001" />
         <parameter name="dxMin" value="9.9999999999999995e-07" />
         <parameter name="half_plastochron_lag_degCd" value="9.5999999999999996" />
-        <parameter name="il_at_end_phase_II_cm" value="25" />
+        <parameter name="il_at_end_phase_II_cm" value="4.5" />
         <parameter name="il_init_cm" value="0.0025000000000000001" />
         <parameter name="la" value="7.5" />
         <parameter name="lb" value="0.7" />
