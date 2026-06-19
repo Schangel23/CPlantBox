@@ -171,7 +171,7 @@
         <parameter name="delayNGStart" value="0" />
         <parameter name="dx" value="0.10000000000000001" />
         <parameter name="dxMin" value="9.9999999999999995e-07" />
-        <parameter name="half_plastochron_lag_degCd" value="9.5999999999999996" />
+        <parameter name="half_plastochron_lag_degCd" value="55.2" />
         <parameter name="il_at_end_phase_II_cm" value="4.5" />
         <parameter name="il_init_cm" value="0.0025000000000000001" />
         <parameter name="la" value="7.5" />
@@ -210,7 +210,7 @@
         <parameter name="successor" ruleId="15" numLat="1" where="15" subType="17" organType="4" percentage="1" />
 <parameter name="successor" ruleId="16" numLat="1" where="16" subType="20" organType="3" percentage="1" />
         <parameter name="v_n" values="0.16, 0.16, 0.16, 0.16, 0.16, 0.16, 0.13, 0.2, 0.32, 0.38, 0.36, 0.28, 0.25, 0.24, 0.19, 0.16" />
-        <parameter name="D_n" values="79, 79, 79, 79, 79, 79, 32, 52, 40, 43, 41, 50, 56, 50, 63, 79" />
+        <parameter name="D_n" values="110, 110, 110, 110, 110, 70, 75, 58, 55, 50, 55, 60, 54, 66, 82" />
         <parameter name="IL_final" values="0.00, 0.00, 0.00, 0.00, 0.00, 1.50, 4.00, 8.00, 10.00, 8.00, 3.50, 2.00, 1.50, 1.50, 1.50, 1.50" />
         <parameter name="basal_zero_ranks" values="1, 2, 3, 4, 5" />
     </stem>
@@ -332,7 +332,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="2.4062252671945719" />
+        <parameter name="Width_blade" value="1.7324821923800917" />
         <parameter name="Width_petiole" value="0.7218675801583716" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="220.515" />
@@ -365,11 +365,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.91000000000000003" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
         <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.89000000000000001" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.78000000000000003" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.68999999999999995" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.57999999999999996" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.89000000000000001" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.78000000000000003" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.31948614474708176" y="0.055669537068677201" z="-0.18369332809069253" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.19594038287937743" y="0.036857992579450764" z="-0.13055272040377594" />
@@ -458,7 +458,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="2.4062252671945719" />
+        <parameter name="Width_blade" value="1.7324821923800917" />
         <parameter name="Width_petiole" value="0.7218675801583716" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="220.515" />
@@ -491,11 +491,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.91000000000000003" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
         <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.89000000000000001" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.78000000000000003" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.68999999999999995" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.57999999999999996" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.89000000000000001" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.78000000000000003" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.31948614474708176" y="0.055669537068677201" z="-0.18369332809069253" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.19594038287937743" y="0.036857992579450764" z="-0.13055272040377594" />
@@ -584,7 +584,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="3.4224257595008512" />
+        <parameter name="Width_blade" value="2.4641465468406127" />
         <parameter name="Width_petiole" value="1.0267277278502556" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="243.573" />
@@ -617,11 +617,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.91000000000000003" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
         <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.89000000000000001" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.78000000000000003" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.68999999999999995" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.57999999999999996" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.89000000000000001" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.78000000000000003" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.45441198980544756" y="0.081184741558487594" z="-0.26788610346559327" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.27869020529182881" y="0.053751239178365696" z="-0.19038938392217325" />
@@ -710,7 +710,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="4.3462443888701952" />
+        <parameter name="Width_blade" value="3.1292959599865404" />
         <parameter name="Width_petiole" value="1.3038733166610588" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="277.61" />
@@ -743,11 +743,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.91000000000000003" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
         <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.89000000000000001" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.78000000000000003" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.68999999999999995" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.57999999999999996" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.89000000000000001" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.78000000000000003" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.57707184894941643" y="0.10438038200376976" z="-0.34442499017004846" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.3539173165758755" y="0.069108736086470182" z="-0.24478635075707988" />
@@ -836,7 +836,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="5.0391083608972043" />
+        <parameter name="Width_blade" value="3.6281580198459871" />
         <parameter name="Width_petiole" value="1.5117325082691615" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="281.721" />
@@ -869,11 +869,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.90000000000000002" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
         <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.88" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.79000000000000004" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.70999999999999996" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.58999999999999997" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.88" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.79000000000000004" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.70999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.58999999999999997" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.66906674330739313" y="0.12177711233773138" z="-0.40182915519838991" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.41033765003891054" y="0.080626858767548534" z="-0.28558407588325985" />
@@ -962,7 +962,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="5.7319717751952046" />
+        <parameter name="Width_blade" value="4.127019678140547" />
         <parameter name="Width_petiole" value="1.7195915325585611" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="243.419" />
@@ -995,11 +995,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.84999999999999998" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="0.93000000000000005" />
         <parameter name="leafGeometry" phi="0" x="1" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.90000000000000002" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.79000000000000004" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.69999999999999996" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.58999999999999997" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.90000000000000002" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.79000000000000004" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.69999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.58999999999999997" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.71996689252055479" y="0.13917519480386911" z="-0.45923371342106689" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.44156015569446366" y="0.092145947138325843" z="-0.32638103501123328" />
@@ -1088,7 +1088,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="6.3786443804408766" />
+        <parameter name="Width_blade" value="4.5926239539174309" />
         <parameter name="Width_petiole" value="1.9135933141322627" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="231.996" />
@@ -1121,11 +1121,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.90000000000000002" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
         <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.88" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.78000000000000003" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.68999999999999995" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.57999999999999996" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.88" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.78000000000000003" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.77605015408605926" y="0.15541161674857007" z="-0.51281120760819243" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.4759555542956887" y="0.10289687756250805" z="-0.36445984816122812" />
@@ -1214,7 +1214,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="7.4796231118089835" />
+        <parameter name="Width_blade" value="5.3853286405024683" />
         <parameter name="Width_petiole" value="2.2438869335426945" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="203.63" />
@@ -1247,11 +1247,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.85999999999999999" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="0.93000000000000005" />
         <parameter name="leafGeometry" phi="0" x="1" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.91000000000000003" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.81000000000000005" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.70999999999999996" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.56999999999999995" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.91000000000000003" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.81000000000000005" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.70999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.56999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.69871337542812295" y="0.13728172109896436" z="-0.56087457744389413" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.51396214125224438" y="0.079326726107839279" z="-0.39870350370182994" />
@@ -1340,7 +1340,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="8.7135409464225031" />
+        <parameter name="Width_blade" value="6.2737494814242023" />
         <parameter name="Width_petiole" value="2.6140622839267511" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="245.929" />
@@ -1373,11 +1373,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.91000000000000003" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
         <parameter name="leafGeometry" phi="0" x="0.92000000000000004" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.81999999999999995" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.73999999999999999" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.67000000000000004" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.55000000000000004" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.73999999999999999" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.67000000000000004" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.55000000000000004" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.48025369993369355" y="0.1153220016396594" z="-0.66301800849718717" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.31754855529751647" y="0.075535354401104551" z="-0.45763149048776952" />
@@ -1466,7 +1466,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="10.566986472936826" />
+        <parameter name="Width_blade" value="7.6082302605145138" />
         <parameter name="Width_petiole" value="3.1700959418810477" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="234.375" />
@@ -1499,11 +1499,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.91000000000000003" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
         <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.89000000000000001" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.79000000000000004" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.69999999999999996" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.57999999999999996" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.89000000000000001" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.79000000000000004" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.69999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.56055997219470566" y="0.072679051485333587" z="-0.51491219127848564" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.30856350179211672" y="0.036827768853182667" z="-0.38615132463551005" />
@@ -1592,7 +1592,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="8.9407550870522332" />
+        <parameter name="Width_blade" value="6.4373436626776073" />
         <parameter name="Width_petiole" value="2.6822265261156693" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="194.363" />
@@ -1625,11 +1625,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.85999999999999999" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="0.93000000000000005" />
         <parameter name="leafGeometry" phi="0" x="1" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.91000000000000003" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.80000000000000004" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.68999999999999995" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.56000000000000005" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.91000000000000003" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.80000000000000004" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.56000000000000005" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.55646794969750013" y="0.082516611524368719" z="-0.61417622429672236" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.37314248280125012" y="0.054562658023003238" z="-0.42521078167559706" />
@@ -1718,7 +1718,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="8.0321767510957276" />
+        <parameter name="Width_blade" value="5.7831672607889235" />
         <parameter name="Width_petiole" value="2.4096530253287183" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="111.081" />
@@ -1751,11 +1751,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.96999999999999997" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
         <parameter name="leafGeometry" phi="0" x="0.91000000000000003" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.81000000000000005" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.73999999999999999" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.66000000000000003" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.52000000000000002" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.81000000000000005" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.73999999999999999" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.66000000000000003" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.52000000000000002" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.37507839830713369" y="0.043387000000000002" z="-0.59496000000000004" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.26905105211136598" y="0.0072160000000000002" z="-0.401173" />
@@ -1844,7 +1844,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="6.7600419563652263" />
+        <parameter name="Width_blade" value="4.8672302085829626" />
         <parameter name="Width_petiole" value="2.028012586909568" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="64.6701" />
@@ -1877,11 +1877,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.90000000000000002" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
         <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.88" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.79000000000000004" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.69999999999999996" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.56999999999999995" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.88" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.79000000000000004" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.69999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.56999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.5495139387259147" y="0.085219000000000003" z="-0.51412899999999995" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.3455435340009721" y="0.052581999999999997" z="-0.38173200000000002" />
@@ -1970,7 +1970,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="7.016381659769209" />
+        <parameter name="Width_blade" value="5.05179479503383" />
         <parameter name="Width_petiole" value="2.1049144979307628" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="695.37871157060761" />
@@ -2003,11 +2003,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.96999999999999997" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
         <parameter name="leafGeometry" phi="0" x="0.91000000000000003" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.81999999999999995" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.75" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.68000000000000005" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.54000000000000004" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.75" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68000000000000005" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.54000000000000004" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.56482707365130047" y="0.065375000000000003" z="-0.34861500000000001" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.33257533031813802" y="0.031212" z="-0.26297500000000001" />
@@ -2096,7 +2096,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="5.8206934271903545" />
+        <parameter name="Width_blade" value="4.1908992675770556" />
         <parameter name="Width_petiole" value="1.7462080281571066" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="535.07166702147822" />
@@ -2129,11 +2129,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.90000000000000002" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
         <parameter name="leafGeometry" phi="0" x="1" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.88" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.77000000000000002" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.68000000000000005" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.55000000000000004" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.88" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.77000000000000002" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68000000000000005" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.55000000000000004" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.11246215666446809" y="0.064347000000000001" z="-0.42021999999999998" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.052155406183567961" y="0.041350999999999999" z="-0.27369300000000002" />
@@ -2222,7 +2222,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="5.1833450892553419" />
+        <parameter name="Width_blade" value="3.732008464263846" />
         <parameter name="Width_petiole" value="1.5550035267766025" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="445.10903001546785" />
@@ -2255,11 +2255,11 @@
         <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.82999999999999996" />
         <parameter name="leafGeometry" phi="-0.80000000000000004" x="0.90000000000000002" />
         <parameter name="leafGeometry" phi="0" x="1" />
-        <parameter name="leafGeometry" phi="0.80000000000000004" x="0.93999999999999995" />
-        <parameter name="leafGeometry" phi="1.6000000000000001" x="0.81000000000000005" />
-        <parameter name="leafGeometry" phi="2.3999999999999999" x="0.68999999999999995" />
-        <parameter name="leafGeometry" phi="3.2000000000000002" x="0.53000000000000003" />
-        <parameter name="leafGeometry" phi="4" x="0.050000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.93999999999999995" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.81000000000000005" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.53000000000000003" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
         <parameter name="surface_cp" u="0" v="0" x="0.21890263944924701" y="0.011561999999999999" z="-0.368649" />
         <parameter name="surface_cp" u="0" v="0.25" x="0.15340091335335432" y="0.015866000000000002" z="-0.232489" />
