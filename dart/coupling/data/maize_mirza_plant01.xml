@@ -211,7 +211,7 @@
 <parameter name="successor" ruleId="16" numLat="1" where="16" subType="20" organType="3" percentage="1" />
         <parameter name="v_n" values="0.16, 0.16, 0.16, 0.16, 0.16, 0.16, 0.13, 0.2, 0.32, 0.38, 0.36, 0.28, 0.25, 0.24, 0.19, 0.16" />
         <parameter name="D_n" values="79, 79, 79, 79, 79, 79, 32, 52, 40, 43, 41, 50, 56, 50, 63, 79" />
-        <parameter name="IL_final" values="0.00, 0.00, 0.00, 0.00, 0.00, 1.90, 5.50, 9.50, 11.00, 10.50, 9.00, 7.50, 6.00, 5.00, 4.00, 3.00" />
+        <parameter name="IL_final" values="0.00, 0.00, 0.00, 0.00, 0.00, 1.50, 4.00, 8.00, 10.00, 8.00, 3.50, 2.00, 1.50, 1.50, 1.50, 1.50" />
         <parameter name="basal_zero_ranks" values="1, 2, 3, 4, 5" />
     </stem>
     <stem name="tassel_spike" subType="20">
