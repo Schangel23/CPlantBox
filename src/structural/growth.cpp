@@ -716,8 +716,32 @@ double MultiPhaseStemGrowth::getLength(double t, double r, double k,
     // Block 2: plastochron forecast (seed length_per_n for crossed ranks).
     update_plastochron_forecast(st, o, srp, sp);
 
-    // Block 3: fa_sum across n_ranks (use max of FA target vs. allocated).
+    // Block 3+4: per-rank placeable cap, summed.
+    //
+    // 2026-06-19 FIX (apex-leak / leaf-bunching root cause). The previous
+    // formula was targetlength = lb + min(Σ driver_n, Σ ln·H) — a min of two
+    // SUMS. Because each rank's Phase-III peak (il2 + v_n·D_n) is 3-5× its
+    // IL_final for the maize calibration, the summed FA targets balloon during
+    // the Phase-III window and saturate the Σln·H cap LONG before the realised
+    // internodes mature. The caller's dl = targetlength − length then far
+    // exceeds what the per-rank schedule lets internodalGrowth place into the
+    // existing phytomers (each capped at its RAW calcLengthPerPhytomer), and
+    // the unplaceable remainder is dumped at the apex as bare stem — so the
+    // stem reaches full height with every leaf bunched basally (measured: 70 %
+    // of the stem bare above the top leaf at day 85).
+    //
+    // The cap is intrinsically PER-INTERNODE, not whole-stem: internode n can
+    // never exceed ln[n]·H (= IL_final_n·H). Summing the per-rank min makes the
+    // whole-stem target track the per-rank schedule exactly, so dl always fits
+    // the phytomers (no apex leak) and each internode fills to IL_final·H. This
+    // is algebraically ≤ the old min(Σ,Σ) and identical at maturity (every rank
+    // saturates ln[n]·H → Σ ln·H, the same final height), so D3 / H-scaling
+    // invariants are preserved; it only removes the transient over-target that
+    // drove the leak. driver_n keeps the monotonic latch (no internode shrink).
+    const double H_cap = (sp->cultivar_height_factor > 0.0)
+                         ? sp->cultivar_height_factor : 1.0;
     const int n_ranks = static_cast<int>(sp->internode_v_n.size());
+    const int n_ln = static_cast<int>(sp->ln.size());
     double fa_sum = 0.0;
     for (int n = 1; n <= n_ranks; ++n) {
         const double target_n = calcLengthPerPhytomer(n, o);
@@ -725,26 +749,11 @@ double MultiPhaseStemGrowth::getLength(double t, double r, double k,
                                     ? st.length_per_n[n]
                                     : 0.0;
         const double driver_n = (target_n > allocated_n) ? target_n : allocated_n;
-        fa_sum += driver_n;
+        // Per-rank placeable cap ln[n-1]·H (ln is 0-indexed by phytomer).
+        const double cap_n = (n - 1 < n_ln) ? sp->ln[n - 1] * H_cap : driver_n;
+        fa_sum += (driver_n < cap_n) ? driver_n : cap_n;
     }
-
-    // Block 4: branching cap. min(fa_sum, sum(ln)) — matches today's clamp.
-    // PLAN_CULTIVAR_HEIGHT_FACTOR_2026-05-07 §S2: both arms of the cap must
-    // scale by H. `fa_sum` already does (each `target_n` is H-scaled by
-    // calcLengthPerPhytomer); ln_sum is built from sp->ln (constructed in
-    // realize() from un-scaled internode_IL_final), so we apply H at read
-    // time here. Without this scaling, fa_sum_H exceeds ln_sum_H1.0 at H>1
-    // and the un-scaled cap binds → realised stem caps at H=1.0 length while
-    // the per-rank allocator redistributes mass downward, starving upper
-    // ranks (verified empirically 2026-05-07 at H=1.32: z_max 180.4→172.0 cm
-    // before this fix). Default H=1.0 makes `* H` a literal no-op (D3 / D.0
-    // 6-XML invariance preserved).
-    const double H_cap = (sp->cultivar_height_factor > 0.0)
-                         ? sp->cultivar_height_factor : 1.0;
-    double ln_sum = 0.0;
-    for (double v : sp->ln) ln_sum += v;
-    const double ln_sum_H = ln_sum * H_cap;
-    double targetlength = sp->lb + ((fa_sum < ln_sum_H) ? fa_sum : ln_sum_H);
+    double targetlength = sp->lb + fa_sum;
 
     // Block 5: cessation gate. Force dl=0 in the caller by returning current
     // realised length (so e = targetlength - length = 0).

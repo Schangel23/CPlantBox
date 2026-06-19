@@ -950,6 +950,44 @@ void Stem::internodalGrowth(double dl,double dt, bool verbose)
 				}
 			}
 		}
+		// FA demand-weighted distribution (2026-06-19). Equal-share above
+		// ignores per-rank FA demand, so the 2-pass placement loop below
+		// mis-routes dl: ranks whose FA schedule still leaves headroom are
+		// starved while their share is offered to already-saturated ranks, and
+		// the unplaced remainder is dumped at the apex by the leftover valve
+		// (bare apical stem, leaves bunched basally). Re-weight toGrow by each
+		// phytomer's remaining FA room so dl flows to the ranks furthest below
+		// their target. Paired with the getLength per-rank cap (growth.cpp),
+		// this drives the apex leak to zero. The per-phytomer cap in the loop
+		// (availableForGrowth = min(ln*H, calcLengthPerPhytomer)) is unchanged
+		// and still binds, so no internode exceeds its FA target — only WHERE
+		// the conserved dl lands changes. Gated on fa_on so FA-off / non-maize
+		// stems keep the equal-share fill bit-identically (Hard Invariant #4).
+		if (fa_on) {
+			const double H_phyto = (p.cultivar_height_factor > 0.0)
+			                       ? p.cultivar_height_factor : 1.0;
+			std::vector<double> room(p.ln.size(), 0.0);
+			double sum_room = 0.0;
+			const int n_phyt =
+				static_cast<int>(localId_linking_nodes.size()) - 1;
+			for (int i = 0; i < n_phyt
+			     && i < static_cast<int>(p.ln.size()); ++i) {
+				if (rank_is_basal_zero(i + 1)) continue;
+				const double cur = getLength(localId_linking_nodes.at(i + 1))
+				                 - getLength(localId_linking_nodes.at(i));
+				double avail = p.ln.at(i) * H_phyto - cur;
+				const double fa_room = calcLengthPerPhytomer(i + 1) - cur;
+				if (fa_room < avail) avail = fa_room;
+				if (avail < 0.0) avail = 0.0;
+				room[i] = avail;
+				sum_room += avail;
+			}
+			if (sum_room > 1e-9) {
+				for (size_t i = 0; i < p.ln.size(); ++i) {
+					toGrow[i] = dl * room[i] / sum_room;
+				}
+			}
+		}
 	}
 	int loopId = 0;
 	size_t phytomerId = 0;
