@@ -84,7 +84,7 @@ def max_w_xml_cm() -> dict:
 # Gate 1 — default-XML fall-through (no shape_distribution_path)
 # ----------------------------------------------------------------------
 
-def test_default_xml_falls_through_to_median_shape():
+def test_default_xml_uses_live_parametric_cache():
     """When the XML omits shape_distribution_path, leaf::getEffectiveSurfaceCPs
     must hit the S2 lazy MedianLeafShape fallback and return surface_cps verbatim.
 
@@ -291,7 +291,12 @@ def test_scale_zero_reproduces_xml_surface_cps(distribution, max_w_xml_cm):
         except Exception as exc:
             pytest.skip(f"subType {sub} not in XML: {exc}")
         if not lrp.surface_cps:
-            pytest.skip(f"subType {sub} has no surface_cps grid")
+            assert 'name="surface_cp"' not in XML_PATH.read_text()
+            shape = distribution.makeShape(rank=rank, scale=0.0, plant_seed_val=0)
+            sampled = _sample_grid(shape, n_u, n_v,
+                                   max_w=float(max_w_xml_cm[str(rank)]))
+            assert sampled.shape == (n_u, n_v, 3)
+            continue
         xml_cps = np.asarray(
             [(p.x, p.y, p.z) for p in lrp.surface_cps], dtype=float
         ).reshape(n_u, n_v, 3)
