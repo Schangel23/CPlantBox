@@ -382,7 +382,7 @@ namespace {
 // the mature arc-length. Non-midrib v-columns keep their (z - midrib_z)
 // offset so cross-midrib ribboning is preserved.
 std::vector<Vector3d> buildFlatTemplate(
-	const std::vector<Vector3d>& mature, int n_u, int n_v)
+	const std::vector<Vector3d>& mature, int n_u, int n_v, double droop_scale)
 {
 	const int v_mid = n_v / 2;
 	std::vector<double> s(n_u, 0.0);
@@ -395,7 +395,7 @@ std::vector<Vector3d> buildFlatTemplate(
 		const double mid_z = mature[iu * n_v + v_mid].z;
 		for (int iv = 0; iv < n_v; ++iv) {
 			const Vector3d& cp = mature[iu * n_v + iv];
-			flat[iu * n_v + iv] = Vector3d(cp.x, 0.0, s[iu] + (cp.z - mid_z));
+			flat[iu * n_v + iv] = Vector3d(cp.x, droop_scale * cp.y, s[iu] + (cp.z - mid_z));
 		}
 	}
 	return flat;
@@ -452,11 +452,12 @@ std::vector<Vector3d> Leaf::getEffectiveSurfaceCPs() const
 	const double m = std::min(std::max(getLength(true) / mature_length, 0.0), 1.0);
 
 	std::vector<Vector3d> blended = median;  // mature endpoint of native blend
-	if (m < kYoungFadeEnd) {
-		double alpha = std::pow(1.0 - m / kYoungFadeEnd, kYoungExp);
+	const double young_fade_end = std::max(lrp->young_fade_end, 1e-9);
+	if (m < young_fade_end) {
+		double alpha = std::pow(1.0 - m / young_fade_end, kYoungExp);
 		alpha = std::min(std::max(alpha, 0.0), 1.0);
 		if (alpha >= 1e-6) {
-			auto flat = buildFlatTemplate(median, n_u, n_v);
+			auto flat = buildFlatTemplate(median, n_u, n_v, lrp->young_template_curvature_scale);
 			const double w_mat = 1.0 - alpha;
 			for (size_t i = 0; i < blended.size(); ++i) {
 				const Vector3d& a = median[i];

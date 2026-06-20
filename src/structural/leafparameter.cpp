@@ -779,6 +779,12 @@ void LeafRandomParameter::bindParameters()
     bindParameter("shape_variation_scale", &shape_variation_scale,
                   "Per-plant shape deviation scale (D11): 0.0 = inert (intercept only), "
                   "1.0 = full fitted variance; intermediate values dampen continuously");
+    bindParameter("midrib_curvature_scale", &midrib_curvature_scale,
+                      "Parametric leaf midrib droop scale: 1.0 = fitted FP4D arch");
+    bindParameter("young_fade_end", &young_fade_end,
+                      "Maturity fraction where young-template leaf blending ends");
+    bindParameter("young_template_curvature_scale", &young_template_curvature_scale,
+                      "Fraction of mature midrib droop retained by the young leaf template");
     bindParameter("shape_rank_index", &shape_rank_index,
                   "Rank index in the cultivar shape distribution; -1 (default) infers (subType - 2)");
     // other parameters (descriptions only)
