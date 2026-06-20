@@ -176,7 +176,8 @@ ParametricLeafShape::ParametricLeafShape(int rank,
 	std::vector<Vector3d> asym_residual_grid,
 	int n_u, int n_v,
 	double max_w_intercept,
-	double lmax_intercept)
+	double lmax_intercept,
+	double midrib_curvature_scale)
 	: rank_(rank)
 	, spline_degree_(spline_degree)
 	, spline_knots_u_(std::move(spline_knots_u))
@@ -188,6 +189,7 @@ ParametricLeafShape::ParametricLeafShape(int rank,
 	, n_v_(n_v)
 	, max_w_intercept_(max_w_intercept)
 	, lmax_intercept_(lmax_intercept)
+	, midrib_curvature_scale_(midrib_curvature_scale)
 {
 	if (n_u_ < 2 || n_v_ < 2) {
 		throw std::invalid_argument(
@@ -225,7 +227,7 @@ Vector3d ParametricLeafShape::evaluate(
 	const double vc = std::min(std::max(v, 0.0), 1.0);
 
 	// 1) Symmetric component — three independent B-splines at u.
-	const double m_y = evalBSpline(spline_knots_u_, midrib_droop_coeffs_,
+	const double m_y = midrib_curvature_scale_ * evalBSpline(spline_knots_u_, midrib_droop_coeffs_,
 		spline_degree_, uc);
 	const double m_z = evalBSpline(spline_knots_u_, midrib_along_coeffs_,
 		spline_degree_, uc);

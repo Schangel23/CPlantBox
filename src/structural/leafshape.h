@@ -155,7 +155,8 @@ public:
 		std::vector<Vector3d> asym_residual_grid,
 		int n_u, int n_v,
 		double max_w_intercept,
-		double lmax_intercept);
+		double lmax_intercept,
+	double midrib_curvature_scale = 1.0);
 
 	Vector3d evaluate(double u, double v,
 		double lmax, double max_w) const override;
@@ -183,6 +184,7 @@ public:
 	/// units at evaluate time, so MF3D-vs-XML lmax mismatch stops swamping
 	/// the intercept at shape_variation_scale = 1.
 	double lmaxIntercept() const { return lmax_intercept_; }
+	double midribCurvatureScale() const { return midrib_curvature_scale_; }
 	const std::vector<double>& splineKnotsU()       const { return spline_knots_u_; }
 	const std::vector<double>& midribDroopCoeffs()  const { return midrib_droop_coeffs_; }
 	const std::vector<double>& midribAlongCoeffs()  const { return midrib_along_coeffs_; }
@@ -201,6 +203,7 @@ private:
 	int n_v_ = 0;
 	double max_w_intercept_ = 0.0;              ///< per-rank fit-time max_w (cm); S6 max_w bake
 	double lmax_intercept_ = 0.0;               ///< per-rank fit-time arc length (cm); fix 2b
+	double midrib_curvature_scale_ = 1.0;           ///< scales m_y(u); 1.0 is fitted FP4D arch
 };
 
 } // namespace CPlantBox

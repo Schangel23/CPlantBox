@@ -84,7 +84,7 @@ public:
      *                         organs of the same plant.
      */
     std::shared_ptr<ParametricLeafShape> makeShape(int rank, double scale,
-        unsigned int plant_seed_val) const;
+        unsigned int plant_seed_val, double midrib_curvature_scale) const;
 
     /// Number of ranks in the distribution (15 for the maize bake).
     int numRanks() const { return n_ranks_; }

@@ -686,7 +686,7 @@ std::shared_ptr<LeafShapeDistribution> LeafShapeDistribution::load(const std::st
 // ============================================================
 
 std::shared_ptr<ParametricLeafShape> LeafShapeDistribution::makeShape(
-    int rank, double scale, unsigned int plant_seed_val) const
+    int rank, double scale, unsigned int plant_seed_val, double midrib_curvature_scale) const
 {
     if (rank < 0 || rank >= n_ranks_) {
         std::ostringstream oss;

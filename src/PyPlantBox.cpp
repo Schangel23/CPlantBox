@@ -1538,7 +1538,7 @@ PYBIND11_MODULE(plantbox, m) {
             .def_static("load", &LeafShapeDistribution::load,
                         py::arg("path"))
             .def("makeShape", &LeafShapeDistribution::makeShape,
-                 py::arg("rank"), py::arg("scale"), py::arg("plant_seed_val"))
+                 py::arg("rank"), py::arg("scale"), py::arg("plant_seed_val"), py::arg("midrib_curvature_scale") = 1.0)
             .def("numRanks", &LeafShapeDistribution::numRanks)
             .def("numComponents", &LeafShapeDistribution::numComponents)
             .def("splineDegree", &LeafShapeDistribution::splineDegree)

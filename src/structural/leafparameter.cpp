@@ -298,7 +298,29 @@ std::shared_ptr<OrganSpecificParameter> LeafRandomParameter::realize()
         // so the master RNG stream is not perturbed.
         const unsigned int plant_seed_val = p->getSeedVal();
         sp->shape = shape_distribution_->makeShape(
-            rank, shape_variation_scale, plant_seed_val);
+                rank, shape_variation_scale, plant_seed_val, midrib_curvature_scale);
+
+        auto intercept_shape = shape_distribution_->makeShape(
+                rank, 0.0, plant_seed_val, midrib_curvature_scale);
+        auto intercept_cps = intercept_shape->sampleCanonicalGrid(
+                surface_n_u, surface_n_v, lmax, Width_blade);
+        const int expected_cps = surface_n_u * surface_n_v;
+        if ((int)surface_cps.size() == expected_cps) {
+            double max_delta = 0.0;
+            for (int i = 0; i < expected_cps; ++i) {
+                max_delta = std::max(max_delta, std::abs(surface_cps[i].x - intercept_cps[i].x));
+                max_delta = std::max(max_delta, std::abs(surface_cps[i].y - intercept_cps[i].y));
+                max_delta = std::max(max_delta, std::abs(surface_cps[i].z - intercept_cps[i].z));
+            }
+            if (max_delta > 1e-6) {
+                std::ostringstream oss;
+                oss << "LeafRandomParameter::realize: parametric intercept differs from baked surface_cp grid by "
+                    << max_delta << " cm for rank=" << rank
+                    << ". Refuse to replace calibration cache.";
+                throw std::runtime_error(oss.str());
+            }
+        }
+        surface_cps = std::move(intercept_cps);
     }
 
     return sp;

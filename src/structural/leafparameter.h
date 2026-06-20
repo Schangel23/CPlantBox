@@ -146,6 +146,7 @@ public:
 	 * variation. Same trust contract as `cultivar_height_factor=1.0,
 	 * dev=0.0` for stem height: wired but inert until the user sets it. */
 	double shape_variation_scale = 0.0;
+	double midrib_curvature_scale = 1.0; ///< Scales parametric midrib droop; 1.0 preserves fitted FP4D shape.
 	/* shape_rank_index — which rank of the cultivar distribution this
 	 * subType corresponds to. -1 (default) means "infer from subType":
 	 * for maize the calibrated convention is subType 2..16 → rank 0..14
