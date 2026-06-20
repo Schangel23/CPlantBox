@@ -348,7 +348,7 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
         <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
@@ -422,7 +422,7 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
         <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
@@ -496,7 +496,7 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
         <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
@@ -570,8 +570,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2.3969999999999998" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
@@ -644,8 +644,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2.8130000000000002" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
@@ -718,8 +718,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="4.4470000000000001" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
@@ -792,8 +792,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="4.992" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
@@ -866,8 +866,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="5.5460000000000003" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
@@ -940,8 +940,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="5.7599999999999998" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
@@ -1014,8 +1014,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="5.8810000000000002" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
@@ -1088,8 +1088,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="5.875" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
@@ -1162,8 +1162,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="6" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
@@ -1236,8 +1236,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="6" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
@@ -1310,8 +1310,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="6" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
@@ -1384,8 +1384,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="6" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
@@ -1458,8 +1458,8 @@
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="6" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="shape_variation_scale" value="0.5"/>
-        <parameter name="midrib_curvature_scale" value="2.5"/>
+        <parameter name="shape_variation_scale" value="1.0"/>
+        <parameter name="midrib_curvature_scale" value="3.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
