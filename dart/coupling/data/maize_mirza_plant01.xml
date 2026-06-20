@@ -356,7 +356,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="-1" />
         <parameter name="tau_extension_n" value="115.8" />
-        <parameter name="theta" value="0.9998" dev="0.137889" />
+        <parameter name="theta" value="0.4999" dev="0.137889" />
         <parameter name="tropismAge" value="0.907" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -430,7 +430,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="-1" />
         <parameter name="tau_extension_n" value="115.8" />
-        <parameter name="theta" value="0.9998" dev="0.137889" />
+        <parameter name="theta" value="0.4999" dev="0.137889" />
         <parameter name="tropismAge" value="0.907" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -504,7 +504,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="-1" />
         <parameter name="tau_extension_n" value="173.69999999999999" />
-        <parameter name="theta" value="0.4635" dev="0.146029" />
+        <parameter name="theta" value="0.23175" dev="0.146029" />
         <parameter name="tropismAge" value="0.902" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -571,14 +571,14 @@
         <parameter name="r" value="2.3969999999999998" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="163.8" />
         <parameter name="tau_extension_n" value="231.59999999999999" />
-        <parameter name="theta" value="0.7990" dev="0.137107" />
+        <parameter name="theta" value="0.3995" dev="0.137107" />
         <parameter name="tropismAge" value="1.541" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -645,14 +645,14 @@
         <parameter name="r" value="2.8130000000000002" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="214.277" />
         <parameter name="tau_extension_n" value="289.5" />
-        <parameter name="theta" value="0.5291" dev="0.149985" />
+        <parameter name="theta" value="0.26455" dev="0.149985" />
         <parameter name="tropismAge" value="1.540" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -719,14 +719,14 @@
         <parameter name="r" value="4.4470000000000001" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="262.083" />
         <parameter name="tau_extension_n" value="347.39999999999998" />
-        <parameter name="theta" value="-0.2000" dev="0.054606" />
+        <parameter name="theta" value="-0.1" dev="0.054606" />
         <parameter name="tropismAge" value="0.710" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -793,14 +793,14 @@
         <parameter name="r" value="4.992" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="316.388" />
         <parameter name="tau_extension_n" value="405.30000000000001" />
-        <parameter name="theta" value="0.7555" dev="0.0477061" />
+        <parameter name="theta" value="0.37775" dev="0.0477061" />
         <parameter name="tropismAge" value="1.896" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -867,14 +867,14 @@
         <parameter name="r" value="5.5460000000000003" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="371.067" />
         <parameter name="tau_extension_n" value="463.19999999999999" />
-        <parameter name="theta" value="0.3659" dev="0.036" />
+        <parameter name="theta" value="0.18295" dev="0.036" />
         <parameter name="tropismAge" value="1.692" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -941,14 +941,14 @@
         <parameter name="r" value="5.7599999999999998" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="424.577" />
         <parameter name="tau_extension_n" value="521.10000000000002" />
-        <parameter name="theta" value="0.0308" dev="0.0650014" />
+        <parameter name="theta" value="0.0154" dev="0.0650014" />
         <parameter name="tropismAge" value="0.821" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1015,14 +1015,14 @@
         <parameter name="r" value="5.8810000000000002" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="460.35" />
         <parameter name="tau_extension_n" value="579" />
-        <parameter name="theta" value="0.3297" dev="0.0628619" />
+        <parameter name="theta" value="0.16485" dev="0.0628619" />
         <parameter name="tropismAge" value="1.910" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1089,14 +1089,14 @@
         <parameter name="r" value="5.875" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="522.323" />
         <parameter name="tau_extension_n" value="636.89999999999998" />
-        <parameter name="theta" value="0.9317" dev="0.158015" />
+        <parameter name="theta" value="0.46585" dev="0.158015" />
         <parameter name="tropismAge" value="1.471" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1163,14 +1163,14 @@
         <parameter name="r" value="6" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="567.1" />
         <parameter name="tau_extension_n" value="694.79999999999995" />
-        <parameter name="theta" value="-0.2000" dev="0.123163" />
+        <parameter name="theta" value="-0.1" dev="0.123163" />
         <parameter name="tropismAge" value="0.499" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1237,14 +1237,14 @@
         <parameter name="r" value="6" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="615.025" />
         <parameter name="tau_extension_n" value="752.69999999999993" />
-        <parameter name="theta" value="0.5082" dev="0.144847" />
+        <parameter name="theta" value="0.2541" dev="0.144847" />
         <parameter name="tropismAge" value="1.701" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1311,14 +1311,14 @@
         <parameter name="r" value="6" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="661.521" />
         <parameter name="tau_extension_n" value="810.59999999999991" />
-        <parameter name="theta" value="1.1520" dev="0.12675" />
+        <parameter name="theta" value="0.576" dev="0.12675" />
         <parameter name="tropismAge" value="1.500" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1385,14 +1385,14 @@
         <parameter name="r" value="6" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="690.263" />
         <parameter name="tau_extension_n" value="868.49999999999989" />
-        <parameter name="theta" value="1.1197" dev="0.11505" />
+        <parameter name="theta" value="0.55985" dev="0.11505" />
         <parameter name="tropismAge" value="1.500" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1459,14 +1459,14 @@
         <parameter name="r" value="6" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0"/>
-        <parameter name="midrib_curvature_scale" value="3.0"/>
+        <parameter name="midrib_curvature_scale" value="1.0"/>
         <parameter name="young_fade_end" value="0.35"/>
         <parameter name="young_template_curvature_scale" value="0.35"/>
         <parameter name="sigma_extension_n" value="57.899999999999999" />
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="731" />
         <parameter name="tau_extension_n" value="926.39999999999998" />
-        <parameter name="theta" value="1.1159" dev="0.093600000000000003" />
+        <parameter name="theta" value="0.55795" dev="0.093600000000000003" />
         <parameter name="tropismAge" value="1.500" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
