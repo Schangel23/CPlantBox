@@ -880,101 +880,6 @@ YOUNG_MORPH_FADE_END = 1.0
 YOUNG_MORPH_EXP = 2.0
 
 
-def _build_seedling_first_leaf_cps(n_u, n_v, length_cm=5.5, max_width_cm=1.9,
-                                   width_peak_u=0.55,
-                                   base_width_frac=0.18, shoulder_frac=0.85,
-                                   n_cap_rows=3,
-                                   gutter_depth_cm=0.18, midrib_arc_cm=0.45):
-    """Construct a ‘V1 first leaf’ NURBS CP grid with a half-disc round tip.
-
-    Rank 1 in the calibrated MF3D library carries a 24-cm sword shape
-    (mature size) which renders implausibly long at V3 plants where leaf 1
-    should appear as a small lance-rounded blade tapering into a visible
-    sheath collar with a fully **rounded apex** (Nielsen 2004 V-stage
-    reference). This helper builds a fresh small CP grid that replaces
-    the mature library shape for ``leaf_position == 0`` only.
-
-    The ``n_u`` U-rows are split into two zones along the midrib:
-
-      * **Body** (rows 0 .. ``n_u - n_cap_rows - 1``): the leaf body
-        with width envelope:
-          - smoothstep base → peak: ``base_width_frac`` → 1.0  on
-            u ∈ [0, ``width_peak_u``]
-          - smoothstep peak → shoulder: 1.0 → ``shoulder_frac`` on
-            u ∈ [``width_peak_u``, body_end]
-        z is linear over the body length = ``length_cm − cap_radius``.
-
-      * **Round cap** (last ``n_cap_rows``): a true half-disc cap.
-        The cap radius equals the blade half-width at the shoulder
-        (``shoulder_frac · max_width / 2``). Each cap row sits at angle
-        θ_k = (k+1)/n_cap_rows · π/2 around the cap centre, with
-            z = body_end_z + r · sin(θ_k)
-            half-width = r · cos(θ_k)
-        This traces a quarter-circle in the (z, x) plane on each side
-        of the midrib, so the silhouette closes as a true half-disc
-        instead of a taper or rectangular cutoff. The very last row
-        sits at θ = π/2 → width 0 at z = length_cm (the tip apex), and
-        the standard ``nurbs_blade`` last-row pinch keeps the surface
-        clean. ``rounded_tip`` is forced False on the entry so the
-        edge-widening logic doesn't re-inflate our cap rows.
-
-    Cross-section gutter + midrib arc are unchanged (parabolic +y bow
-    along the midrib + edges curl up toward +y), giving real leaf
-    cross-section character.
-
-    Frame convention: +z midrib forward, +x lateral, +y droop axis.
-    """
-    cps = np.zeros((n_u, n_v, 3), dtype=np.float64)
-    half_v = max(1, (n_v - 1) // 2)
-    half_width_cm = 0.5 * max_width_cm
-    # Half-disc cap radius = half-width at the shoulder
-    cap_radius = shoulder_frac * half_width_cm
-    body_end_z = max(length_cm - cap_radius, 0.0)
-    n_cap = max(1, min(int(n_cap_rows), n_u - 2))
-    n_body = n_u - n_cap  # rows 0 .. n_body - 1 form the body
-    last_body_idx = n_body - 1
-
-    def _body_env(u):
-        if u <= width_peak_u:
-            t = u / max(width_peak_u, 1e-6)
-            s = t * t * (3.0 - 2.0 * t)
-            return base_width_frac + (1.0 - base_width_frac) * s
-        t = (u - width_peak_u) / max(1.0 - width_peak_u, 1e-6)
-        s = t * t * (3.0 - 2.0 * t)
-        return 1.0 - (1.0 - shoulder_frac) * s
-
-    def _row(iu):
-        if iu < n_body:
-            u = iu / max(1, last_body_idx)  # 0..1 across body
-            env = _body_env(u)
-            half_at_u = half_width_cm * env
-            z_at_u = body_end_z * u
-            return half_at_u, z_at_u, env
-        # Cap row k = 1 .. n_cap (skips θ=0 since shoulder is the body end)
-        k = iu - n_body + 1
-        theta = (k / n_cap) * (math.pi / 2.0)
-        half_at_u = cap_radius * math.cos(theta)
-        z_at_u = body_end_z + cap_radius * math.sin(theta)
-        # Pass shoulder envelope through to gutter so depth doesn't
-        # snap to 0 across the cap; modulate by cos(theta) so the cap
-        # itself stays smooth.
-        env = shoulder_frac * math.cos(theta)
-        return half_at_u, z_at_u, env
-
-    for iu in range(n_u):
-        half_at_u, z_at_u, env = _row(iu)
-        # Position along midrib (used by midrib arc).
-        u_global = z_at_u / max(length_cm, 1e-9)
-        midrib_y = midrib_arc_cm * 4.0 * u_global * (1.0 - u_global)
-        for iv in range(n_v):
-            t = (iv - half_v) / half_v
-            gutter_y = -gutter_depth_cm * env * (1.0 - t * t)
-            cps[iu, iv, 0] = half_at_u * t
-            cps[iu, iv, 1] = midrib_y + gutter_y
-            cps[iu, iv, 2] = z_at_u
-    return cps
-
-
 def _slerp_tangent(t_curr: np.ndarray, t_par: np.ndarray, alpha: float) -> np.ndarray:
     """Spherical interpolation from ``t_curr`` to ``t_par`` by fraction ``alpha``.
 
@@ -2034,35 +1939,6 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                 # all higher ranks; rank 1 itself diverges from FA-off
                 # baseline but the user's V-stage reference takes priority
                 # over the MF3D mature snapshot at this position.
-                if leaf_position == 0:
-                    SEEDLING_LENGTH_CM = 5.5
-                    SEEDLING_MAX_WIDTH_CM = 1.9
-                    cps_local = _build_seedling_first_leaf_cps(
-                        n_u, n_v,
-                        length_cm=SEEDLING_LENGTH_CM,
-                        max_width_cm=SEEDLING_MAX_WIDTH_CM,
-                    )
-                    # Override length tracking so the lofter does not
-                    # rescale the freshly-built seedling shape (scale=1).
-                    mature_length = SEEDLING_LENGTH_CM
-                    current_length = SEEDLING_LENGTH_CM
-                    # Shrink the world-frame skeleton along the leaf
-                    # tangent so DART seg IDs and SDF capsules track the
-                    # rendered surface. Nodes beyond the seedling cap are
-                    # collapsed onto the tip.
-                    if len(current_skel) >= 2:
-                        deltas = np.diff(current_skel, axis=0)
-                        seg_lens = np.linalg.norm(deltas, axis=1)
-                        cumlen = np.concatenate(([0.0], np.cumsum(seg_lens)))
-                        if cumlen[-1] > SEEDLING_LENGTH_CM and cumlen[-1] > 1e-9:
-                            shrink = SEEDLING_LENGTH_CM / cumlen[-1]
-                            current_skel = current_skel.copy()
-                            for i_n in range(1, len(current_skel)):
-                                current_skel[i_n] = (
-                                    current_skel[0]
-                                    + (current_skel[i_n] - current_skel[0]) * shrink
-                                )
-
                 # Pheno4D young-stage blending was prototyped here but
                 # disabled 2026-04-19: Pheno4D NURBS fits capture real-
                 # world canopy droop/whorl curl (p50 lateral excursion

@@ -859,9 +859,12 @@ PYBIND11_MODULE(plantbox, m) {
       // Minimal exposure for the S4 acceptance gates; S5 will extend with
       // diagnostic accessors for the loaded distribution and the realised
       // LeafSpecificParameter::shape on top of this.
-      .def_readwrite("shape_distribution_path", &LeafRandomParameter::shape_distribution_path)
-      .def_readwrite("shape_variation_scale", &LeafRandomParameter::shape_variation_scale)
-      .def_readwrite("shape_rank_index", &LeafRandomParameter::shape_rank_index);
+		.def_readwrite("shape_distribution_path", &LeafRandomParameter::shape_distribution_path)
+		.def_readwrite("shape_variation_scale", &LeafRandomParameter::shape_variation_scale)
+		.def_readwrite("midrib_curvature_scale", &LeafRandomParameter::midrib_curvature_scale)
+		.def_readwrite("young_fade_end", &LeafRandomParameter::young_fade_end)
+		.def_readwrite("young_template_curvature_scale", &LeafRandomParameter::young_template_curvature_scale)
+		.def_readwrite("shape_rank_index", &LeafRandomParameter::shape_rank_index);
 
     py::class_<LeafSpecificParameter, OrganSpecificParameter, std::shared_ptr<LeafSpecificParameter>>(m, "LeafSpecificParameter")
             .def(py::init<>())

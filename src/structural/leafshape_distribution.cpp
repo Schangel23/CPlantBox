@@ -758,7 +758,8 @@ std::shared_ptr<ParametricLeafShape> LeafShapeDistribution::makeShape(
         asym_residuals_[rank],   // copy — frozen across plants
         n_u_, n_v_,
         max_w_per_rank_[rank],   // S6 max_w bake — fit-time peak half-width
-        lmax_per_rank_[rank]);   // fix 2b — fit-time midrib arc length
+        lmax_per_rank_[rank],
+        midrib_curvature_scale);   // fix 2b — fit-time midrib arc length
 }
 
 } // namespace CPlantBox
