@@ -694,7 +694,42 @@ def loft_leaf_nurbs(
                 max_sheath_length_cm=max_sheath_cap,
             )
 
-        cps = from_local_frame(cps_local, collar_pos, tangent)
+        # Skeleton-driven placement (gated; default off → non-maize renders
+        # bit-identical via the rigid collar-frame path below). When enabled,
+        # the FP4D cross-section (offset of each CP from its row midrib, in the
+        # leaf-local frame: x=lateral, y=blade-normal, z=along-arc) is RIDDEN
+        # on the CPlantBox skeleton via per-station Darboux frames, so the
+        # rendered midrib follows the skeleton trajectory instead of being
+        # pinned rigidly at the collar. The default path orients the whole
+        # blade by one collar tangent and ignores the skeleton entirely.
+        skel_drive = np.asarray(organ["skeleton"], dtype=np.float64)
+        if organ.get("skeleton_drive") and len(skel_drive) >= 3:
+            blade_local = cps_local[-N_U:] if use_compound else cps_local
+            mid_c = blade_local.shape[1] // 2
+            off = blade_local - blade_local[:, mid_c:mid_c + 1, :]
+            skel_u, _w_u, _af = _resample_skeleton(
+                skel_drive, np.ones(len(skel_drive)), N_U
+            )
+            tan_u, nrm_u, bin_u = _darboux_frames(skel_u)
+            blade_world = (
+                skel_u[:, None, :]
+                + off[:, :, 0:1] * bin_u[:, None, :]
+                + off[:, :, 1:2] * nrm_u[:, None, :]
+                + off[:, :, 2:3] * tan_u[:, None, :]
+            )
+            if use_compound:
+                # Sheath rings keep the collar-frame placement (they wrap the
+                # stem at the collar); only the blade rides the skeleton.
+                # ponytail: small seam gap at the sheath/blade junction is
+                # acceptable — stitch the ring top to blade base if visible.
+                sheath_world = from_local_frame(
+                    cps_local[:-N_U], collar_pos, tangent
+                )
+                cps = np.concatenate([sheath_world, blade_world], axis=0)
+            else:
+                cps = blade_world
+        else:
+            cps = from_local_frame(cps_local, collar_pos, tangent)
         # Use the CPlantBox node positions as the reference skeleton for
         # per-triangle segment-ID mapping (arc_frac along this polyline).
         skeleton = np.asarray(organ["skeleton"], dtype=np.float64)

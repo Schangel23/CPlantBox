@@ -2494,6 +2494,11 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                     "maturity_fraction": nurbs_maturity,
                     "plant_tt_cd": plant_tt,
                     "skeleton": current_skel,
+                    # Ride the FP4D cross-section on the CPlantBox skeleton
+                    # (maize only) so the rendered midrib follows the skeleton
+                    # trajectory; non-maize keeps the rigid collar-frame loft
+                    # → bit-identical baselines.
+                    "skeleton_drive": species == 'maize',
                     "stem_radius_cm": stem_radius_cm,
                     "sheath_length_cm": sheath_length_cm,
                     "sheath_cup_max_length_cm": sheath_cup_max_length_cm,
