@@ -48,7 +48,7 @@
         <parameter name="lnk" value="0" />
         <parameter name="r" value="4.5" dev="0.44999999000000002" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="1.3" dev="0.40000001000000002" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismN" value="1.5" />
         <parameter name="tropismS" value="0.13" />
         <parameter name="successor" ruleId="0" numLat="1" where="" subType="2" organType="2" percentage="0.5" />
@@ -73,7 +73,7 @@
         <parameter name="lnk" value="0" />
         <parameter name="r" value="0.34999998999999998" dev="0.035000000000000003" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="1.22173" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismN" value="2" />
         <parameter name="tropismS" value="0.52359902999999997" />
     </root>
@@ -96,7 +96,7 @@
         <parameter name="lnk" value="0" />
         <parameter name="r" value="0.40000001000000002" dev="0.039999999000000001" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="1.22173" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismN" value="2" />
         <parameter name="tropismS" value="0.52359902999999997" />
     </root>
@@ -119,7 +119,7 @@
         <parameter name="lnk" value="0" />
         <parameter name="r" value="4.5" dev="0.44999999000000002" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="0.3200" dev="0.15707999" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismN" value="1" />
         <parameter name="tropismS" value="0.050000001000000002" />
         <parameter name="successor" ruleId="0" numLat="1" where="" subType="2" organType="2" percentage="0.5" />
@@ -144,7 +144,7 @@
         <parameter name="lnk" value="0" />
         <parameter name="r" value="4.5" dev="0.44999999000000002" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="1.3" dev="0.109956" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismN" value="1" />
         <parameter name="tropismS" value="0.050000001000000002" />
         <parameter name="successor" ruleId="0" numLat="1" where="" subType="2" organType="2" percentage="0.5" />
@@ -186,7 +186,7 @@
         <parameter name="plastochron_andrieu" value="23" />
         <parameter name="r" value="3.5" dev="0.34999999999999998" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="0" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="0" />
         <parameter name="tropismN" value="1" />
         <parameter name="tropismS" value="0" />
@@ -250,7 +250,7 @@
         <parameter name="plastochron_andrieu" value="23" />
         <parameter name="r" value="5" dev="0.5" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="0" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="0" />
         <parameter name="tropismN" value="1.5" />
         <parameter name="tropismS" value="0" />
@@ -294,7 +294,7 @@
         <parameter name="plastochron_andrieu" value="23" />
         <parameter name="r" value="2.5" dev="0.25" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="0.2880" dev="0.12" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="0" />
         <parameter name="tropismN" value="2" />
         <parameter name="tropismS" value="0.10000000000000001" />
@@ -356,7 +356,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="-1" />
         <parameter name="tau_extension_n" value="115.8" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="0.907" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -442,7 +442,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="-1" />
         <parameter name="tau_extension_n" value="115.8" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="0.907" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -528,7 +528,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="-1" />
         <parameter name="tau_extension_n" value="173.69999999999999" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="0.902" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -614,7 +614,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="163.8" />
         <parameter name="tau_extension_n" value="231.59999999999999" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="1.541" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -700,7 +700,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="214.277" />
         <parameter name="tau_extension_n" value="289.5" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="1.540" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -786,7 +786,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="262.083" />
         <parameter name="tau_extension_n" value="347.39999999999998" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="0.710" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -872,7 +872,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="316.388" />
         <parameter name="tau_extension_n" value="405.30000000000001" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="1.896" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -958,7 +958,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="371.067" />
         <parameter name="tau_extension_n" value="463.19999999999999" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="1.692" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1044,7 +1044,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="424.577" />
         <parameter name="tau_extension_n" value="521.10000000000002" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="0.821" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1130,7 +1130,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="460.35" />
         <parameter name="tau_extension_n" value="579" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="1.910" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1216,7 +1216,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="522.323" />
         <parameter name="tau_extension_n" value="636.89999999999998" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="1.471" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1302,7 +1302,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="567.1" />
         <parameter name="tau_extension_n" value="694.79999999999995" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="0.499" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1388,7 +1388,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="615.025" />
         <parameter name="tau_extension_n" value="752.69999999999993" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="1.701" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1474,7 +1474,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="661.521" />
         <parameter name="tau_extension_n" value="810.59999999999991" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="1.500" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1560,7 +1560,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="690.263" />
         <parameter name="tau_extension_n" value="868.49999999999989" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="1.500" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -1646,7 +1646,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="731" />
         <parameter name="tau_extension_n" value="926.39999999999998" />
-        <parameter name="theta" value="0.05" dev="0.02" />
+        <parameter name="theta" value="0.5" dev="0.05" />
         <parameter name="tropismAge" value="1.500" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
