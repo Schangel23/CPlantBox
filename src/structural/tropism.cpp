@@ -319,9 +319,15 @@ Vector2d CurvatureProfileTropism::getUCHeading(const Vector3d& pos, const Matrix
 	const int np = (int)phi.size();
 	if (np < 2 || (int)kap.size() != np) return Vector2d(0., 0.);   // keep heading
 
-	// arc-length fraction of the growing tip
+	// Arc-length fraction of the NODE being laid (not the tip). getLength(true)
+	// is the tip length; during a multi-segment growth step every segment laid
+	// in that step would see the tip frac, which is ahead of its own arc
+	// position, shifting the realized kappa(s) toward the base by the per-step
+	// growth increment. Use the node-local length getLength(nodeIdx-1) (the
+	// convention Leaf::getIncrement uses) so kappa lands at the right arc position.
 	const double Lmax = std::max(lrp->lmax, 1e-9);
-	double frac = o->getLength(true) / Lmax;
+	const double sNode = (nodeIdx >= 1) ? o->getLength(nodeIdx - 1) : o->getLength(true);
+	double frac = sNode / Lmax;
 	if (frac < 0.) frac = 0.; if (frac > 1.) frac = 1.;
 
 	// piecewise-linear kappa(frac), clamped to the knot range
