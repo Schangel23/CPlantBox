@@ -48,7 +48,7 @@
         <parameter name="lnk" value="0" />
         <parameter name="r" value="4.5" dev="0.44999999000000002" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="0.5" dev="0.05" />
+        <parameter name="theta" value="1.3" dev="0.40000001000000002" />
         <parameter name="tropismN" value="1.5" />
         <parameter name="tropismS" value="0.13" />
         <parameter name="successor" ruleId="0" numLat="1" where="" subType="2" organType="2" percentage="0.5" />
@@ -73,7 +73,7 @@
         <parameter name="lnk" value="0" />
         <parameter name="r" value="0.34999998999999998" dev="0.035000000000000003" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="0.5" dev="0.05" />
+        <parameter name="theta" value="1.22173" />
         <parameter name="tropismN" value="2" />
         <parameter name="tropismS" value="0.52359902999999997" />
     </root>
@@ -96,7 +96,7 @@
         <parameter name="lnk" value="0" />
         <parameter name="r" value="0.40000001000000002" dev="0.039999999000000001" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="0.5" dev="0.05" />
+        <parameter name="theta" value="1.22173" />
         <parameter name="tropismN" value="2" />
         <parameter name="tropismS" value="0.52359902999999997" />
     </root>
@@ -119,7 +119,7 @@
         <parameter name="lnk" value="0" />
         <parameter name="r" value="4.5" dev="0.44999999000000002" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="0.5" dev="0.05" />
+        <parameter name="theta" value="0.3200" dev="0.15707999" />
         <parameter name="tropismN" value="1" />
         <parameter name="tropismS" value="0.050000001000000002" />
         <parameter name="successor" ruleId="0" numLat="1" where="" subType="2" organType="2" percentage="0.5" />
@@ -144,7 +144,7 @@
         <parameter name="lnk" value="0" />
         <parameter name="r" value="4.5" dev="0.44999999000000002" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="0.5" dev="0.05" />
+        <parameter name="theta" value="1.3" dev="0.109956" />
         <parameter name="tropismN" value="1" />
         <parameter name="tropismS" value="0.050000001000000002" />
         <parameter name="successor" ruleId="0" numLat="1" where="" subType="2" organType="2" percentage="0.5" />
@@ -186,7 +186,7 @@
         <parameter name="plastochron_andrieu" value="23" />
         <parameter name="r" value="3.5" dev="0.34999999999999998" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="0.5" dev="0.05" />
+        <parameter name="theta" value="0" />
         <parameter name="tropismAge" value="0" />
         <parameter name="tropismN" value="1" />
         <parameter name="tropismS" value="0" />
@@ -250,7 +250,7 @@
         <parameter name="plastochron_andrieu" value="23" />
         <parameter name="r" value="5" dev="0.5" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="0.5" dev="0.05" />
+        <parameter name="theta" value="0" />
         <parameter name="tropismAge" value="0" />
         <parameter name="tropismN" value="1.5" />
         <parameter name="tropismS" value="0" />
@@ -294,7 +294,7 @@
         <parameter name="plastochron_andrieu" value="23" />
         <parameter name="r" value="2.5" dev="0.25" />
         <parameter name="rlt" value="1000000000" />
-        <parameter name="theta" value="0.5" dev="0.05" />
+        <parameter name="theta" value="0.2880" dev="0.12" />
         <parameter name="tropismAge" value="0" />
         <parameter name="tropismN" value="2" />
         <parameter name="tropismS" value="0.10000000000000001" />
