@@ -303,6 +303,87 @@ Vector2d PrescribedMidribTropism::getUCHeading(const Vector3d& pos, const Matrix
 
 
 /**
+ * CurvatureProfileTropism: returns the (alpha,beta) that rotates the current
+ * heading by alpha = kappa(s)*dx within the fixed insertion bending plane, toward
+ * the droop side. @see CurvatureProfileTropism in tropism.h. Keep-heading fallback
+ * when no kappa(s) profile (leafCurvaturePhi/leafCurvatureKappa) is present.
+ */
+Vector2d CurvatureProfileTropism::getUCHeading(const Vector3d& pos, const Matrix3d& old, double dx,
+	const std::shared_ptr<Organ> o, int nodeIdx)
+{
+	if (!o) return Vector2d(0., 0.);
+	auto lrp = std::dynamic_pointer_cast<LeafRandomParameter>(o->getOrganRandomParameter());
+	if (!lrp) return Vector2d(0., 0.);
+	const std::vector<double>& phi = lrp->leafCurvaturePhi;
+	const std::vector<double>& kap = lrp->leafCurvatureKappa;
+	const int np = (int)phi.size();
+	if (np < 2 || (int)kap.size() != np) return Vector2d(0., 0.);   // keep heading
+
+	// arc-length fraction of the growing tip
+	const double Lmax = std::max(lrp->lmax, 1e-9);
+	double frac = o->getLength(true) / Lmax;
+	if (frac < 0.) frac = 0.; if (frac > 1.) frac = 1.;
+
+	// piecewise-linear kappa(frac), clamped to the knot range
+	double kappa;
+	if (frac <= phi.front()) {
+		kappa = kap.front();
+	} else if (frac >= phi.back()) {
+		kappa = kap.back();
+	} else {
+		kappa = kap.back();
+		for (int i = 0; i < np - 1; ++i) {
+			if (frac <= phi[i + 1]) {
+				const double seg = phi[i + 1] - phi[i];
+				const double w = (seg > 1e-12) ? (frac - phi[i]) / seg : 0.;
+				kappa = kap[i] * (1. - w) + kap[i + 1] * w;
+				break;
+			}
+		}
+	}
+
+	// per-step turn angle [rad]; sign carried by the bend direction, not by alpha
+	double da = kappa * dx;
+	const bool negate = (da < 0.);
+	if (da < 0.) da = -da;
+	if (da > 0.9 * M_PI) da = 0.9 * M_PI;                          // guard pathological kappa
+	if (da < 1e-12) return Vector2d(0., 0.);                       // straight step
+
+	// bending plane = vertical plane containing the insertion azimuth.
+	const Vector3d t = old.column(0);                             // current heading (world)
+	const Vector3d up(0., 0., 1.);
+	Vector3d ih = o->getiHeading0();
+	Vector3d az = ih.minus(up.times(ih.times(up)));               // horizontal insertion dir
+	double azl = std::sqrt(az.times(az));
+	if (azl < 1e-6) {                                             // ~vertical insertion: stable fallback
+		az = (std::abs(t.x) < 0.9) ? Vector3d(1., 0., 0.) : Vector3d(0., 1., 0.);
+		az = az.minus(t.times(az.times(t)));
+		azl = std::sqrt(az.times(az));
+		if (azl < 1e-9) return Vector2d(0., 0.);
+	}
+	az = az.times(1. / azl);
+	Vector3d bn = az.cross(up);                                   // bending-plane normal (horizontal)
+	double bnl = std::sqrt(bn.times(bn));
+	if (bnl < 1e-9) return Vector2d(0., 0.);
+	bn = bn.times(1. / bnl);
+
+	// in-plane direction perpendicular to current heading, on the droop (down) side
+	Vector3d m = t.cross(bn);
+	double ml = std::sqrt(m.times(m));
+	if (ml < 1e-9) return Vector2d(0., 0.);
+	m = m.times(1. / ml);
+	if (m.z > 0.) m = m.times(-1.);                              // default droop = downward
+	if (negate) m = m.times(-1.);                               // kappa<0 bends the other way
+
+	// rotAB(a,b) deflects by a toward (cos b * col1 + sin b * col2); solve b for m
+	const double mb1 = old.column(1).times(m);
+	const double mb2 = old.column(2).times(m);
+	const double b = std::atan2(mb2, mb1);
+	return Vector2d(da, b);
+}
+
+
+/**
  * getHeading() minimizes this function, @see TropismFunction::tropismObjectiveMatrix3d
  */
 double Hydrotropism::tropismObjective(const Vector3d& pos, const Matrix3d& old, double a, double b, double dx, const std::shared_ptr<Organ> o)

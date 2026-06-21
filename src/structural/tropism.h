@@ -392,6 +392,46 @@ public:
 };
 
 
+/**
+ * CurvatureProfileTropism: bends the growing leaf by a PRESCRIBED curvature
+ * profile kappa(s) along arc length, the minimal upstream-aligned generalization
+ * of the gravitropism family. Gravitropism gives a near-constant kappa (circular
+ * arc); DistalGravitropism gives a monotonic, saturating kappa. A measured leaf
+ * midrib has an arbitrary non-circular kappa(s) that neither can replay. Here
+ * kappa(s) IS the parameter (per-rank, fit from data, carried on the
+ * LeafRandomParameter as leafCurvaturePhi/leafCurvatureKappa knots).
+ *
+ * Mechanism (planar): at the growing tip, s = getLength/lmax, kappa = the
+ * interpolated profile value there. getUCHeading returns the exact (alpha,beta)
+ * that rotates the current heading by alpha = kappa*dx within a FIXED bending
+ * plane (the vertical plane containing the insertion azimuth), toward the droop
+ * (downward) side. Integrating these per-step turns reconstructs a curve whose
+ * curvature is kappa(s) by construction — faithful transcription, no lossy
+ * projection. Deterministic (dice bypassed); kappa<0 bends the opposite way.
+ * Bend (this tropism) is decoupled from length (the growth function) and from
+ * the emergence angle (theta), all native. Falls back to keep-heading when no
+ * kappa(s) profile is present, so non-curvature organs are unaffected.
+ */
+class CurvatureProfileTropism : public Tropism
+{
+public:
+
+	CurvatureProfileTropism(std::shared_ptr<Organism> plant, double n, double sigma) :
+		Tropism(plant, n, sigma) { } ///< @see TropismFunction
+
+	std::shared_ptr<Tropism> copy(std::shared_ptr<Organism> plant) override {
+		auto nt = std::make_shared<CurvatureProfileTropism>(*this); // default copy constructor
+		nt->plant = plant;
+		return nt;
+	} ///< copy constructor
+
+	Vector2d getUCHeading(const Vector3d& pos, const Matrix3d& old, double dx,
+		const std::shared_ptr<Organ> o, int nodeIdx) override;
+	///< deterministic heading that integrates the prescribed kappa(s) (defined in tropism.cpp)
+
+};
+
+
 } // end namespace CPlantBox
 
 #endif
