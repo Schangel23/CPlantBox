@@ -367,12 +367,21 @@ Vector2d CurvatureProfileTropism::getUCHeading(const Vector3d& pos, const Matrix
 	if (bnl < 1e-9) return Vector2d(0., 0.);
 	bn = bn.times(1. / bnl);
 
-	// in-plane direction perpendicular to current heading, on the droop (down) side
-	Vector3d m = t.cross(bn);
+	// Fix the rotational sense ONCE from the insertion heading so the leaf
+	// droops, then keep it constant as the heading rotates. A per-step "point
+	// toward down" rule reverses the bend once the tip curls past vertical, which
+	// stalls high-curl ranks at ~90 deg; rotating consistently about bn lets the
+	// curve curl monotonically (faithful to RECON's >180 deg pendant ranks).
+	Vector3d t0 = o->getiHeading0();
+	double t0l = std::sqrt(t0.times(t0));
+	t0 = (t0l > 1e-9) ? t0.times(1. / t0l) : t;
+	if (bn.cross(t0).z > 0.) bn = bn.times(-1.);                  // orient: initial bend = downward
+
+	// in-plane direction perpendicular to current heading (consistent handedness)
+	Vector3d m = bn.cross(t);
 	double ml = std::sqrt(m.times(m));
 	if (ml < 1e-9) return Vector2d(0., 0.);
 	m = m.times(1. / ml);
-	if (m.z > 0.) m = m.times(-1.);                              // default droop = downward
 	if (negate) m = m.times(-1.);                               // kappa<0 bends the other way
 
 	// rotAB(a,b) deflects by a toward (cos b * col1 + sin b * col2); solve b for m
