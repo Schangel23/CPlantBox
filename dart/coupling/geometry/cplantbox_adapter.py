@@ -2460,6 +2460,23 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                 else:
                     _midrib_band_v_per_u = np.full(_n_skel_n, 0.025)
 
+                # Blade-width calibration (maize): the per-rank shape-distribution
+                # cross-sections come out too narrow for several ranks (esp. upper
+                # canopy, where ranks are copies of rank 11), giving thin sliver
+                # leaves. Normalize the lateral cross-section so the max blade
+                # width matches the per-rank Width_blade from the XML (full width
+                # in cm), keeping width calibration in the XML. Only for physical
+                # (non-normalized) maize cps with a positive Width_blade.
+                if (species == 'maize' and not is_normalized
+                        and float(lrp.Width_blade) > 1e-6):
+                    _vmid = n_v // 2
+                    _mid = cps_local[:, _vmid:_vmid + 1, :]
+                    _cur_w = float(np.max(np.linalg.norm(
+                        cps_local[:, -1, :] - cps_local[:, 0, :], axis=1)))
+                    _tgt_w = float(lrp.Width_blade)
+                    if _cur_w > 1e-6:
+                        cps_local = _mid + (cps_local - _mid) * (_tgt_w / _cur_w)
+
                 _entry = {
                     "type": "leaf",
                     "part_type": _leaf_part_type,
