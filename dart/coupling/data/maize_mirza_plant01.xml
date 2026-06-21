@@ -177,7 +177,7 @@
         <parameter name="la" value="8" />
         <parameter name="lb" value="0.7" />
         <parameter name="ldelay" value="-1" />
-        <parameter name="lmax" value="62" dev="8" />
+        <parameter name="lmax" value="210" dev="15" />
         <parameter name="ln" value="3.5" dev="0.5" />
         <parameter name="phase_II_duration" value="25" />
         <parameter name="phase_IV_duration" value="30" />
@@ -211,7 +211,7 @@
 <parameter name="successor" ruleId="16" numLat="1" where="16" subType="20" organType="3" percentage="1" />
         <parameter name="v_n" values="0.16, 0.16, 0.16, 0.16, 0.16, 0.16, 0.13, 0.2, 0.32, 0.38, 0.36, 0.28, 0.25, 0.24, 0.19, 0.16" />
         <parameter name="D_n" values="110, 110, 110, 110, 110, 70, 75, 58, 55, 50, 55, 60, 54, 66, 82" />
-        <parameter name="IL_final" values="0.00, 0.00, 0.00, 0.00, 0.00, 1.50, 4.00, 8.00, 10.00, 8.00, 3.50, 2.00, 1.50, 1.50, 1.50, 1.50" />
+        <parameter name="IL_final" values="0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 8.00, 7.20, 20.80, 24.80, 24.00, 24.00, 20.80, 14.40, 3.20, 3.20" />
         <parameter name="basal_zero_ranks" values="1, 2, 3, 4, 5" />
     </stem>
     <stem name="tassel_spike" subType="20">
