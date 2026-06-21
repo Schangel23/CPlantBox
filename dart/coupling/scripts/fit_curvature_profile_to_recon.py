@@ -25,7 +25,12 @@ N_KNOTS = 12
 
 
 def recon_kappa_by_rank():
-    """rank -> (phi, kappa, arc_len_cm) from the last reliable stage."""
+    """rank -> (phi, kappa, arc_len_cm) from the most-grown reliable stage.
+
+    Pick the reliable stage with the LONGEST midrib arc, not the last: late
+    "reliable" stages are sometimes corrupted short reconstructions (a mature
+    leaf cannot shrink), and the longest stage is the genuine mature shape.
+    """
     d = np.load(LIB, allow_pickle=True)
     ranks = sorted(int(k.split("_")[1]) for k in d.files if re.fullmatch(r"cps_\d+", k))
     out = {}
@@ -35,7 +40,9 @@ def recon_kappa_by_rank():
         stages = np.where(rel)[0]
         if len(stages) == 0:
             continue
-        st = int(stages[-1])                     # last reliable stage
+        arcs = {int(s): float(np.linalg.norm(np.diff(cps[s][:, V_MID, :], axis=0), axis=1).sum())
+                for s in stages}
+        st = max(arcs, key=arcs.get)             # most-grown (longest) reliable stage
         mid = cps[st][:, V_MID, :]               # (18, 3) midrib polyline
         arc = float(np.linalg.norm(np.diff(mid, axis=0), axis=1).sum())
         phi, kap = kappa_profile(mid, n_knots=N_KNOTS)
@@ -84,11 +91,14 @@ def main():
         # build the new leaf block body
         new_body = re.sub(r'(<parameter name="tropismT" value=")\d+(" ?/?>)',
                           r'\g<1>9\g<2>', body)
-        # remove any stale leafCurvature, then insert fresh just before close
+        # remove any stale leafCurvature, then insert fresh just before close.
+        # One element per knot with SCALAR phi/kappa (same convention as leafGeometry;
+        # readXML appends each into the leafCurvaturePhi/Kappa vectors).
         new_body = re.sub(r'\s*<parameter name="leafCurvature"[^>]*/>', '', new_body)
-        ins = (f'        <parameter name="leafCurvature" '
-               f'phi="{fmt(phi)}" kappa="{fmt(kap)}" />\n    ')
-        new_body = new_body.rstrip() + "\n" + ins
+        ins = "".join(f'        <parameter name="leafCurvature" '
+                      f'phi="{phi[i]:.6g}" kappa="{kap[i]:.6g}" />\n'
+                      for i in range(len(phi)))
+        new_body = new_body.rstrip() + "\n" + ins + "    "
         edits.append((m.group(0), m.group(1) + new_body + m.group(5)))
 
     if not args.write:

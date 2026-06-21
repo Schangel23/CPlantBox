@@ -12,12 +12,17 @@ import numpy as np
 from scipy.interpolate import splprep, splev
 
 
-def kappa_profile(pts, n_knots=12, sf=1e-3):
+def kappa_profile(pts, n_knots=12, sf=1e-5, n_resample=40):
     """kappa(s) of a midrib polyline.
 
     pts : (M,3) ordered midrib points (base->tip), physical units (cm).
     Returns (phi, kappa): phi = normalized arc fraction knots in [0,1],
     kappa = curvature magnitude [1/cm] at each knot (piecewise-linear ready).
+
+    The polyline is first resampled to n_resample points by arc length so the
+    smoothing s = sf*L^2 acts identically regardless of input density (RECON's
+    ~18 CPs vs a grown skeleton's hundreds of nodes), making the fit-side and
+    validation-side kappa(s) directly comparable.
     """
     pts = np.asarray(pts, float)
     # drop consecutive duplicates (splprep chokes on zero-length segments)
@@ -25,6 +30,12 @@ def kappa_profile(pts, n_knots=12, sf=1e-3):
     pts = pts[d > 1e-9]
     if len(pts) < 4:
         return np.linspace(0, 1, n_knots), np.zeros(n_knots)
+    # resample to a fixed point count by arc length (density-independent smoothing)
+    seg0 = np.linalg.norm(np.diff(pts, axis=0), axis=1)
+    arc0 = np.concatenate([[0.0], np.cumsum(seg0)])
+    u0 = arc0 / arc0[-1]
+    ur = np.linspace(0.0, 1.0, n_resample)
+    pts = np.column_stack([np.interp(ur, u0, pts[:, k]) for k in range(3)])
     seg = np.linalg.norm(np.diff(pts, axis=0), axis=1)
     L = float(seg.sum())
     s = sf * L * L

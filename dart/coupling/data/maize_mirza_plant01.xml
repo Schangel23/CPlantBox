@@ -315,7 +315,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -374,6 +374,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0324849" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0162815" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0623357" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.110259" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.188761" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.12674" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0922075" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0830819" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.076857" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0575667" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0256674" />
+        <parameter name="leafCurvature" phi="1" kappa="0.00961729" />
     </leaf>
 <leaf name="maize_leaf_L1" subType="3">
         <parameter name="geometryN" value="100" />
@@ -389,7 +401,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -448,6 +460,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0181463" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.00909498" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0348211" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.0615912" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.105443" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.0707979" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0515077" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0464101" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0429328" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0321571" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.014338" />
+        <parameter name="leafCurvature" phi="1" kappa="0.00537228" />
     </leaf>
     <leaf name="maize_leaf_L2" subType="4">
         <parameter name="geometryN" value="100" />
@@ -463,7 +487,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -522,6 +546,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.00527234" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0399861" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0641307" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.078124" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0676808" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.040022" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0262274" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0325679" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0326409" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0227079" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.02661" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0505586" />
     </leaf>
     <leaf name="maize_leaf_L3" subType="5">
         <parameter name="geometryN" value="100" />
@@ -537,7 +573,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -596,6 +632,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0168624" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.025309" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0359114" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.0448236" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0366337" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.0292258" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0345956" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0630694" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0589875" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0460569" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0269066" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0121704" />
     </leaf>
     <leaf name="maize_leaf_L4" subType="6">
         <parameter name="geometryN" value="100" />
@@ -611,7 +659,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -670,6 +718,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.58999999999999997" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0227764" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0432951" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0555649" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.0562954" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0315568" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.00887916" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0116755" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.022073" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0407546" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0582975" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0595172" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0510026" />
     </leaf>
     <leaf name="maize_leaf_L5" subType="7">
         <parameter name="geometryN" value="100" />
@@ -685,7 +745,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -744,6 +804,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.58999999999999997" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0228507" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.014215" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0155971" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.0274107" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0568736" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.0634589" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0614027" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0465035" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0477546" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0537701" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0509584" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0511241" />
     </leaf>
     <leaf name="maize_leaf_L6" subType="8">
         <parameter name="geometryN" value="100" />
@@ -759,7 +831,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -818,6 +890,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0207529" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0130616" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0156342" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.023311" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0454333" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.0451316" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0435217" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0563399" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.07401" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.066877" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0463381" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0380696" />
     </leaf>
     <leaf name="maize_leaf_L7" subType="9">
         <parameter name="geometryN" value="100" />
@@ -833,7 +917,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -892,6 +976,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.56999999999999995" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0253981" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0238188" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0121527" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.0368955" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0235057" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.0180716" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0211661" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.046188" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0737729" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0795881" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0637155" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0360643" />
     </leaf>
     <leaf name="maize_leaf_L8" subType="10">
         <parameter name="geometryN" value="100" />
@@ -907,7 +1003,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -966,6 +1062,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.55000000000000004" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0483605" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.04231" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0280241" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.0164301" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0306241" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.0514494" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0762273" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0996655" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0881917" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0647951" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0272711" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0179865" />
     </leaf>
     <leaf name="maize_leaf_L9" subType="11">
         <parameter name="geometryN" value="100" />
@@ -981,7 +1089,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -1040,6 +1148,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0572868" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0659631" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0495421" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.0278952" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0309591" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.0347162" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0336519" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0248664" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0172982" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.00865919" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.030666" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0238795" />
     </leaf>
     <leaf name="maize_leaf_L10" subType="12">
         <parameter name="geometryN" value="100" />
@@ -1055,7 +1175,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -1114,6 +1234,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.56000000000000005" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.054411" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0351492" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0152068" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.0128071" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0233133" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.0341111" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0322996" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0611443" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0851249" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0630335" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0473051" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0481982" />
     </leaf>
     <leaf name="maize_leaf_L11" subType="13">
         <parameter name="geometryN" value="100" />
@@ -1129,7 +1261,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -1188,6 +1320,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.52000000000000002" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0221534" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0263377" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0328358" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.0407339" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0477857" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.155437" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.421392" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0729052" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0257433" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0101473" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.00466742" />
+        <parameter name="leafCurvature" phi="1" kappa="0.00754158" />
     </leaf>
     <leaf name="maize_leaf_L12" subType="14">
         <parameter name="geometryN" value="100" />
@@ -1203,7 +1347,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -1262,6 +1406,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.56999999999999995" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0192531" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0793839" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.115736" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.113786" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0829365" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.111369" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.125811" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0934876" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.039795" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0229487" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0229335" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0279589" />
     </leaf>
     <leaf name="maize_leaf_L13" subType="15">
         <parameter name="geometryN" value="100" />
@@ -1277,7 +1433,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -1336,6 +1492,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.54000000000000004" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.00713369" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0294135" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0428826" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.0421602" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0307298" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.0412646" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0466156" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0346392" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0147449" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.00850301" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.00849736" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0103594" />
     </leaf>
     <leaf name="maize_leaf_L14" subType="16">
         <parameter name="geometryN" value="100" />
@@ -1351,7 +1519,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -1410,6 +1578,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.55000000000000004" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0076639" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0315996" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0460698" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.0452937" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0330138" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.0443315" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0500803" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0372138" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0158408" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.00913499" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.00912892" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0111293" />
     </leaf>
     <leaf name="maize_leaf_L15" subType="17">
         <parameter name="geometryN" value="100" />
@@ -1425,7 +1605,7 @@
         <parameter name="surface_deg_v" value="2" />
         <parameter name="surface_n_u" value="11" />
         <parameter name="surface_n_v" value="5" />
-        <parameter name="tropismT" value="8" />
+        <parameter name="tropismT" value="9" />
         <parameter name="use_tropism_midrib" value="1" />
         <parameter name="use_fa_kinetics" value="1" />
         <parameter name="use_thermal_elongation" value="0" />
@@ -1484,5 +1664,17 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.53000000000000003" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.00838637" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0345785" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0504128" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.0495635" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.036126" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.0485107" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0548013" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0407219" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0173341" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.00999615" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0099895" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0121785" />
     </leaf>
 </plant>
