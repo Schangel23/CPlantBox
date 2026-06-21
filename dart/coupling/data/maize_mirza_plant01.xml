@@ -343,7 +343,7 @@
         <parameter name="lag_exp_n" value="0" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="24.005776922818818" />
+        <parameter name="lmax" value="6" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2" />
@@ -429,7 +429,7 @@
         <parameter name="lag_exp_n" value="0" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="42.9744" />
+        <parameter name="lmax" value="20" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2" />
@@ -515,7 +515,7 @@
         <parameter name="lag_exp_n" value="0" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="44.531" />
+        <parameter name="lmax" value="32" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2" />
@@ -601,7 +601,7 @@
         <parameter name="lag_exp_n" value="109.38436591514592" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="43.1364" />
+        <parameter name="lmax" value="43" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2.3969999999999998" />
@@ -687,7 +687,7 @@
         <parameter name="lag_exp_n" value="113.546008784431" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="44.7497" />
+        <parameter name="lmax" value="52" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2.8130000000000002" />
@@ -773,7 +773,7 @@
         <parameter name="lag_exp_n" value="131.01717450163008" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="38.4004" dev="3.77769" />
+        <parameter name="lmax" value="50" dev="3.77769" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="4.4470000000000001" />
@@ -859,7 +859,7 @@
         <parameter name="lag_exp_n" value="217.47477747663635" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="37.9551" dev="3.50688" />
+        <parameter name="lmax" value="72" dev="3.50688" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="4.992" />
@@ -945,7 +945,7 @@
         <parameter name="lag_exp_n" value="187.93955078710295" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="32.5879" dev="2.83022" />
+        <parameter name="lmax" value="71" dev="2.83022" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="5.5460000000000003" />
@@ -1031,7 +1031,7 @@
         <parameter name="lag_exp_n" value="255.98858852248816" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="38.0298" dev="3.02724" />
+        <parameter name="lmax" value="69" dev="3.02724" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="5.7599999999999998" />
@@ -1117,7 +1117,7 @@
         <parameter name="lag_exp_n" value="342.22353966635706" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="36.9714" dev="2.66409" />
+        <parameter name="lmax" value="76" dev="2.66409" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="5.8810000000000002" />
@@ -1203,7 +1203,7 @@
         <parameter name="lag_exp_n" value="278.8223026219755" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="35.4899" />
+        <parameter name="lmax" value="94" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="5.875" />
@@ -1289,7 +1289,7 @@
         <parameter name="lag_exp_n" value="147.98601915063793" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="26.5926" />
+        <parameter name="lmax" value="53" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="6" />
@@ -1375,7 +1375,7 @@
         <parameter name="lag_exp_n" value="115.58876199028489" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="23.5652" />
+        <parameter name="lmax" value="72" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="6" />
@@ -1461,7 +1461,7 @@
         <parameter name="lag_exp_n" value="72.825090431330807" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="63.600000000000001" />
+        <parameter name="lmax" value="69" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="6" />
@@ -1547,7 +1547,7 @@
         <parameter name="lag_exp_n" value="107.44653456576718" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="59.200000000000003" />
+        <parameter name="lmax" value="55" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="6" />
@@ -1633,7 +1633,7 @@
         <parameter name="lag_exp_n" value="83.047704095872433" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="54.100000000000001" />
+        <parameter name="lmax" value="49" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="6" />
