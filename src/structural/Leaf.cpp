@@ -530,7 +530,7 @@ void Leaf::updateNodesFromSurfaceCPs()
 	const double scale = current_length / mature_length;
 
 	// Maturity-aware blend (young-stage flat template). Mature leaves early-out.
-	const std::vector<Vector3d> eff = getEffectiveSurfaceCPs();
+	const std::vector<Vector3d> eff = lrp->use_tropism_midrib ? getEffectiveSurfaceCPs(1.) : getEffectiveSurfaceCPs();
 	if ((int)eff.size() != n_u * n_v) return;
 
 	// --- 1-2. Extract v=midrib column, scale ---
