@@ -215,7 +215,7 @@ Vector2d PrescribedMidribTropism::getUCHeading(const Vector3d& pos, const Matrix
 	// grid). Falls back to the raw grid if o is not a Leaf / effective empty.
 	std::vector<Vector3d> eff;
 	auto leaf = std::dynamic_pointer_cast<Leaf>(o);
-	if (leaf) eff = leaf->getEffectiveSurfaceCPs();
+	if (leaf) eff = (useMatureShape && lrp->use_tropism_midrib) ? leaf->getEffectiveSurfaceCPs(1.) : leaf->getEffectiveSurfaceCPs();
 	if ((int)eff.size() != n_u * n_v) eff = lrp->surface_cps;
 	if ((int)eff.size() < n_u * n_v) return Vector2d(0., 0.);
 

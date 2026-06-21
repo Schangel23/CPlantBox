@@ -1040,7 +1040,7 @@ PYBIND11_MODULE(plantbox, m) {
             .def_readwrite("lmax_set", &Leaf::lmax_set)
             .def_readwrite("emergence_andrieu_tt_", &Leaf::emergence_andrieu_tt_)
             .def("getEmergenceAndrieuTT", &Leaf::getEmergenceAndrieuTT)
-            .def("getEffectiveSurfaceCPs", &Leaf::getEffectiveSurfaceCPs);
+            .def("getEffectiveSurfaceCPs", [](const Leaf& self) { return self.getEffectiveSurfaceCPs(); });
     /**
      * Stem.h
      */

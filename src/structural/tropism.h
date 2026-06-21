@@ -375,8 +375,8 @@ class PrescribedMidribTropism : public Tropism
 {
 public:
 
-	PrescribedMidribTropism(std::shared_ptr<Organism> plant, double n, double sigma) :
-		Tropism(plant, n, sigma) { } ///< @see TropismFunction
+	PrescribedMidribTropism(std::shared_ptr<Organism> plant, double n, double sigma, bool useMatureShape = false) :
+		Tropism(plant, n, sigma), useMatureShape(useMatureShape) { } ///< @see TropismFunction
 
 	std::shared_ptr<Tropism> copy(std::shared_ptr<Organism> plant) override {
 		auto nt = std::make_shared<PrescribedMidribTropism>(*this); // default copy constructor
@@ -386,6 +386,7 @@ public:
 
 	Vector2d getUCHeading(const Vector3d& pos, const Matrix3d& old, double dx,
 		const std::shared_ptr<Organ> o, int nodeIdx) override;
+	bool useMatureShape = false;
 	///< exact deterministic heading along the prescribed midrib tangent (defined in tropism.cpp)
 
 };

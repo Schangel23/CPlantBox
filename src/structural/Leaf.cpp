@@ -427,6 +427,11 @@ std::vector<Vector3d> buildFlatTemplate(
  */
 std::vector<Vector3d> Leaf::getEffectiveSurfaceCPs() const
 {
+	return getEffectiveSurfaceCPs(-1.);
+}
+
+std::vector<Vector3d> Leaf::getEffectiveSurfaceCPs(double maturityOverride) const
+{
 	auto lrp = getLeafRandomParameter();
 	if (!lrp) return {};
 	const int n_u = lrp->surface_n_u;
@@ -449,7 +454,8 @@ std::vector<Vector3d> Leaf::getEffectiveSurfaceCPs() const
 	// added on top. Median ≡ lrp->surface_cps; we never overwrite it.
 	const std::vector<Vector3d>& median = lrp->surface_cps;
 	const double mature_length = std::max(lrp->lmax, 1e-9);
-	const double m = std::min(std::max(getLength(true) / mature_length, 0.0), 1.0);
+	const double maturity = (maturityOverride >= 0.) ? maturityOverride : getLength(true) / mature_length;
+	const double m = std::min(std::max(maturity, 0.0), 1.0);
 
 	std::vector<Vector3d> blended = median;  // mature endpoint of native blend
 	const double young_fade_end = std::max(lrp->young_fade_end, 1e-9);

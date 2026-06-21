@@ -104,6 +104,7 @@ public:
 	 * blade length). Mature leaves (alpha≈0) return lrp->surface_cps
 	 * bit-for-bit via early-out. */
 	std::vector<Vector3d> getEffectiveSurfaceCPs() const;
+	std::vector<Vector3d> getEffectiveSurfaceCPs(double maturityOverride) const;
 
 	/* Tunable knobs for the maturity blend. Set above the mature
 	 * threshold you want untouched. kYoungFadeEnd < 1 guarantees no
