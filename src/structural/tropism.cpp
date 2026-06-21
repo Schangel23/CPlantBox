@@ -235,10 +235,29 @@ Vector2d PrescribedMidribTropism::getUCHeading(const Vector3d& pos, const Matrix
 	double frac = o->getLength(true) / Lmax;
 	if (frac < 0.) frac = 0.; if (frac > 1.) frac = 1.;
 	const double target_s = frac * total;
-	int k = 0;
-	while (k < n_u - 2 && cum[k + 1] < target_s) ++k;   // segment [k, k+1]
-	Vector3d tan_l = mid[k + 1].minus(mid[k]);
+	// Smooth, continuously-varying tangent at target_s. A piecewise-constant
+	// per-CP-segment tangent (mid[k+1]-mid[k]) is discontinuous at CP-segment
+	// crossovers: on a non-arc-uniform CP polyline it dumps the whole
+	// inter-segment turn into one growth step (kinks / spurious kappa spikes,
+	// e.g. the rank-10 apex pendant turn). Instead take a centered difference of
+	// the arc-interpolated midrib over a window of ~one mean CP-segment, so the
+	// curvature is distributed smoothly along the arc (faithful kappa(s)).
+	auto midAt = [&](double s) -> Vector3d {
+		if (s <= 0.) return mid[0];
+		if (s >= total) return mid[n_u - 1];
+		int j = 0;
+		while (j < n_u - 2 && cum[j + 1] < s) ++j;
+		const double seg = cum[j + 1] - cum[j];
+		const double w = (seg > 1e-12) ? (s - cum[j]) / seg : 0.;
+		return mid[j].times(1. - w).plus(mid[j + 1].times(w));
+	};
+	const double hw = 0.5 * total / (double)(n_u - 1);   // half-window ~ 1/2 mean CP-segment
+	Vector3d tan_l = midAt(target_s + hw).minus(midAt(target_s - hw));
 	double tll = std::sqrt(tan_l.times(tan_l));
+	if (tll < 1e-12) {                                    // degenerate window -> fall back to chord
+		tan_l = mid[n_u - 1].minus(mid[0]);
+		tll = std::sqrt(tan_l.times(tan_l));
+	}
 	if (tll < 1e-12) return Vector2d(0., 0.);
 	tan_l = tan_l.times(1. / tll);
 
