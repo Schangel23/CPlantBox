@@ -1608,6 +1608,40 @@ def _rodrigues_rotate(points, pivot, axis, angle_rad):
     return out.reshape(3) if was_1d else out
 
 
+# Birch et al. 2002: on young maize the visible "stem" is the pseudostem -- a
+# column of stacked leaf sheaths. The ligule (collar) of leaf n sits at the
+# cumulative visible-sheath height below it, NOT at the (basal-plate-short)
+# internode. We model internodes via Birch kinetics already; this adds the
+# stacked-sheath column that actually distributes the leaves. Validated against
+# the RECON point-cloud skeleton in proto_pseudostem.py (ranks 0-5 RMS 15.9->3.0).
+PSEUDOSTEM_VISIBLE_FRACTION = 0.5  # ponytail: emerged fraction of each sheath
+                                   # (telescoping overlap). Single physical knob;
+                                   # raise toward 1.0 if the column is too short.
+
+
+def _apply_pseudostem_lift(organs, scale=PSEUDOSTEM_VISIBLE_FRACTION):
+    """Lift each leaf's collar onto the cumulative visible sheath column beneath
+    it: collar(n).z += sum_{k<n} sheath_k * maturity_k * scale. Internodes (the
+    Birch basal plate + bell) are left untouched -- this is the parallel sheath
+    stem, not an internode change. Shifts both collar_pos and the absolute midrib
+    skeleton so the whole leaf rides up the pseudostem."""
+    leaves = [o for o in organs if o.get("type") == "leaf"
+              and o.get("collar_pos") is not None
+              and o.get("sheath_length_cm") is not None
+              and o.get("maturity_fraction") is not None]
+    if len(leaves) < 2:
+        return
+    leaves.sort(key=lambda o: float(np.asarray(o["collar_pos"], float)[2]))
+    cum = 0.0
+    for o in leaves:
+        dz = cum  # pseudostem height below this leaf
+        cp = np.asarray(o["collar_pos"], float); cp[2] += dz; o["collar_pos"] = cp
+        sk = o.get("skeleton")
+        if sk is not None:
+            sk = np.asarray(sk, float); sk[:, 2] += dz; o["skeleton"] = sk
+        cum += float(o["sheath_length_cm"]) * float(np.clip(o["maturity_fraction"], 0.0, 1.0)) * scale
+
+
 def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                               skip_roots=True, deformation_stats=None,
                               stem_profile=None, name_prefix="",
@@ -2973,6 +3007,10 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
             if o['type'] == 'stem' and not o.get('name', '').startswith(
                     ('tassel_spike_', 'tassel_branch_')):
                 o['no_clip_above_z'] = float(tassel_base_z) + 3.0
+
+    # Birch pseudostem: distribute leaves up the stacked-sheath column (internodes
+    # stay Birch-short). Runs before both return paths.
+    _apply_pseudostem_lift(organs)
 
     # Roots (optional, usually skip for shoot-only viz)
     if skip_roots:
