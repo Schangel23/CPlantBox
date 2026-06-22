@@ -1620,11 +1620,24 @@ PSEUDOSTEM_VISIBLE_FRACTION = 0.5  # ponytail: emerged fraction of each sheath
 
 
 def _apply_pseudostem_lift(organs, scale=PSEUDOSTEM_VISIBLE_FRACTION):
-    """Lift each leaf's collar onto the cumulative visible sheath column beneath
-    it: collar(n).z += sum_{k<n} sheath_k * maturity_k * scale. Internodes (the
-    Birch basal plate + bell) are left untouched -- this is the parallel sheath
-    stem, not an internode change. Shifts both collar_pos and the absolute midrib
-    skeleton so the whole leaf rides up the pseudostem."""
+    """Stack each leaf's collar onto the pseudostem column beneath it.
+
+    The visible plant axis at leaf n is the SAME physical column whether you
+    read it as stacked leaf sheaths (pre-jointing) or as the extending
+    internodes (post-jointing) -- the sheath wraps the internode, they are not
+    two heights to add. So the rise from leaf n-1 to leaf n is the LARGER of the
+    two, not their sum:
+
+        collar(n).z = collar(n-1).z + max(internode_inc(n), visible_sheath(n-1))
+
+    Pre-jointing the bare internode is ~0 (Birch basal plate) so the sheath
+    column wins -> leaves climb the pseudostem instead of bunching in a fountain.
+    Post-jointing the internode wins -> the sheath rides the stalk and does NOT
+    double-count on top of it (the bug in the earlier additive version that
+    over-lifted upper collars to ~84cm vs RECON's ~28). Internodes themselves
+    are untouched -- this only repositions collars + midribs onto the column.
+    Shifts both collar_pos and the absolute midrib skeleton so the whole leaf
+    rides up. No-op on lofts without per-leaf sheath/maturity (non-maize)."""
     leaves = [o for o in organs if o.get("type") == "leaf"
               and o.get("collar_pos") is not None
               and o.get("sheath_length_cm") is not None
@@ -1632,14 +1645,18 @@ def _apply_pseudostem_lift(organs, scale=PSEUDOSTEM_VISIBLE_FRACTION):
     if len(leaves) < 2:
         return
     leaves.sort(key=lambda o: float(np.asarray(o["collar_pos"], float)[2]))
-    cum = 0.0
-    for o in leaves:
-        dz = cum  # pseudostem height below this leaf
+    bare = [float(np.asarray(o["collar_pos"], float)[2]) for o in leaves]
+    vis = [float(o["sheath_length_cm"]) * float(np.clip(o["maturity_fraction"], 0.0, 1.0)) * scale
+           for o in leaves]
+    new_z = bare[0]  # lowest collar is the anchor (dz=0)
+    for i, o in enumerate(leaves):
+        if i > 0:
+            new_z += max(bare[i] - bare[i - 1], vis[i - 1])
+        dz = new_z - bare[i]
         cp = np.asarray(o["collar_pos"], float); cp[2] += dz; o["collar_pos"] = cp
         sk = o.get("skeleton")
         if sk is not None:
             sk = np.asarray(sk, float); sk[:, 2] += dz; o["skeleton"] = sk
-        cum += float(o["sheath_length_cm"]) * float(np.clip(o["maturity_fraction"], 0.0, 1.0)) * scale
 
 
 def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
