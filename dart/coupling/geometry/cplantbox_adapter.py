@@ -1655,11 +1655,18 @@ def _apply_pseudostem_lift(organs, scale=PSEUDOSTEM_VISIBLE_FRACTION):
     vis = [float(o["sheath_length_cm"]) * float(np.clip(o["maturity_fraction"], 0.0, 1.0)) * scale
            for o in leaves]
     new_z = bare[0]  # lowest collar is the anchor (dz=0)
+    prev_lift_z = bare[0]
     for i, o in enumerate(leaves):
         if i > 0:
             new_z += max(bare[i] - bare[i - 1], vis[i - 1])
         dz = new_z - bare[i]
         cp = np.asarray(o["collar_pos"], float); cp[2] += dz; o["collar_pos"] = cp
+        # The sheath cup was clamped to the bare (bunched Birch) internode gap
+        # ~1cm, so it rendered as an invisible nub. After the lift the visible
+        # pseudostem segment for this leaf is (new_z - prev collar): let the
+        # sheath fill it (loft still takes min(vidal_length, cup)).
+        o["sheath_cup_max_length_cm"] = max(0.95 * (new_z - prev_lift_z), 0.5)
+        prev_lift_z = new_z
         sk = o.get("skeleton")
         if sk is not None:
             sk = np.asarray(sk, float); sk[:, 2] += dz; o["skeleton"] = sk
