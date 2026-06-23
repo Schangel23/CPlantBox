@@ -2601,7 +2601,12 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                     "rounded_tip": False,
                     "collar_pos": collar_pos_np,
                     "collar_tangent": collar_tangent_out,
-                    "parent_tangent": parent_tangent_np,
+                    # Sheath wrap axis. RECON (_organs_from_grids) hardcodes the
+                    # vertical [0,0,1]; the maize stem IS vertical, so wrapping
+                    # the sheath around the (noisy/tilted) grown tangent makes
+                    # the cup spiral into a thin twisted band instead of a broad
+                    # vertical clasp. Match RECON.
+                    "parent_tangent": np.array([0.0, 0.0, 1.0]),
                     "mature_length": mature_length,
                     "current_length": current_length,
                     "maturity_fraction": nurbs_maturity,
