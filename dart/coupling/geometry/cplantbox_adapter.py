@@ -419,8 +419,12 @@ def _make_stem_radius_at_z_callable(
     except Exception:
         return _constant_fallback()
 
+    # Mirror _stem_radius_at_collar_cm: skip the maturity width-compression for
+    # absolute profiles, otherwise the cup BASE (collar helper, absolute) is
+    # full-width while the cup WALL (this callable) tapers to quarter-width and
+    # the sheath pinches inward as it climbs -> bulge/twist on the stem.
     width_scale = 1.0
-    if lmax > 1.0:
+    if lmax > 1.0 and not stem_profile.get("absolute"):
         maturity = min(stem_len / lmax, 1.0)
         width_scale = max(0.08, maturity ** 0.8)
 
