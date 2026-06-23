@@ -933,7 +933,7 @@ def build_compound_leaf_cps(
             r = float(stem_radius_at_z(z_off))
         except Exception:
             return stem_r_fallback
-        return r if r > 0.0 else stem_r_fallback
+        return max(r, stem_r_fallback) if r > 0.0 else stem_r_fallback
 
     def _ring_row(z_j: np.ndarray, bulge_scale: float) -> np.ndarray:
         """Closed ring at per-column z values (n_v,). Returns (n_v, 3).
