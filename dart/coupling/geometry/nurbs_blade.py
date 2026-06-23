@@ -648,7 +648,7 @@ def loft_leaf_nurbs(
             y_local_w = np.cross(t, x_local_w)
             y_local_w = y_local_w / max(float(np.linalg.norm(y_local_w)), 1e-12)
             R_leaf = np.column_stack([x_local_w, y_local_w, t])
-            stem_axis_local = np.array([0.0, 0.0, 1.0], dtype=np.float64)
+            stem_axis_local = R_leaf.T @ stem_axis_world
 
             # Optional stem-taper awareness: adapter may supply a
             # callable ``parent_stem_radius_at_z_cm(z_local_cm) -> cm``
