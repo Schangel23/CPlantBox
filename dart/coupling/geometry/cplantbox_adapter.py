@@ -2369,8 +2369,21 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                 # base of the stalk). Capsule-based push-out fights the
                 # bend and ends up flattening the U-shape into a downward
                 # ribbon.
+                #
+                # Also skip for the skeleton-driven (maize) path: there the
+                # blade rides ``current_skel`` via Darboux frames using only
+                # the cross-section's RELATIVE offsets, so relaxing the CP
+                # positions cancels out — its only effect is mutating the
+                # drive skeleton AWAY from the native grown midrib (measured:
+                # mid-canopy ranks flipped to ~144°/111° vs native ~41°/44°,
+                # so the lofted mesh sprawled off the directed tree). The
+                # mesh must follow the native node_ids midrib (= the directed
+                # tree), so the drive skeleton stays untouched here.
+                # ponytail: maize accepts mild leaf-leaf clipping in exchange
+                # for matching the measured pose; add per-leaf relaxation that
+                # preserves the skeleton if clipping ever shows in renders.
                 if (collision_obstacles and nurbs_maturity >= relax_threshold
-                        and rho_senesce <= 0.0):
+                        and rho_senesce <= 0.0 and species != 'maize'):
                     # margin shrinks toward the threshold so post-collar
                     # blades emerging out of the whorl still get a soft
                     # nudge rather than a hard push, then settle to the
