@@ -692,7 +692,6 @@ def loft_leaf_nurbs(
                 stem_axis=stem_axis_local,
                 stem_radius_at_z=stem_r_at_z,
                 max_sheath_length_cm=max_sheath_cap,
-                wrap_deg=270.0,
             )
 
         # Skeleton-driven placement (gated; default off → non-maize renders
