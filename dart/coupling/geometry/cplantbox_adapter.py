@@ -507,7 +507,7 @@ def load_stem_profile(path=None):
             t = (h[i] - h[lo_idx]) / max(h[hi_idx] - h[lo_idx], 1e-6)
             r[i] = r_lo + t * (r_hi - r_lo)
 
-    profile = {'height_frac': h, 'radius_cm': r}
+    profile = {'height_frac': h, 'radius_cm': r, 'absolute': bool(data.get('absolute', False))}
     _stem_profile_cache[key] = profile
     return profile
 
@@ -1839,9 +1839,13 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
         stem_maturity_value = 1.0  # default for the young-compress check
         if lmax > 1.0:
             stem_maturity_value = min(stem_length / lmax, 1.0)
-            maturity_floor = 0.70 if is_tassel else 0.08
-            width_scale = max(maturity_floor, stem_maturity_value ** 0.8)
-            widths *= width_scale
+            # An absolute (scan-measured) profile already encodes the real
+            # young-stage radius, so the mature->young compression must NOT be
+            # re-applied (it would halve the measured girth).
+            if not (isinstance(stem_profile, dict) and stem_profile.get("absolute")):
+                maturity_floor = 0.70 if is_tassel else 0.08
+                width_scale = max(maturity_floor, stem_maturity_value ** 0.8)
+                widths *= width_scale
 
         # S3b.8: render-time young-stage z-compression removed. V-stage
         # structural geometry is correct after the plastochron-initiation
