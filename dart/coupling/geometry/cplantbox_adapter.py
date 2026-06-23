@@ -340,7 +340,13 @@ def _stem_radius_at_collar_cm(organ, collar_z=None, stem_profile=None, fallback=
                             axis=1,
                         )))
                         lmax = float(parent.getParameter("lmax"))
-                        if lmax > 1.0:
+                        # An absolute (scan-measured) profile already encodes the
+                        # real young-stage radius — must match _loft_stem, which
+                        # also skips the maturity compression for absolute
+                        # profiles. Otherwise the sheath wraps a quarter-width
+                        # stem and renders invisibly thin.
+                        if lmax > 1.0 and not (isinstance(stem_profile, dict)
+                                               and stem_profile.get("absolute")):
                             maturity = min(stem_len / lmax, 1.0)
                             width_scale = max(0.08, maturity ** 0.8)
                             radius_cm *= width_scale
