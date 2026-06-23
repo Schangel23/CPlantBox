@@ -1658,6 +1658,37 @@ def _apply_pseudostem_lift(organs, scale=PSEUDOSTEM_VISIBLE_FRACTION):
         if sk is not None:
             sk = np.asarray(sk, float); sk[:, 2] += dz; o["skeleton"] = sk
 
+    # The lift raises upper collars above the bare internode apex (above the
+    # joint the stacked sheaths ARE the visible axis). Two consequences for the
+    # stem mesh, both fixed here:
+    #   1. The leaf attachment heights moved up, so the stem's node_heights_z
+    #      (which _clip_stem_above_top_leaf trims to) must follow the lifted
+    #      collars — otherwise the stem is clipped back at the bare insertion
+    #      and the top leaves float above it.
+    #   2. The native apex may still sit below the topmost lifted collar, so
+    #      extend the pseudostem core vertically up to it at the stem's own node
+    #      spacing, holding the apex tip width.
+    collar_zs = sorted(float(np.asarray(o["collar_pos"], float)[2]) for o in leaves)
+    top_z = collar_zs[-1]
+    stem = next((o for o in organs if o.get("type") == "stem"
+                 and o.get("skeleton") is not None), None)
+    if stem is not None:
+        sk = np.asarray(stem["skeleton"], float)
+        apex = sk[-1]
+        if top_z > apex[2] + 1e-6:
+            spacing = max(np.linalg.norm(np.diff(sk[-5:], axis=0), axis=1).mean(), 0.3)
+            n_ext = int(np.ceil((top_z - apex[2]) / spacing))
+            zs = np.linspace(apex[2], top_z, n_ext + 1)[1:]
+            ext = np.column_stack([np.full(n_ext, apex[0]),
+                                   np.full(n_ext, apex[1]), zs])
+            stem["skeleton"] = np.vstack([sk, ext])
+            w = stem.get("widths")
+            if w is not None:
+                w = np.asarray(w, float)
+                stem["widths"] = np.concatenate([w, np.full(n_ext, w[-1])])
+        # keep node_heights_z a plain list (the clip does `if not ...`)
+        stem["node_heights_z"] = collar_zs
+
 
 def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                               skip_roots=True, deformation_stats=None,
