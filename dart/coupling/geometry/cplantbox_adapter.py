@@ -2415,7 +2415,7 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                 # for matching the measured pose; add per-leaf relaxation that
                 # preserves the skeleton if clipping ever shows in renders.
                 if (collision_obstacles and nurbs_maturity >= relax_threshold
-                        and rho_senesce <= 0.0 and species != 'maize'):
+                        and rho_senesce <= 0.0):
                     # margin shrinks toward the threshold so post-collar
                     # blades emerging out of the whorl still get a soft
                     # nudge rather than a hard push, then settle to the
@@ -2425,12 +2425,15 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                         min(1.0, (nurbs_maturity - relax_threshold) / 0.20),
                     )
                     margin = 0.05 * soft  # 0..0.05 cm as m goes 0.30→0.50
-                    cps_local, current_skel = _relax_cps_against_obstacles(
+                    relaxed_cps_local, relaxed_skel = _relax_cps_against_obstacles(
                         cps_local, current_skel,
                         collar_pos_np, collar_tangent_out,
                         collision_obstacles,
                         margin_cm=margin, n_iter=5, lambda_smooth=0.3,
                     )
+                    cps_local = relaxed_cps_local
+                    if species != 'maize':
+                        current_skel = relaxed_skel
                 collision_obstacles.extend(_leaf_capsule_chain(
                     cps_local, collar_pos_np, collar_tangent_out,
                     margin_cm=0.0,
