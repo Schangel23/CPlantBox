@@ -732,12 +732,17 @@ def loft_leaf_nurbs(
                 )
                 # Smooth the seam: blend driven rows toward their
                 # collar-frame positions with exponential decay.
+                # Steeper leaves need slower decay to avoid inflection
+                # kinks where the two trajectories diverge.
                 collar_blade = from_local_frame(
                     drive_local, collar_pos, tangent
                 )
+                t_norm = tangent / max(np.linalg.norm(tangent), 1e-12)
+                cos_angle = abs(t_norm[2])
+                rate = 0.8 + 2.2 * cos_angle
                 nd = len(drive_world)
                 for ib in range(nd):
-                    w = np.exp(-2.0 * ib / max(nd - 1, 1))
+                    w = np.exp(-rate * ib / max(nd - 1, 1))
                     drive_world[ib] = w * collar_blade[ib] + (1.0 - w) * drive_world[ib]
                 cps = np.concatenate([sheath_and_morph, drive_world], axis=0)
             else:
