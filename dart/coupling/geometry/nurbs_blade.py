@@ -706,46 +706,42 @@ def loft_leaf_nurbs(
         skel_drive = np.asarray(organ["skeleton"], dtype=np.float64)
         if organ.get("skeleton_drive") and len(skel_drive) >= 3:
             blade_local = cps_local[-N_U:] if use_compound else cps_local
-            mid_c = blade_local.shape[1] // 2
-            off = blade_local - blade_local[:, mid_c:mid_c + 1, :]
-            skel_u, _w_u, _af = _resample_skeleton(
+            # When compound is active the first n_morph rows of blade_local
+            # are morph rows that wrap the stem — skeleton-drive must skip
+            # them so they keep their stem-centred placement.
+            n_morph_skip = 3 if use_compound else 0
+            drive_local = blade_local[n_morph_skip:]
+            mid_c = drive_local.shape[1] // 2
+            off = drive_local - drive_local[:, mid_c:mid_c + 1, :]
+            skel_u_full, _w_u, _af = _resample_skeleton(
                 skel_drive, np.ones(len(skel_drive)), N_U
             )
+            skel_u = skel_u_full[n_morph_skip:]
             tan_u, nrm_u, bin_u = _darboux_frames(skel_u)
-            if use_compound:
-                # Blend Darboux frames toward the stem axis at the base
-                # so the cross-section wraps the stem rather than fanning
-                # outward along the leaf tangent.
-                stem_dir = np.array([0.0, 0.0, 1.0])
-                n_blend = min(6, N_U)
-                for i in range(n_blend):
-                    w = 1.0 - (i / n_blend) ** 2
-                    t_blended = (1.0 - w) * tan_u[i] + w * stem_dir
-                    t_blended /= max(np.linalg.norm(t_blended), 1e-12)
-                    b = np.cross(t_blended, bin_u[i])
-                    b_len = np.linalg.norm(b)
-                    if b_len < 1e-6:
-                        b = np.cross(t_blended, np.array([1.0, 0.0, 0.0]))
-                        b_len = np.linalg.norm(b)
-                    b /= b_len
-                    n_vec = np.cross(b, t_blended)
-                    n_vec /= max(np.linalg.norm(n_vec), 1e-12)
-                    tan_u[i] = t_blended
-                    nrm_u[i] = n_vec
-                    bin_u[i] = b
-            blade_world = (
+            drive_world = (
                 skel_u[:, None, :]
                 + off[:, :, 0:1] * bin_u[:, None, :]
                 + off[:, :, 1:2] * nrm_u[:, None, :]
                 + off[:, :, 2:3] * tan_u[:, None, :]
             )
             if use_compound:
-                sheath_world = from_local_frame(
-                    cps_local[:-N_U], collar_pos, tangent
+                # Cup + morph rows keep collar-frame placement (stem-centred);
+                # only the non-morph blade rows ride the skeleton.
+                sheath_and_morph = from_local_frame(
+                    cps_local[:-(N_U - n_morph_skip)], collar_pos, tangent
                 )
-                cps = np.concatenate([sheath_world, blade_world], axis=0)
+                # Smooth the seam: blend the first few driven rows toward
+                # where collar-frame would place them.
+                n_blend = min(3, len(drive_world))
+                collar_blade = from_local_frame(
+                    drive_local[:n_blend], collar_pos, tangent
+                )
+                for ib in range(n_blend):
+                    alpha = (ib + 1) / (n_blend + 1)
+                    drive_world[ib] = (1.0 - alpha) * collar_blade[ib] + alpha * drive_world[ib]
+                cps = np.concatenate([sheath_and_morph, drive_world], axis=0)
             else:
-                cps = blade_world
+                cps = drive_world
         else:
             cps = from_local_frame(cps_local, collar_pos, tangent)
         # Use the CPlantBox node positions as the reference skeleton for
