@@ -953,33 +953,30 @@ def build_compound_leaf_cps(
             row[j] = stem_center + R * arc_dir[j]
         return row
 
-    # Move the morph transition INTO the cup so skeleton-drive (which
-    # operates on the last n_u_blade rows) only sees pure blade CPs.
-    n_cup_ring = max(n_cup - n_morph, 2)
-    n_cup_total = n_cup_ring + n_morph
-    n_u_total = n_cup_total + n_u_blade
+    n_u_total = n_cup + n_u_blade
     out = np.zeros((n_u_total, n_v, 3), dtype=np.float64)
 
-    # --- Ring cup: closed rings with ligule tilt ramped 0→1 ---
-    for i in range(n_cup_ring):
-        t_i = i / max(n_cup_ring - 1, 1)
+    # --- Ring cup: closed rings with ligule tilt ramped 0→1 bottom→top ---
+    for i in range(n_cup):
+        t_i = i / max(n_cup - 1, 1)
         z_base = -L_rendered + t_i * L_rendered
         z_j = z_base + t_i * ligule_z
         cup_bulge_scale = t_i * t_i * (3.0 - 2.0 * t_i)
         out[i] = _ring_row(z_j, bulge_scale=cup_bulge_scale)
 
-    # --- Morph transition (still in the cup portion, collar-frame) ---
+    # --- Transition: first n_morph blade rows blend ring → flat blade ---
     for i in range(n_morph):
-        frac = (i + 1) / (n_morph + 1)
+        frac = i / (n_morph - 1)
         smooth = frac * frac * (3.0 - 2.0 * frac)
         asym = 1.0 - smooth
-        flat = blade_up[0]
+        flat = blade_up[i]
         z_j = flat[:, 2] + asym * ligule_z
         ring_pt = _ring_row(z_j, bulge_scale=asym)
-        out[n_cup_ring + i] = (1.0 - smooth) * ring_pt + smooth * flat
+        out[n_cup + i] = (1.0 - smooth) * ring_pt + smooth * flat
 
-    # --- Blade rows verbatim (skeleton-drive operates on these) ---
-    out[n_cup_total:] = blade_up
+    # --- Remaining blade rows verbatim ---
+    if n_morph < n_u_blade:
+        out[n_cup + n_morph:] = blade_up[n_morph:]
 
     return out
 
