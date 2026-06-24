@@ -722,47 +722,14 @@ def loft_leaf_nurbs(
                 sheath_world = from_local_frame(
                     cps_local[:-N_U], collar_pos, tangent
                 )
-                # Morph rows: rotate the Darboux cross-section toward
-                # the horizontal (stem) plane so the ring wraps the
-                # stem instead of fanning along the leaf binormal.
-                # Row 0 fully horizontal, row 2 fully Darboux.
+                # The morph rows (0..n_morph-1) wrap the stem — place them
+                # via collar-frame so the ring stays concentric, then stitch
+                # the first pure-blade row to avoid a seam.
                 n_morph = 3
-                stem_ax = np.array([0.0, 0.0, 1.0])
-                for im in range(n_morph):
-                    frac = im / max(n_morph - 1, 1)
-                    s = frac * frac * (3.0 - 2.0 * frac)
-                    center = skel_u[im]
-                    pts = blade_world[im]
-                    rel = pts - center
-                    h_bin = np.cross(tan_u[im], stem_ax)
-                    h_bl = np.linalg.norm(h_bin)
-                    if h_bl > 1e-6:
-                        h_bin /= h_bl
-                    else:
-                        h_bin = bin_u[im]
-                    h_nrm = np.cross(h_bin, tan_u[im])
-                    h_nl = np.linalg.norm(h_nrm)
-                    if h_nl > 1e-6:
-                        h_nrm /= h_nl
-                    else:
-                        h_nrm = nrm_u[im]
-                    proj_b = np.dot(rel, bin_u[im])
-                    proj_n = np.dot(rel, nrm_u[im])
-                    proj_t = np.dot(rel, tan_u[im])
-                    new_b = (1.0 - s) * h_bin + s * bin_u[im]
-                    nbl = np.linalg.norm(new_b)
-                    if nbl > 1e-6:
-                        new_b /= nbl
-                    new_n = (1.0 - s) * h_nrm + s * nrm_u[im]
-                    nnl = np.linalg.norm(new_n)
-                    if nnl > 1e-6:
-                        new_n /= nnl
-                    blade_world[im] = (
-                        center
-                        + proj_b[:, None] * new_b[None, :]
-                        + proj_n[:, None] * new_n[None, :]
-                        + proj_t[:, None] * tan_u[im][None, :]
-                    )
+                morph_world = from_local_frame(
+                    blade_local[:n_morph], collar_pos, tangent
+                )
+                blade_world[:n_morph] = morph_world
                 cps = np.concatenate([sheath_world, blade_world], axis=0)
             else:
                 cps = blade_world
