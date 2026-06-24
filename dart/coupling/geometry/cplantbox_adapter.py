@@ -2640,11 +2640,6 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                     # trajectory; non-maize keeps the rigid collar-frame loft
                     # → bit-identical baselines.
                     "skeleton_drive": species == 'maize',
-                    "stem_radius_cm": stem_radius_cm,
-                    "sheath_length_cm": sheath_length_cm,
-                    "sheath_cup_max_length_cm": sheath_cup_max_length_cm,
-                    "sheath_provenance": sheath_provenance,
-                    "parent_stem_radius_at_z_cm": parent_stem_r_callable,
                     "break_fraction": break_fraction_nurbs,
                     **wave_params,
                 }
@@ -2652,6 +2647,64 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                     _entry["check_h_top_invariant"] = False
                 organs.append(_entry)
                 organ_counter += 1
+
+                # ponytail: separate sheath organ (RECON-style cylinder)
+                # instead of compound NURBS morph that bulges
+                if sheath_length_cm and sheath_length_cm > 0 and stem_radius_cm > 0:
+                    _s_skel = None
+                    _s_widths = None
+                    for _prev in organs:
+                        if _prev.get("type") == "stem":
+                            _s_skel = _prev["skeleton"]
+                            _s_widths = np.asarray(_prev["widths"])
+                            break
+                    if _s_skel is not None:
+                        _collar_z = float(collar_pos_np[2])
+                        _collar_xy = collar_pos_np[:2]
+                        _sheath_mat = max(0.05, min(1.0, nurbs_maturity / 0.30))
+                        _sl = float(sheath_length_cm) * _sheath_mat
+                        _other_cz = [
+                            float(np.asarray(p["collar_pos"])[2])
+                            for p in organs
+                            if p.get("type", "leaf") == "leaf"
+                            and p is not _entry
+                        ]
+                        _lower = max(
+                            (c for c in _other_cz if c < _collar_z - 1e-6),
+                            default=0.0,
+                        )
+                        _base_z = max(_collar_z - _sl, _lower, 0.0)
+                        if _collar_z - _base_z >= 0.6:
+                            _n_sh = 12
+                            _sh_z = np.linspace(_base_z, _collar_z, _n_sh)
+                            _sh_sk = np.column_stack([
+                                np.full(_n_sh, float(_collar_xy[0])),
+                                np.full(_n_sh, float(_collar_xy[1])),
+                                _sh_z,
+                            ])
+                            _stem_z = np.asarray(_s_skel)[:, 2]
+                            _stem_r = np.interp(
+                                _sh_z, _stem_z,
+                                _s_widths * 0.5,
+                                left=float(_s_widths[0]) * 0.5,
+                                right=float(_s_widths[-1]) * 0.5,
+                            )
+                            _gap = np.linspace(0.40, 0.15, _n_sh)
+                            _radii = _stem_r + _gap
+                            organs.append({
+                                "type": "sheath",
+                                "part_type": "sheath",
+                                "skeleton": _sh_sk,
+                                "widths": _radii * 2.0,
+                                "wrap_angle": np.radians(330),
+                                "overlap_angle": np.radians(30),
+                                "sheath_thickness": 0.04,
+                                "stem_skeleton": np.asarray(_s_skel),
+                                "organ_id": organ_counter,
+                                "name": f"{name_prefix}sheath_{organ_counter}",
+                            })
+                            organ_counter += 1
+
                 leaf_position += 1
                 continue
 
