@@ -1659,18 +1659,11 @@ def _apply_pseudostem_lift(organs, scale=PSEUDOSTEM_VISIBLE_FRACTION):
     vis = [float(o["sheath_length_cm"]) * float(np.clip(o["maturity_fraction"], 0.0, 1.0)) * scale
            for o in leaves]
     new_z = bare[0]  # lowest collar is the anchor (dz=0)
-    prev_lift_z = bare[0]
     for i, o in enumerate(leaves):
         if i > 0:
             new_z += max(bare[i] - bare[i - 1], vis[i - 1])
         dz = new_z - bare[i]
         cp = np.asarray(o["collar_pos"], float); cp[2] += dz; o["collar_pos"] = cp
-        # The sheath cup was clamped to the bare (bunched Birch) internode gap
-        # ~1cm, so it rendered as an invisible nub. After the lift the visible
-        # pseudostem segment for this leaf is (new_z - prev collar): let the
-        # sheath fill it (loft still takes min(vidal_length, cup)).
-        o["sheath_cup_max_length_cm"] = max(0.95 * (new_z - prev_lift_z), 0.5)
-        prev_lift_z = new_z
         sk = o.get("skeleton")
         if sk is not None:
             sk = np.asarray(sk, float); sk[:, 2] += dz; o["skeleton"] = sk
@@ -2095,20 +2088,11 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                     organ, collar_pos_np, parent_tangent_np, stem_profile,
                     node_heights_z=leaf_attachment_z_for_modulation,
                 )
+                # Match RECON (_organs_from_grids): hand the full vidal sheath
+                # length to the production compound-leaf addon and DO NOT clamp
+                # the cup. The old clamp keyed on bunched Birch internode gaps
+                # (~1cm) strangled the sheath to an invisible nub.
                 sheath_cup_max_length_cm = None
-                if sheath_length_cm is not None and stem_radius_cm > 0.0:
-                    sheath_cup_max_length_cm = 2.5 * float(stem_radius_cm)
-                    lower_nodes = [
-                        float(z) for z in leaf_attachment_z_for_modulation
-                        if float(z) < float(collar_pos_np[2]) - 1e-6
-                    ]
-                    if lower_nodes:
-                        prev_gap = float(collar_pos_np[2]) - max(lower_nodes)
-                        if prev_gap > 1e-6:
-                            sheath_cup_max_length_cm = min(
-                                sheath_cup_max_length_cm,
-                                0.95 * prev_gap,
-                            )
 
                 # Muted procedural deformations layered over the data-driven
                 # CP grid. The base shape already encodes the large-scale
