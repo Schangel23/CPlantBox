@@ -965,11 +965,20 @@ def build_compound_leaf_cps(
         out[i] = _ring_row(z_j, bulge_scale=cup_bulge_scale)
 
     # --- Transition: first n_morph blade rows blend ring → flat blade ---
+    # Scale blade CPs wider near the base so the ring→blade transition
+    # doesn't pinch.  At i=0 the blade is widened to match the ring;
+    # at i=n_morph-1 it's unscaled.
     for i in range(n_morph):
         frac = i / (n_morph - 1)
         smooth = frac * frac * (3.0 - 2.0 * frac)
         asym = 1.0 - smooth
-        flat = blade_up[i]
+        flat = blade_up[i].copy()
+        mid = flat[n_v // 2:n_v // 2 + 1]
+        blade_half_w = np.linalg.norm(flat[0] - flat[n_v // 2])
+        ring_r = _stem_r_at(float(flat[n_v // 2, 2])) * (1.0 + base_clearance)
+        if blade_half_w > 1e-6:
+            widen = 1.0 + asym * max(ring_r / blade_half_w - 1.0, 0.0)
+            flat = mid + (flat - mid) * widen
         z_j = flat[:, 2] + asym * ligule_z
         ring_pt = _ring_row(z_j, bulge_scale=asym)
         out[n_cup + i] = (1.0 - smooth) * ring_pt + smooth * flat
