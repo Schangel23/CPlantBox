@@ -730,6 +730,15 @@ def loft_leaf_nurbs(
                 sheath_and_morph = from_local_frame(
                     cps_local[:-(N_U - n_morph_skip)], collar_pos, tangent
                 )
+                # Smooth the seam: blend the first few driven rows toward
+                # where collar-frame would place them.
+                n_blend = min(3, len(drive_world))
+                collar_blade = from_local_frame(
+                    drive_local[:n_blend], collar_pos, tangent
+                )
+                for ib in range(n_blend):
+                    alpha = (ib + 1) / (n_blend + 1)
+                    drive_world[ib] = (1.0 - alpha) * collar_blade[ib] + alpha * drive_world[ib]
                 cps = np.concatenate([sheath_and_morph, drive_world], axis=0)
             else:
                 cps = drive_world
