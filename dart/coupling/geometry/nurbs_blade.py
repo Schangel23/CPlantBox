@@ -722,22 +722,14 @@ def loft_leaf_nurbs(
                 sheath_world = from_local_frame(
                     cps_local[:-N_U], collar_pos, tangent
                 )
-                # Place morph rows (0..2) via collar-frame so the ring
-                # wraps the stem.  Skip for short/steep leaves where the
-                # collar-frame diverges from the skeleton frame — the
-                # mangle would be worse than the minor bulge.
+                # The morph rows (0..n_morph-1) wrap the stem — place them
+                # via collar-frame so the ring stays concentric, then stitch
+                # the first pure-blade row to avoid a seam.
                 n_morph = 3
                 morph_world = from_local_frame(
                     blade_local[:n_morph], collar_pos, tangent
                 )
-                gap = np.linalg.norm(
-                    morph_world[-1].mean(axis=0) - blade_world[n_morph].mean(axis=0)
-                )
-                blade_w = np.linalg.norm(
-                    blade_local[n_morph, 0] - blade_local[n_morph, mid_c]
-                )
-                if gap < max(blade_w, 0.5):
-                    blade_world[:n_morph] = morph_world
+                blade_world[:n_morph] = morph_world
                 cps = np.concatenate([sheath_world, blade_world], axis=0)
             else:
                 cps = blade_world
