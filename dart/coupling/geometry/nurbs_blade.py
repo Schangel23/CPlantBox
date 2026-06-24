@@ -713,10 +713,10 @@ def loft_leaf_nurbs(
             drive_local = blade_local[n_morph_skip:]
             mid_c = drive_local.shape[1] // 2
             off = drive_local - drive_local[:, mid_c:mid_c + 1, :]
-            n_drive = len(drive_local)
-            skel_u, _w_u, _af = _resample_skeleton(
-                skel_drive, np.ones(len(skel_drive)), n_drive
+            skel_u_full, _w_u, _af = _resample_skeleton(
+                skel_drive, np.ones(len(skel_drive)), N_U
             )
+            skel_u = skel_u_full[n_morph_skip:]
             tan_u, nrm_u, bin_u = _darboux_frames(skel_u)
             drive_world = (
                 skel_u[:, None, :]
@@ -732,7 +732,7 @@ def loft_leaf_nurbs(
                 )
                 cps = np.concatenate([sheath_and_morph, drive_world], axis=0)
             else:
-                cps = blade_world
+                cps = drive_world
         else:
             cps = from_local_frame(cps_local, collar_pos, tangent)
         # Use the CPlantBox node positions as the reference skeleton for
