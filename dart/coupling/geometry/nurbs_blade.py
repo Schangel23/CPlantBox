@@ -722,17 +722,36 @@ def loft_leaf_nurbs(
                 sheath_world = from_local_frame(
                     cps_local[:-N_U], collar_pos, tangent
                 )
-                # Place morph rows via collar-frame so the ring wraps
-                # the stem.  Skip for short leaves where the frame
-                # mismatch at the junction would mangle the blade.
-                arc_len = float(np.sum(np.linalg.norm(
-                    np.diff(skel_u, axis=0), axis=1)))
+                # Wrap morph rows around the stem AT each skeleton
+                # station.  Compute ring CPs radially from the stem
+                # center, then blend ring → Darboux-blade using the
+                # morph's smoothstep.  Works for all leaf lengths.
                 n_morph = 3
-                if arc_len > 15.0:
-                    morph_world = from_local_frame(
-                        blade_local[:n_morph], collar_pos, tangent
-                    )
-                    blade_world[:n_morph] = morph_world
+                stem_xy = collar_pos[:2]
+                stem_r_fn = organ.get("parent_stem_radius_at_z_cm")
+                base_gap = 0.15
+                for im in range(n_morph):
+                    frac = im / max(n_morph - 1, 1)
+                    smooth = frac * frac * (3.0 - 2.0 * frac)
+                    z_i = skel_u[im, 2]
+                    sc = np.array([stem_xy[0], stem_xy[1], z_i])
+                    sr = stem_r_fn(z_i) if stem_r_fn else 0.4
+                    radial = skel_u[im, :2] - stem_xy
+                    rl = np.linalg.norm(radial)
+                    if rl < 1e-6:
+                        radial = np.array([1.0, 0.0])
+                        rl = 1.0
+                    radial = radial / rl
+                    perp = np.array([-radial[1], radial[0]])
+                    ring_r = sr + base_gap
+                    nv = blade_world.shape[1]
+                    ring_row = np.empty((nv, 3))
+                    for jv in range(nv):
+                        a = (jv - nv // 2) / max(nv // 2, 1)
+                        spread = a * np.pi * 0.45
+                        dx = radial * np.cos(spread) + perp * np.sin(spread)
+                        ring_row[jv] = sc + ring_r * np.array([dx[0], dx[1], 0.0])
+                    blade_world[im] = (1.0 - smooth) * ring_row + smooth * blade_world[im]
                 cps = np.concatenate([sheath_world, blade_world], axis=0)
             else:
                 cps = blade_world
