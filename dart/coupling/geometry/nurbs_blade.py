@@ -708,40 +708,31 @@ def loft_leaf_nurbs(
             blade_local = cps_local[-N_U:] if use_compound else cps_local
             mid_c = blade_local.shape[1] // 2
             off = blade_local - blade_local[:, mid_c:mid_c + 1, :]
+            skel_u, _w_u, _af = _resample_skeleton(
+                skel_drive, np.ones(len(skel_drive)), N_U
+            )
+            tan_u, nrm_u, bin_u = _darboux_frames(skel_u)
+            blade_world = (
+                skel_u[:, None, :]
+                + off[:, :, 0:1] * bin_u[:, None, :]
+                + off[:, :, 1:2] * nrm_u[:, None, :]
+                + off[:, :, 2:3] * tan_u[:, None, :]
+            )
             if use_compound:
-                n_morph = 3
-                n_skel = N_U - n_morph
-                skel_u, _w_u, _af = _resample_skeleton(
-                    skel_drive, np.ones(len(skel_drive)), n_skel
-                )
-                tan_u, nrm_u, bin_u = _darboux_frames(skel_u)
-                blade_off = off[n_morph:]
-                blade_world_skel = (
-                    skel_u[:, None, :]
-                    + blade_off[:, :, 0:1] * bin_u[:, None, :]
-                    + blade_off[:, :, 1:2] * nrm_u[:, None, :]
-                    + blade_off[:, :, 2:3] * tan_u[:, None, :]
-                )
                 sheath_world = from_local_frame(
                     cps_local[:-N_U], collar_pos, tangent
                 )
+                # The morph rows (0..n_morph-1) wrap the stem — place them
+                # via collar-frame so the ring stays concentric, then stitch
+                # the first pure-blade row to avoid a seam.
+                n_morph = 3
                 morph_world = from_local_frame(
                     blade_local[:n_morph], collar_pos, tangent
                 )
-                cps = np.concatenate(
-                    [sheath_world, morph_world, blade_world_skel], axis=0
-                )
+                blade_world[:n_morph] = morph_world
+                cps = np.concatenate([sheath_world, blade_world], axis=0)
             else:
-                skel_u, _w_u, _af = _resample_skeleton(
-                    skel_drive, np.ones(len(skel_drive)), N_U
-                )
-                tan_u, nrm_u, bin_u = _darboux_frames(skel_u)
-                cps = (
-                    skel_u[:, None, :]
-                    + off[:, :, 0:1] * bin_u[:, None, :]
-                    + off[:, :, 1:2] * nrm_u[:, None, :]
-                    + off[:, :, 2:3] * tan_u[:, None, :]
-                )
+                cps = blade_world
         else:
             cps = from_local_frame(cps_local, collar_pos, tangent)
         # Use the CPlantBox node positions as the reference skeleton for
