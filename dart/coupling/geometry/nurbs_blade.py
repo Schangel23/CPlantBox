@@ -706,38 +706,29 @@ def loft_leaf_nurbs(
         skel_drive = np.asarray(organ["skeleton"], dtype=np.float64)
         if organ.get("skeleton_drive") and len(skel_drive) >= 3:
             blade_local = cps_local[-N_U:] if use_compound else cps_local
-            n_morph_skip = 3 if use_compound else 0
-            drive_local = blade_local[n_morph_skip:]
-            mid_c = drive_local.shape[1] // 2
-            off = drive_local - drive_local[:, mid_c:mid_c + 1, :]
-            skel_u_full, _w_u, _af = _resample_skeleton(
+            mid_c = blade_local.shape[1] // 2
+            off = blade_local - blade_local[:, mid_c:mid_c + 1, :]
+            skel_u, _w_u, _af = _resample_skeleton(
                 skel_drive, np.ones(len(skel_drive)), N_U
             )
-            skel_u = skel_u_full[n_morph_skip:]
             tan_u, nrm_u, bin_u = _darboux_frames(skel_u)
-            drive_world = (
+            blade_world = (
                 skel_u[:, None, :]
                 + off[:, :, 0:1] * bin_u[:, None, :]
                 + off[:, :, 1:2] * nrm_u[:, None, :]
                 + off[:, :, 2:3] * tan_u[:, None, :]
             )
             if use_compound:
-                sheath_and_morph = from_local_frame(
-                    cps_local[:-(N_U - n_morph_skip)], collar_pos, tangent
+                # Sheath rings keep the collar-frame placement (they wrap the
+                # stem at the collar); only the blade rides the skeleton.
+                # ponytail: small seam gap at the sheath/blade junction is
+                # acceptable — stitch the ring top to blade base if visible.
+                sheath_world = from_local_frame(
+                    cps_local[:-N_U], collar_pos, tangent
                 )
-                # Stitch: translate blade so its first row center matches
-                # the last morph row center, with linear decay to zero
-                # at the tip so the tip follows the skeleton exactly.
-                morph_end = sheath_and_morph[-1].mean(axis=0)
-                blade_start = drive_world[0].mean(axis=0)
-                shift = morph_end - blade_start
-                nd = len(drive_world)
-                for ib in range(nd):
-                    w = 1.0 - ib / max(nd - 1, 1)
-                    drive_world[ib] += shift * w
-                cps = np.concatenate([sheath_and_morph, drive_world], axis=0)
+                cps = np.concatenate([sheath_world, blade_world], axis=0)
             else:
-                cps = drive_world
+                cps = blade_world
         else:
             cps = from_local_frame(cps_local, collar_pos, tangent)
         # Use the CPlantBox node positions as the reference skeleton for

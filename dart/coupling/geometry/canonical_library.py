@@ -957,28 +957,28 @@ def build_compound_leaf_cps(
     out = np.zeros((n_u_total, n_v, 3), dtype=np.float64)
 
     # --- Ring cup: closed rings with ligule tilt ramped 0→1 bottom→top ---
+    # Cup bulge tapers along u: bottom row (t_i = 0) hugs the stem
+    # (bulge_scale = 0 → R = stem_r · (1 + base_clearance)), top row
+    # (t_i = 1) keeps the full bulge so the collar wrap is unchanged.
+    # Smoothstep ramp keeps the cup C¹ and joins the morph rows
+    # (bulge_scale = asym = 1 at the cup-top boundary) without a jump.
     for i in range(n_cup):
         t_i = i / max(n_cup - 1, 1)
-        z_base = -L_rendered + t_i * L_rendered
+        z_base = -L_rendered + t_i * L_rendered  # -L at bottom, 0 at top
         z_j = z_base + t_i * ligule_z
-        cup_bulge_scale = t_i * t_i * (3.0 - 2.0 * t_i)
+        cup_bulge_scale = t_i * t_i * (3.0 - 2.0 * t_i)  # smoothstep(t_i)
         out[i] = _ring_row(z_j, bulge_scale=cup_bulge_scale)
 
     # --- Transition: first n_morph blade rows blend ring → flat blade ---
-    # Scale blade CPs wider near the base so the ring→blade transition
-    # doesn't pinch.  At i=0 the blade is widened to match the ring;
-    # at i=n_morph-1 it's unscaled.
+    # frac = 0 at i=0 (pure ring at blade_up[0].z + ligule) matches the
+    # last cup row (z = 0 + ligule = ligule_z); frac = 1 at i=n_morph-1
+    # lands exactly on blade_up[n_morph-1], so the next verbatim blade
+    # row joins without a jump.
     for i in range(n_morph):
         frac = i / (n_morph - 1)
         smooth = frac * frac * (3.0 - 2.0 * frac)
         asym = 1.0 - smooth
-        flat = blade_up[i].copy()
-        mid = flat[n_v // 2:n_v // 2 + 1]
-        blade_half_w = np.linalg.norm(flat[0] - flat[n_v // 2])
-        ring_r = _stem_r_at(float(flat[n_v // 2, 2])) * (1.0 + base_clearance)
-        if blade_half_w > 1e-6:
-            widen = 1.0 + asym * max(ring_r / blade_half_w - 1.0, 0.0)
-            flat = mid + (flat - mid) * widen
+        flat = blade_up[i]
         z_j = flat[:, 2] + asym * ligule_z
         ring_pt = _ring_row(z_j, bulge_scale=asym)
         out[n_cup + i] = (1.0 - smooth) * ring_pt + smooth * flat
