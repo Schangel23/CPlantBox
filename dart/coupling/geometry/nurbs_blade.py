@@ -706,27 +706,31 @@ def loft_leaf_nurbs(
         skel_drive = np.asarray(organ["skeleton"], dtype=np.float64)
         if organ.get("skeleton_drive") and len(skel_drive) >= 3:
             blade_local = cps_local[-N_U:] if use_compound else cps_local
-            mid_c = blade_local.shape[1] // 2
-            off = blade_local - blade_local[:, mid_c:mid_c + 1, :]
+            # When compound is active the first n_morph rows of blade_local
+            # are morph rows that wrap the stem — skeleton-drive must skip
+            # them so they keep their stem-centred placement.
+            n_morph_skip = 3 if use_compound else 0
+            drive_local = blade_local[n_morph_skip:]
+            mid_c = drive_local.shape[1] // 2
+            off = drive_local - drive_local[:, mid_c:mid_c + 1, :]
+            n_drive = len(drive_local)
             skel_u, _w_u, _af = _resample_skeleton(
-                skel_drive, np.ones(len(skel_drive)), N_U
+                skel_drive, np.ones(len(skel_drive)), n_drive
             )
             tan_u, nrm_u, bin_u = _darboux_frames(skel_u)
-            blade_world = (
+            drive_world = (
                 skel_u[:, None, :]
                 + off[:, :, 0:1] * bin_u[:, None, :]
                 + off[:, :, 1:2] * nrm_u[:, None, :]
                 + off[:, :, 2:3] * tan_u[:, None, :]
             )
             if use_compound:
-                # Sheath rings keep the collar-frame placement (they wrap the
-                # stem at the collar); only the blade rides the skeleton.
-                # ponytail: small seam gap at the sheath/blade junction is
-                # acceptable — stitch the ring top to blade base if visible.
-                sheath_world = from_local_frame(
-                    cps_local[:-N_U], collar_pos, tangent
+                # Cup + morph rows keep collar-frame placement (stem-centred);
+                # only the non-morph blade rows ride the skeleton.
+                sheath_and_morph = from_local_frame(
+                    cps_local[:-(N_U - n_morph_skip)], collar_pos, tangent
                 )
-                cps = np.concatenate([sheath_world, blade_world], axis=0)
+                cps = np.concatenate([sheath_and_morph, drive_world], axis=0)
             else:
                 cps = blade_world
         else:
