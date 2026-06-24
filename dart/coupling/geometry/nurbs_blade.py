@@ -722,14 +722,24 @@ def loft_leaf_nurbs(
                 sheath_world = from_local_frame(
                     cps_local[:-N_U], collar_pos, tangent
                 )
-                # The morph rows (0..n_morph-1) wrap the stem — place them
-                # via collar-frame so the ring stays concentric, then stitch
-                # the first pure-blade row to avoid a seam.
+                # Place morph rows via collar-frame so the ring wraps
+                # the stem, then blend the next rows to smooth the
+                # transition into skeleton-driven positions.
                 n_morph = 3
                 morph_world = from_local_frame(
                     blade_local[:n_morph], collar_pos, tangent
                 )
                 blade_world[:n_morph] = morph_world
+                n_ease = min(N_U - n_morph, N_U // 2)
+                collar_rest = from_local_frame(
+                    blade_local[n_morph:n_morph + n_ease], collar_pos, tangent
+                )
+                for ie in range(n_ease):
+                    t = (ie + 1.0) / (n_ease + 1.0)
+                    s = t * t * (3.0 - 2.0 * t)
+                    blade_world[n_morph + ie] = (
+                        (1.0 - s) * collar_rest[ie] + s * blade_world[n_morph + ie]
+                    )
                 cps = np.concatenate([sheath_world, blade_world], axis=0)
             else:
                 cps = blade_world
