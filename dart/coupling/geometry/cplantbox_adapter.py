@@ -1981,8 +1981,7 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                 "type": "sheath",
                 "part_type": "sheath",
                 "skeleton": skeleton,
-                "widths": radii * 2.0,  # full diameter for consistency
-                "radii": radii,
+                "widths": radii * 2.0,
                 "wrap_angle": np.radians(330),
                 "overlap_angle": np.radians(30),
                 "sheath_thickness": 0.04,
@@ -2640,9 +2639,9 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                     # trajectory; non-maize keeps the rigid collar-frame loft
                     # → bit-identical baselines.
                     "skeleton_drive": species == 'maize',
-                    "stem_radius_cm": stem_radius_cm,
-                    "sheath_length_cm": sheath_length_cm,
-                    "sheath_cup_max_length_cm": sheath_cup_max_length_cm,
+                    "stem_radius_cm": 0.0,
+                    "sheath_length_cm": 0.0,
+                    "sheath_cup_max_length_cm": None,
                     "sheath_provenance": sheath_provenance,
                     "parent_stem_radius_at_z_cm": parent_stem_r_callable,
                     "break_fraction": break_fraction_nurbs,
@@ -2652,6 +2651,50 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                     _entry["check_h_top_invariant"] = False
                 organs.append(_entry)
                 organ_counter += 1
+
+                # Emit a separate sheath organ (RECON-style cylinder)
+                # when we have valid sheath geometry.
+                if (sheath_length_cm is not None
+                        and sheath_length_cm > 0.5
+                        and stem_radius_cm > 0.0):
+                    _stem_skel = None
+                    _stem_w = None
+                    for _o in organs:
+                        if _o.get('type') == 'stem':
+                            _stem_skel = np.asarray(_o['skeleton'])
+                            _stem_w = np.asarray(_o['widths'])
+                            break
+                    if _stem_skel is not None:
+                        cz = float(collar_pos_np[2])
+                        base_z = max(cz - sheath_length_cm, _stem_skel[0, 2])
+                        n_sh = 12
+                        sh_zs = np.linspace(base_z, cz, n_sh)
+                        sh_skel = np.column_stack([
+                            np.interp(sh_zs, _stem_skel[:, 2], _stem_skel[:, 0]),
+                            np.interp(sh_zs, _stem_skel[:, 2], _stem_skel[:, 1]),
+                            sh_zs,
+                        ])
+                        stem_radii = _stem_w / 2.0
+                        sh_r = np.interp(sh_zs, _stem_skel[:, 2], stem_radii,
+                                         left=stem_radii[0], right=stem_radii[-1])
+                        base_gap = 0.40
+                        collar_gap = 0.15
+                        sh_r = sh_r + np.linspace(base_gap, collar_gap, n_sh)
+                        organs.append({
+                            "type": "sheath",
+                            "part_type": "sheath",
+                            "skeleton": sh_skel,
+                            "widths": sh_r * 2.0,
+                            "wrap_angle": np.radians(330),
+                            "overlap_angle": np.radians(30),
+                            "sheath_thickness": 0.04,
+                            "stem_skeleton": _stem_skel,
+                            "organ_id": organ_counter,
+                            "name": f"{name_prefix}sheath_{organ_counter}",
+                            "node_ids": [],
+                        })
+                        organ_counter += 1
+
                 leaf_position += 1
                 continue
 
