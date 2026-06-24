@@ -706,47 +706,27 @@ def loft_leaf_nurbs(
         skel_drive = np.asarray(organ["skeleton"], dtype=np.float64)
         if organ.get("skeleton_drive") and len(skel_drive) >= 3:
             blade_local = cps_local[-N_U:] if use_compound else cps_local
-            # When compound is active the first n_morph rows of blade_local
-            # are morph rows that wrap the stem — skeleton-drive must skip
-            # them so they keep their stem-centred placement.
-            n_morph_skip = 3 if use_compound else 0
-            drive_local = blade_local[n_morph_skip:]
-            mid_c = drive_local.shape[1] // 2
-            off = drive_local - drive_local[:, mid_c:mid_c + 1, :]
-            skel_u_full, _w_u, _af = _resample_skeleton(
+            mid_c = blade_local.shape[1] // 2
+            off = blade_local - blade_local[:, mid_c:mid_c + 1, :]
+            skel_u, _w_u, _af = _resample_skeleton(
                 skel_drive, np.ones(len(skel_drive)), N_U
             )
-            skel_u = skel_u_full[n_morph_skip:]
             tan_u, nrm_u, bin_u = _darboux_frames(skel_u)
-            drive_world = (
+            blade_world = (
                 skel_u[:, None, :]
                 + off[:, :, 0:1] * bin_u[:, None, :]
                 + off[:, :, 1:2] * nrm_u[:, None, :]
                 + off[:, :, 2:3] * tan_u[:, None, :]
             )
             if use_compound:
-                # Cup + morph rows keep collar-frame placement (stem-centred);
-                # only the non-morph blade rows ride the skeleton.
-                sheath_and_morph = from_local_frame(
-                    cps_local[:-(N_U - n_morph_skip)], collar_pos, tangent
+                # Cup + morph rows are in collar-frame (stem-centred);
+                # blade rows ride the skeleton.
+                sheath_world = from_local_frame(
+                    cps_local[:-N_U], collar_pos, tangent
                 )
-                # Smooth the seam: blend driven rows toward their
-                # collar-frame positions with exponential decay.
-                # Steeper leaves need slower decay to avoid inflection
-                # kinks where the two trajectories diverge.
-                collar_blade = from_local_frame(
-                    drive_local, collar_pos, tangent
-                )
-                t_norm = tangent / max(np.linalg.norm(tangent), 1e-12)
-                cos_angle = abs(t_norm[2])
-                rate = 0.8 + 2.2 * cos_angle
-                nd = len(drive_world)
-                for ib in range(nd):
-                    w = np.exp(-rate * ib / max(nd - 1, 1))
-                    drive_world[ib] = w * collar_blade[ib] + (1.0 - w) * drive_world[ib]
-                cps = np.concatenate([sheath_and_morph, drive_world], axis=0)
+                cps = np.concatenate([sheath_world, blade_world], axis=0)
             else:
-                cps = drive_world
+                cps = blade_world
         else:
             cps = from_local_frame(cps_local, collar_pos, tangent)
         # Use the CPlantBox node positions as the reference skeleton for
