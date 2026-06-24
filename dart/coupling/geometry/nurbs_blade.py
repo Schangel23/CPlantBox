@@ -719,13 +719,17 @@ def loft_leaf_nurbs(
                 + off[:, :, 2:3] * tan_u[:, None, :]
             )
             if use_compound:
-                # Sheath rings keep the collar-frame placement (they wrap the
-                # stem at the collar); only the blade rides the skeleton.
-                # ponytail: small seam gap at the sheath/blade junction is
-                # acceptable — stitch the ring top to blade base if visible.
                 sheath_world = from_local_frame(
                     cps_local[:-N_U], collar_pos, tangent
                 )
+                # The morph rows (0..n_morph-1) wrap the stem — place them
+                # via collar-frame so the ring stays concentric, then stitch
+                # the first pure-blade row to avoid a seam.
+                n_morph = 3
+                morph_world = from_local_frame(
+                    blade_local[:n_morph], collar_pos, tangent
+                )
+                blade_world[:n_morph] = morph_world
                 cps = np.concatenate([sheath_world, blade_world], axis=0)
             else:
                 cps = blade_world
