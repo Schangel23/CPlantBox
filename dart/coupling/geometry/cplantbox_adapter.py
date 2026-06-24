@@ -2640,9 +2640,9 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                     # trajectory; non-maize keeps the rigid collar-frame loft
                     # → bit-identical baselines.
                     "skeleton_drive": species == 'maize',
-                    "stem_radius_cm": stem_radius_cm,
-                    "sheath_length_cm": sheath_length_cm,
-                    "sheath_cup_max_length_cm": sheath_cup_max_length_cm,
+                    "stem_radius_cm": 0.0,
+                    "sheath_length_cm": 0.0,
+                    "sheath_cup_max_length_cm": None,
                     "sheath_provenance": sheath_provenance,
                     "parent_stem_radius_at_z_cm": parent_stem_r_callable,
                     "break_fraction": break_fraction_nurbs,
@@ -2652,6 +2652,43 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                     _entry["check_h_top_invariant"] = False
                 organs.append(_entry)
                 organ_counter += 1
+                # Emit separate sheath organ (RECON-style partial cylinder)
+                if (sheath_length_cm is not None
+                        and sheath_length_cm > 0.0
+                        and stem_radius_cm > 0.0
+                        and parent_stem_r_callable is not None):
+                    cz = float(collar_pos_np[2])
+                    _lower = [
+                        float(z) for z in leaf_attachment_z_for_modulation
+                        if float(z) < cz - 1e-6
+                    ]
+                    base_z = max(cz - float(sheath_length_cm),
+                                 max(_lower, default=0.0), 0.0)
+                    if cz - base_z >= 0.6:
+                        _ns = 12
+                        _zs = np.linspace(base_z, cz, _ns)
+                        _sx = float(collar_pos_np[0])
+                        _sy = float(collar_pos_np[1])
+                        _sk = np.column_stack([
+                            np.full(_ns, _sx), np.full(_ns, _sy), _zs
+                        ])
+                        _gap = np.linspace(0.40, 0.15, _ns)
+                        _sr = np.array([
+                            parent_stem_r_callable(float(z)) for z in _zs
+                        ])
+                        _radii = _sr + _gap
+                        organs.append({
+                            "type": "sheath",
+                            "part_type": "sheath",
+                            "skeleton": _sk,
+                            "widths": _radii * 2.0,
+                            "wrap_angle": np.radians(330.0),
+                            "overlap_angle": np.radians(30.0),
+                            "sheath_thickness": 0.04,
+                            "organ_id": organ_counter,
+                            "name": f"sheath_{organ_counter}",
+                        })
+                        organ_counter += 1
                 leaf_position += 1
                 continue
 
