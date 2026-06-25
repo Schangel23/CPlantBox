@@ -512,6 +512,27 @@ double MultiPhaseStemGrowth::calcLengthPerPhytomer(int n,
     // above (basal_zero, missing leaf, init_tt < 0, tau < 0) are unscaled
     // because 0·H = 0 by inspection — leaving them as bare returns avoids
     // a redundant variable assignment for those cases.
+    // Per-phytomer maturity gate (opt-in: internode_maturity_span > 0). The bare
+    // FA trajectory above reaches IL_final ~D_n after the rank's own collar
+    // emergence, independent of whole-plant stage — so every internode whose leaf
+    // has collar-emerged sits at full length, over-elongating the upper stem
+    // before tasseling (PARAM 130 cm vs real 67 cm at 14 leaves, V12). Real maize
+    // keeps internodes compressed until the phytomer matures, then telescopes
+    // acropetally. Scale the post-Phase-II elongation (the grand-elongation
+    // excess over il_at_end_phase_II_cm) by m = (andrieu_tt − collar_tt)/span,
+    // clamped to [0,1]: m=0 at collar emergence (compressed), m=1 a full span
+    // later (FA target reached). collar_tt already carries the per-rank stagger,
+    // so lower (earlier-collared) ranks mature first — the native acropetal wave.
+    // Phase I/II (target ≤ il_at_end_phase_II_cm) is left untouched. Default
+    // span=0 disables the term → bare FA trajectory, bit-identical baselines.
+    const double span = srp->internode_maturity_span;
+    if (span > 0.0 && target > srp->il_at_end_phase_II_cm) {
+        double m = (andrieu_tt - collar_tt) / span;
+        m = (m < 0.0) ? 0.0 : (m > 1.0 ? 1.0 : m);
+        target = srp->il_at_end_phase_II_cm
+                 + m * (target - srp->il_at_end_phase_II_cm);
+    }
+
     const double H = (sp->cultivar_height_factor > 0.0)
                      ? sp->cultivar_height_factor : 1.0;
     return target * H;
