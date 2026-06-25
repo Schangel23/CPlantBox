@@ -532,6 +532,10 @@ void Photosynthesis::initVcVjRd(){
 		Vp.resize(seg_leaves_idx.size(), 0.);
 		kp.resize(seg_leaves_idx.size(), 0.);
 		kp25.resize(seg_leaves_idx.size(), 0.);
+		//von Caemmerer-Magnani two-cell C4 fluorescence outputs (c4Model == TWO_CELL_VCM)
+		Ja.resize(seg_leaves_idx.size(), 0.);
+		eta.resize(seg_leaves_idx.size(), 0.);
+		fs_fluo.resize(seg_leaves_idx.size(), 0.);
 	}
 	for(int i = 0; i < this->seg_leaves_idx.size(); i++){
 		//carboxylation rate
@@ -648,15 +652,164 @@ void Photosynthesis::photoC3_loop( int i)
 
 void Photosynthesis::photoC4_loop(int i)
 {
+	if (c4Model == 1) { photoC4_loop_vcm(i); return; } // TWO_CELL_VCM
 	Vc.at(i) = Vcmax.at(i);
 	double Qlight_ = getMeanOrSegData(Qlight, i);
-	
+
 	Vj.at(i) = alpha * Qlight_;
 	//std::cout<<"Photosynthesis::photoC4_loop "<<Vj.at(i)<<" "<< alpha <<" "<< Qlight_<<std::endl;
-	
+
 	Vp.at(i) = kp.at(i) * (std::max(ci.at(i) - deltagco2.at(i),0.)* 1e6);//[mol CO2 m-2 s-1] * [mumol mol-1]
 	//An mol m-2 s-1
 	An.at(i) = std::min(std::min(Vc.at(i), Vj.at(i)), Vp.at(i)) - Rd.at(i);//Eq 6
+}
+
+/**
+ * Magnani-Difazio (2012) steady-state fluorescence, as used by the BALENO
+ * PhotosynthesisCM plugin (vegetation_model_CM.py:294-305). All rate constants share units.
+ */
+double Photosynthesis::md12_fs(double ps, double Ja_, double Jms, double kps,
+                               double kf_, double kds, double kDs)
+{
+	double fs1 = ps * (kf_ / kps) / (1.0 - Ja_ / Jms);
+	double par1 = kps / (kps - kds);
+	double par2 = par1 * (kf_ + kDs + kds) / kf_;
+	double fs2 = (par1 - ps) / par2;
+	return std::min(fs1, fs2);
+}
+
+/**
+ * von Caemmerer (2000) two-cell C4 assimilation + Magnani-Difazio (2012) fluorescence.
+ * Ported from BALENO PhotosynthesisCM/vegetation_model_CM.py (C4 branch); the reference's
+ * dead enzyme-limited Ja branch (MATLAB paren-indexing A(ind)) is corrected here. Validated
+ * bit-for-bit against dart/coupling/tests/vcm_c4_reference.py.
+ *
+ * Single-authority design: assimilation (An), actual electron transport (Ja, with
+ * bundle-sheath leakiness gbs -- no fixed 1/6 cost), and fluorescence yield (eta) all come
+ * from the same per-segment solve using CPlantBox's Tuzet-solved ci. Caveats #1-#4 removed.
+ *
+ * Internal algebra is in umol m-2 s-1 and bar (the reference units); CPlantBox state is
+ * mol m-2 s-1 and mol mol-1, so inputs/outputs are converted at the boundary.
+ */
+void Photosynthesis::photoC4_loop_vcm(int i)
+{
+	const double tobar = Patm / 1000.0;            // mol mol-1 -> bar (Patm in hPa)
+	const double pPa   = Patm * 100.0;             // hPa -> Pa
+	double Ci       = std::max(ci.at(i), 0.) * tobar;          // [bar]
+	double Q        = std::max(getMeanOrSegData(Qlight, i), 0.) * 1e6;  // mol -> umol photons
+	double T        = getMeanOrSegData(TleafK, i);            // [K]
+	double Vcmax25  = Vcrefmax.at(i) * 1e6;                   // mol -> umol m-2 s-1
+	double O        = oi * tobar;                             // [bar]
+	if (Q <= 0.) Q = 1e-9;
+
+	const double R = 8.314, TREF = 298.15;
+	double dum1 = R / 1000.0 * T, dum2 = R / 1000.0 * TREF;
+
+	// reference-temperature parameters (C4)
+	double SCOOP = 2862.0;
+	double Rdopt = 0.025 * Vcmax25;                 // Rd / Vcmax25 (matches simple-C4 Rd_ref)
+	double Jmo   = Vcmax25 * 40.0 / 6.0;
+	double Vpmo  = Vcmax25 * 2.33;
+	double Vpr   = vcm_Vpr;
+	double gbs   = (0.0207 * Vcmax25 + 0.4806) * 1000.0;
+	double x = vcm_x, alpha_bs = vcm_alpha;
+
+	// temperature-correction constants (C4)
+	double HARD = 46.39,    CRD = 1000.0 * HARD / (R * TREF);
+	double HAGSTAR = 37.83, CGSTAR = 1000.0 * HAGSTAR / (R * TREF);
+	double HAJ = 77.9, HDJ = 191.9, DELTASJ = 0.627;
+	double HAVCM = 67.29, HDVC = 144.57, DELTASVC = 0.472;
+	double HAVPM = 70.37, HDVP = 117.93, DELTASVP = 0.376;
+	double KCOP = 944.0, Q10KC = 2.1, KOOP = 633.0, Q10KO = 1.2, KPOP = 82.0, Q10KP = 2.1;
+
+	// temperature corrections
+	double Rd_   = Rdopt * std::exp(CRD - HARD / dum1);
+	double SCO   = SCOOP / std::exp(CGSTAR - HAGSTAR / dum1);
+	double Jmax_ = Jmo * std::exp(HAJ * (T - TREF) / (TREF * dum1));
+	Jmax_ = Jmax_ * (1.0 + std::exp((TREF * DELTASJ - HDJ) / dum2));
+	Jmax_ = Jmax_ / (1.0 + std::exp((T * DELTASJ - HDJ) / dum1));
+	double Vcmax_ = Vcmax25 * std::exp(HAVCM * (T - TREF) / (TREF * dum1));
+	Vcmax_ = Vcmax_ * (1.0 + std::exp((TREF * DELTASVC - HDVC) / dum2));
+	Vcmax_ = Vcmax_ / (1.0 + std::exp((T * DELTASVC - HDVC) / dum1));
+	double Vpmax_ = Vpmo * std::exp(HAVPM * (T - TREF) / (TREF * dum1));
+	Vpmax_ = Vpmax_ * (1.0 + std::exp((TREF * DELTASVP - HDVP) / dum2));
+	Vpmax_ = Vpmax_ / (1.0 + std::exp((T * DELTASVP - HDVP) / dum1));
+	double Kc_ = KCOP * std::pow(Q10KC, (T - TREF) / 10.0) * 1e-11 * pPa;
+	double Ko_ = KOOP * std::pow(Q10KO, (T - TREF) / 10.0) * 1e-08 * pPa;
+	double Kp_ = KPOP * std::pow(Q10KP, (T - TREF) / 10.0) * 1e-11 * pPa;
+
+	// electron transport (with qLs/NPQs stress knobs)
+	double kf_ = vcm_kf, kD_ = vcm_kD, kd_ = vcm_kd, beta = vcm_beta;
+	double kPSII = (kD_ + kf_) * vcm_po0max / (1.0 - vcm_po0max);
+	double fo0   = kf_ / (kf_ + kPSII + kD_);
+	double kps   = kPSII * vcm_qLs;
+	double kNPQs = vcm_NPQs * (kf_ + kD_);
+	double kds   = kd_ * vcm_qLs;
+	double kDs   = kD_ + kNPQs;
+	double Jms   = Jmax_ * vcm_qLs;
+	double po0   = kps / (kps + kf_ + kDs);
+	double THETA = (kps - kds) / (kps + kf_ + kDs);
+	double Q2 = beta * Q * po0;
+	double J_ = (Q2 + Jms - std::sqrt((Q2 + Jms) * (Q2 + Jms) - 4 * THETA * Q2 * Jms)) / (2 * THETA);
+
+	// two-cell assimilation (von Caemmerer 2000)
+	double Cm = Ci, Rm = 0.5 * Rd_, gam = 0.5 / SCO;
+	double Vpc = Vpmax_ * Cm / (Cm + Kp_);
+	double Vp_ = std::min(Vpc, Vpr);
+	double d1 = alpha_bs / 0.047, d2 = Kc_ / Ko_;
+	double dum3 = Vp_ - Rm + gbs * Cm;
+	double dum4 = Vcmax_ - Rd_;
+	double dum5 = gbs * Kc_ * (1.0 + O / Ko_);
+	double dum6 = gam * Vcmax_;
+	double dum7 = x * J_ / 2.0 - Rm + gbs * Cm;
+	double dum8 = (1.0 - x) * J_ / 3.0;
+	double dum9 = dum8 - Rd_;
+	double dum10 = dum8 + Rd_ * 7.0 / 3.0;
+
+	double a_c = 1.0 - d1 * d2;
+	double b_c = -(dum3 + dum4 + dum5 + d1 * (dum6 + Rd_ * d2));
+	double c_c = dum4 * dum3 - dum6 * gbs * O + Rd_ * dum5;
+	double Ac = (-b_c - std::sqrt(std::max(b_c * b_c - 4.0 * a_c * c_c, 0.))) / (2.0 * a_c);
+
+	double a_j = 1.0 - 7.0 / 3.0 * gam * d1;
+	double b_j = -(dum7 + dum9 + gbs * gam * O * 7.0 / 3.0 + d1 * gam * dum10);
+	double c_j = dum7 * dum9 - gbs * gam * O * dum10;
+	double Aj = (-b_j - std::sqrt(std::max(b_j * b_j - 4.0 * a_j * c_j, 0.))) / (2.0 * a_j);
+
+	double A = std::min(Ac, Aj);
+
+	// actual electron transport Ja: J when light-limited, else invert the enzyme-limited
+	// quadratic (von Caemmerer 2000; corrected from the reference's dead A(ind) branch)
+	double Ja_;
+	if (Ac <= Aj) {
+		double As = (std::abs(A) < 1e-9) ? 1e-9 : A;
+		double a_e = x * (1.0 - x) / 6.0 / As;
+		double b_e = (1.0 - x) / 3.0 * (gbs / As * (Cm - Rm / gbs - gam * O) - 1.0 - d1)
+		           - x / 2.0 * (1.0 + Rd_ / As);
+		double c_e = (1.0 + Rd_ / As) * (Rm - gbs * Cm - 7.0 * gbs * gam * O / 3.0)
+		           + (Rd_ + A) * (1.0 - 7.0 * alpha_bs * gam / 3.0 / 0.047);
+		double disc = std::max(b_e * b_e - 4.0 * a_e * c_e, 0.);
+		Ja_ = (-b_e + std::sqrt(disc)) / (2.0 * a_e);
+	} else {
+		Ja_ = J_;
+	}
+	Ja_ = std::min(std::max(Ja_, 0.), J_);
+
+	// PSII yield + fluorescence
+	double ps = Ja_ / (beta * Q);
+	double fs = md12_fs(ps, Ja_, Jms, kps, kf_, kds, kDs);
+	double eta_ = fs / fo0;
+
+	// write back (umol -> mol; eta/fs dimensionless)
+	Vc.at(i)  = Ac * 1e-6;
+	Vj.at(i)  = Aj * 1e-6;
+	Vp.at(i)  = Vp_ * 1e-6;
+	J.at(i)   = J_ * 1e-6;
+	Rd.at(i)  = Rd_ * 1e-6;
+	An.at(i)  = A * 1e-6;
+	Ja.at(i)  = Ja_ * 1e-6;
+	eta.at(i) = eta_;
+	fs_fluo.at(i) = fs;
 }
 
 

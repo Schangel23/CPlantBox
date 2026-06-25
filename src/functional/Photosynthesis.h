@@ -47,6 +47,8 @@ public:
 	void initVcVjRd();
 	void photoC4_init(int i);
 	void photoC3_init(int i);
+	void photoC4_loop_vcm(int i); //von Caemmerer-Magnani two-cell C4 + fluorescence (c4Model == 1)
+	double md12_fs(double ps, double Ja_, double Jms, double kps, double kf_, double kds, double kDs);
 	
 	void getAg4Phloem(); ///< Converts An [mol CO2 m-2 s-1] to Ag4Phloem [mmol Suc d-1]
 	void getError(double simTime);///< Computes error % for each segment for each of the variables of interestes.
@@ -108,6 +110,10 @@ public:
 	std::vector<double> Vp; //PEP carboxylase-limited (or CO2-limited) rate [mol CO2 m-2 s-1]
 	std::vector<double> kp; //initial slope of the CO2 response curve for Vp [mol CO2 m-2 s-1]
 	std::vector<double> kp25; //initial slope of the CO2 response curve for Vp [mol CO2 m-2 s-1] at the reference temperature
+	// 				von Caemmerer-Magnani two-cell C4 fluorescence (c4Model == 1)
+	std::vector<double> Ja;      //actual electron transport rate [mol e- m-2 s-1]
+	std::vector<double> eta;     //fluorescence yield fs/fo0 [-] (drives SIF)
+	std::vector<double> fs_fluo; //steady-state fluorescence [-]
 	
 	//		to evaluate convergence, @see Photosynthesis::getError
 	int maxLoop = 50000; int minLoop = 1;std::string outputDir="";
@@ -165,6 +171,18 @@ public:
 	double oi = 210e-3;//leaf internal [O2] [mol mol-1]	
 	// 				C4 only
 	double Q10_photo = 2;
+	// 	von Caemmerer-Magnani two-cell C4 + Magnani-Difazio fluorescence
+	int c4Model = 0;          //0 = SIMPLE (Bonan single-cell, default/bit-identical), 1 = TWO_CELL_VCM
+	double vcm_qLs = 1.0;     //functional-PSII fraction (calibration knob; 1.0 = unstressed)
+	double vcm_NPQs = 0.0;    //sustained non-photochemical quenching (calibration knob; 0.0 = unstressed)
+	double vcm_x = 0.4;       //fraction of electron transport to mesophyll C4 cycle
+	double vcm_alpha = 0.0;   //fraction of O2 evolution in the bundle sheath
+	double vcm_Vpr = 80.0;    //PEP regeneration limit [umol m-2 s-1]
+	double vcm_kf = 3.0e7;    //PSII fluorescence rate constant
+	double vcm_kD = 1.0e8;    //PSII (variable) thermal dissipation rate constant
+	double vcm_kd = 1.95e8;   //PSII constitutive thermal dissipation rate constant
+	double vcm_po0max = 0.88; //maximum dark-adapted PSII photochemical yield
+	double vcm_beta = 0.4;    //PSII fraction of absorbed light reaching photochemistry (C4)
 	//___________
 	
 	

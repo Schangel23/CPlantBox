@@ -178,7 +178,7 @@ def build_tleaf_array(csv_data):
 # ============================================================================
 def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
                              rh=0.7, soil_psi_cm=-500.0,
-                             soil_psi_provider=None):
+                             soil_psi_provider=None, c4_model=0):
     """Setup hydraulics + FvCB photosynthesis and run hm.solve().
 
     Args:
@@ -206,6 +206,7 @@ def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
 
     # --- Photosynthesis + phloem model ---
     hm = PhloemFluxPython(plant, params)
+    hm.c4Model = int(c4_model)  # 1 = von Caemmerer-Magnani two-cell C4 + fluorescence (eta/Ja)
     hm.read_photosynthesis_parameters(filename=get_photosynthesis_json())
     hm.read_phloem_parameters(filename=get_phloem_json())
 
@@ -322,7 +323,7 @@ def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
         print(f"  Mean An:       {np.mean(active):.2f} µmol CO2 m-2 s-1")
         print(f"  Range:         [{np.min(active):.2f}, {np.max(active):.2f}]")
 
-    return {
+    result = {
         'An_leaf': An_leaf,
         'An_per_umol': An_per_umol,
         'An_total_mmol': An_total_mmol,
@@ -331,6 +332,18 @@ def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
         'psi_leaf_cm': psi_leaf,
         'psi_leaf_MPa': psi_leaf_MPa,
     }
+    # von Caemmerer-Magnani fluorescence: eta drives SIF, Ja is actual electron transport.
+    # Per leaf-segment (seg_leaves_idx order). Empty/zero unless c4_model == 1.
+    result['eta'] = np.array(hm.eta)
+    result['Ja'] = np.array(hm.Ja)
+    if c4_model:
+        # per-segment inputs to the C++ VCM solve, for cross-validation against the oracle
+        result['_vcm_inputs'] = {
+            'ci': np.array(hm.ci), 'An': np.array(hm.An),
+            'Vcrefmax': np.array(hm.Vcrefmax),
+            'Qlight': np.array(hm.Qlight), 'TleafK': np.array(hm.TleafK),
+        }
+    return result
 
 
 # ============================================================================
