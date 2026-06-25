@@ -676,6 +676,7 @@ def run_iterative_coupling_multi(
     initial_tleaf=None,
     with_sif=False,
     baleno_timeout=3600,
+    c4_model=0,
 ):
     """Multi-plant iterative Tuzet-Baleno coupling loop.
 
@@ -820,6 +821,7 @@ def run_iterative_coupling_multi(
                 label=f"iter_{iteration+1}_p{pi}",
                 rh=rh, soil_psi_cm=soil_psi_cm,
                 soil_psi_provider=soil_psi_provider,
+                c4_model=c4_model,
             )
             if result is None:
                 print(f"  Plant {pi}: photosynthesis solve FAILED")
@@ -1026,7 +1028,18 @@ def run_iterative_coupling_multi(
             'converged': converged_flags[pi],
         }
         if with_sif:
-            rd['eta_per_segment'] = per_plant_eta[pi] if pi < len(per_plant_eta) else None
+            # Single authority: per-segment eta from the CPlantBox VCM solve when c4_model is
+            # on (caveat #3 fix). Baleno eta is kept only as a diagnostic. Per-triangle aPAR
+            # geometry (tri_data) legitimately stays Baleno/DART's (radiation).
+            baleno_eta = per_plant_eta[pi] if pi < len(per_plant_eta) else None
+            cpb_eta = np.asarray(r['eta']) if (r and r.get('eta') is not None and len(r['eta'])) else None
+            if c4_model and cpb_eta is not None:
+                rd['eta_per_segment'] = cpb_eta
+                rd['eta_source'] = 'cplantbox_vcm'
+            else:
+                rd['eta_per_segment'] = baleno_eta
+                rd['eta_source'] = 'baleno'
+            rd['eta_baleno_diag'] = baleno_eta
             rd['tri_data'] = per_plant_tri_data[pi] if pi < len(per_plant_tri_data) else None
             rd['tri_data_raw'] = per_plant_tri_raw[pi] if pi < len(per_plant_tri_raw) else None
         results.append(rd)
