@@ -328,7 +328,7 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
                    gs_max_iterations=6, gs_tolerance=0.05,
                    gs_damping_alpha=0.6, with_sif=False,
                    with_dart_f=False, sif_triangles=False,
-                   soil_psi_provider=None, c4_model=0):
+                   soil_psi_provider=None, c4_model=0, c3_model=0):
     """Run full diurnal coupling for a single day with 9 unique plants.
 
     Args:
@@ -696,7 +696,7 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
                     initial_tleaf=all_tleaf,
                     with_sif=with_sif,
                     baleno_timeout=_iter_timeout,
-                    c4_model=c4_model,
+                    c4_model=c4_model, c3_model=c3_model,
                 )
                 if iter_results is not None:
                     for pi in range(N_PLANTS):

@@ -1283,6 +1283,8 @@ PYBIND11_MODULE(plantbox, m) {
             .def_readwrite("eta", &Photosynthesis::eta)
             .def_readwrite("fs_fluo", &Photosynthesis::fs_fluo)
             .def_readwrite("c4Model", &Photosynthesis::c4Model)
+            .def_readwrite("c3Model", &Photosynthesis::c3Model)
+            .def_readwrite("vcm_beta_c3", &Photosynthesis::vcm_beta_c3)
             .def_readwrite("vcm_qLs", &Photosynthesis::vcm_qLs)
             .def_readwrite("vcm_NPQs", &Photosynthesis::vcm_NPQs)
             .def_readwrite("vcm_x", &Photosynthesis::vcm_x)

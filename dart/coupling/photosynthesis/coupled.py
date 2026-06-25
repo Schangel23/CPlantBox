@@ -178,7 +178,8 @@ def build_tleaf_array(csv_data):
 # ============================================================================
 def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
                              rh=0.7, soil_psi_cm=-500.0,
-                             soil_psi_provider=None, c4_model=0):
+                             soil_psi_provider=None, c4_model=0, c3_model=0,
+                             photo_type=None):
     """Setup hydraulics + FvCB photosynthesis and run hm.solve().
 
     Args:
@@ -207,7 +208,11 @@ def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
     # --- Photosynthesis + phloem model ---
     hm = PhloemFluxPython(plant, params)
     hm.c4Model = int(c4_model)  # 1 = von Caemmerer-Magnani two-cell C4 + fluorescence (eta/Ja)
+    hm.c3Model = int(c3_model)  # 1 = Magnani-Difazio eta/Ja on top of FvCB C3 (carbon unchanged)
     hm.read_photosynthesis_parameters(filename=get_photosynthesis_json())
+    if photo_type is not None:
+        # override AFTER read (which sets PhotoType from JSON); 0 = C3, 1 = C4. tests / mixed canopies
+        hm.PhotoType = int(photo_type)
     hm.read_phloem_parameters(filename=get_phloem_json())
 
     # Override Chl with the LOPS seasonal top value + Wang2026 height profile
@@ -336,12 +341,14 @@ def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
     # Per leaf-segment (seg_leaves_idx order). Empty/zero unless c4_model == 1.
     result['eta'] = np.array(hm.eta)
     result['Ja'] = np.array(hm.Ja)
-    if c4_model:
-        # per-segment inputs to the C++ VCM solve, for cross-validation against the oracle
+    if c4_model or c3_model:
+        # per-segment inputs/state for cross-validation against the oracle / C3 restatement
         result['_vcm_inputs'] = {
             'ci': np.array(hm.ci), 'An': np.array(hm.An),
             'Vcrefmax': np.array(hm.Vcrefmax),
             'Qlight': np.array(hm.Qlight), 'TleafK': np.array(hm.TleafK),
+            'J': np.array(hm.J), 'Vj': np.array(hm.Vj),
+            'Rd': np.array(hm.Rd), 'Jmax': np.array(hm.Jmax),
         }
     return result
 

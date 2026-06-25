@@ -646,7 +646,9 @@ void Photosynthesis::photoC3_loop( int i)
 
 	//An mol m-2 s-1
 	An.at(i) = std::min(Vc.at(i), Vj.at(i)) - Rd.at(i);//Eq 6
-	
+
+	if (c3Model == 1) { photoC3_fluo(i); } // add Magnani-Difazio eta/Ja on top of the FvCB solve
+
 }
 
 
@@ -814,6 +816,47 @@ void Photosynthesis::photoC4_loop_vcm(int i)
 	An.at(i)  = A * 1e-6;
 	Ja.at(i)  = Ja_ * 1e-6;
 	eta.at(i) = eta_;
+	fs_fluo.at(i) = fs;
+}
+
+/**
+ * Magnani-Difazio (2012) fluorescence on top of CPlantBox's existing FvCB C3 solve (c3Model==1).
+ * Ported from BALENO PhotosynthesisCM C3 branch (vegetation_model_CM.py:210-224). The C3 carbon
+ * (An, Vc, Vj, J) is NOT changed - C3 electron cost is already mechanistic (Ci-dependent), so we
+ * only derive actual electron transport Ja and yield eta from the existing solve (single authority).
+ *
+ *   Ja = J * (An+Rd)/Vj   (Vj = light-limited gross rate; light-limited -> Ja=J, Rubisco-limited -> Ja<J)
+ *   eta = MD12(Ja, Jms=Jmax*qLs) / fo0
+ *
+ * qLs/NPQs are the calibratable NPQ knobs (caveat #5); at the default qLs=1 the fluorescence is
+ * fully consistent with the carbon (Jms=Jmax >= J). Internal algebra in umol; CPlantBox state in mol.
+ */
+void Photosynthesis::photoC3_fluo(int i)
+{
+	double Q = std::max(getMeanOrSegData(Qlight, i), 0.) * 1e6; // mol -> umol photons
+	if (Q <= 0.) Q = 1e-9;
+	double qLs  = std::min(std::max(vcm_qLs, 1e-4), 1.0);
+	double po0m = std::min(std::max(vcm_po0max, 1e-3), 1.0 - 1e-3);
+	double kf_ = vcm_kf, kD_ = vcm_kD, kd_ = vcm_kd, beta = vcm_beta_c3;
+	double kPSII = (kD_ + kf_) * po0m / (1.0 - po0m);
+	double fo0   = kf_ / (kf_ + kPSII + kD_);
+	double kps   = kPSII * qLs;
+	double kNPQs = vcm_NPQs * (kf_ + kD_);
+	double kds   = kd_ * qLs;
+	double kDs   = kD_ + kNPQs;
+
+	double Jpot = J.at(i) * 1e6;                       // light-realized electron transport [umol]
+	double Jms  = std::max(Jmax.at(i) * 1e6 * qLs, 1e-9); // capacity [umol]
+	double Ag   = (An.at(i) + Rd.at(i)) * 1e6;         // gross assimilation [umol]
+	double Vjg  = Vj.at(i) * 1e6;                      // light-limited gross rate [umol]
+	double frac = (Vjg > 1e-12) ? std::min(std::max(Ag / Vjg, 0.), 1.0) : 1.0;
+	double Ja_  = std::min(std::max(Jpot * frac, 0.), std::min(Jpot, Jms));
+
+	double ps = Ja_ / (beta * Q);
+	double fs = md12_fs(ps, Ja_, Jms, kps, kf_, kds, kDs);
+
+	Ja.at(i)  = Ja_ * 1e-6;   // umol -> mol
+	eta.at(i) = fs / fo0;
 	fs_fluo.at(i) = fs;
 }
 
