@@ -310,7 +310,11 @@ double MultiPhaseStemGrowth::calcLengthPerPhytomer(int n,
     auto sp = std::static_pointer_cast<const StemSpecificParameter>(stem->param());
     if (!sp) return 0.0;
 
-    // Basal-zero ranks (Zhu 2014 line 127): zero-length at all τ.
+    // Basal-zero ranks: zero-length at all τ. Zhu 2014 (suppl. l.127) zeros internodes 1-4 as a
+    // boundary convention (their sim domain starts at rank 4); Birch 2002 §3.2.3 measures ranks 1-5
+    // ~0 with internode 6 the first to extend significantly (~2.5 cm). So a faithful maize XML lists
+    // basal_zero_ranks = 1-5 and sets IL_final[rank6] ~ 2.5, NOT zero ranks 1-6. Zhu is a timing
+    // paper; Birch is the authority for the internode-length profile.
     const auto& basal_zero = srp->basal_zero_ranks;
     if (std::find(basal_zero.begin(), basal_zero.end(), n) != basal_zero.end()) {
         return 0.0;
@@ -414,6 +418,11 @@ double MultiPhaseStemGrowth::calcLengthPerPhytomer(int n,
 
     auto plant_fa = stem->getPlant();
     if (!plant_fa) return 0.0;
+    // CAVEAT (Birch 2002 §2.3): the four-phase kinetics use thermal time on a Tb=9.8°C basis, but
+    // Birch accumulates it from APEX temperature -- the subterranean apex runs 2-4°C above air, so
+    // air temperature underestimates early-phase TT. getAccumulatedAndrieuTT is fed AIR temperature
+    // (grow_plant -> setAirTemperature): the base temp is faithful, the temperature SOURCE is not,
+    // so Phase I/II timing is biased early until an apex-temperature feed replaces the air signal.
     double andrieu_tt = plant_fa->getAccumulatedAndrieuTT();
 
     // Cessation freeze: per-rank latch dominates over global latch when set
