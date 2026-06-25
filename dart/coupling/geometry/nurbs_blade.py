@@ -723,12 +723,22 @@ def loft_leaf_nurbs(
                     cps_local[:-N_U], collar_pos, tangent
                 )
                 # The morph rows (0..n_morph-1) wrap the stem — place them
-                # via collar-frame so the ring stays concentric, then stitch
-                # the first pure-blade row to avoid a seam.
+                # via collar-frame so the ring stays concentric (riding the
+                # ring on twisting Darboux frames bulges it). But the collar
+                # frame extends them along the STRAIGHT collar tangent, while
+                # the Darboux blade follows the CURVED skeleton — on short
+                # steep leaves (leaf 0, 6 cm) the two diverge fast and the
+                # midrib kinks at the junction. Fix: keep the collar-frame
+                # ring orientation but re-anchor each morph row's midrib onto
+                # its skeleton station (a rigid per-row translation — shape
+                # preserved, no bulge). The midribs then meet the Darboux
+                # blade with no positional kink.
                 n_morph = 3
                 morph_world = from_local_frame(
                     blade_local[:n_morph], collar_pos, tangent
                 )
+                for i in range(n_morph):
+                    morph_world[i] += skel_u[i] - morph_world[i, mid_c]
                 blade_world[:n_morph] = morph_world
                 cps = np.concatenate([sheath_world, blade_world], axis=0)
             else:
