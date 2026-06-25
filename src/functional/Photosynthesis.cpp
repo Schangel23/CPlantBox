@@ -712,7 +712,7 @@ void Photosynthesis::photoC4_loop_vcm(int i)
 	double Vpmo  = Vcmax25 * 2.33;
 	double Vpr   = vcm_Vpr;
 	double gbs   = (0.0207 * Vcmax25 + 0.4806) * 1000.0;
-	double x = vcm_x, alpha_bs = vcm_alpha;
+	double x = std::min(std::max(vcm_x, 1e-3), 1.0 - 1e-3), alpha_bs = vcm_alpha; // clamp: guards a_e/a_c/a_j
 
 	// temperature-correction constants (C4)
 	double HARD = 46.39,    CRD = 1000.0 * HARD / (R * TREF);
@@ -738,15 +738,20 @@ void Photosynthesis::photoC4_loop_vcm(int i)
 	double Ko_ = KOOP * std::pow(Q10KO, (T - TREF) / 10.0) * 1e-08 * pPa;
 	double Kp_ = KPOP * std::pow(Q10KP, (T - TREF) / 10.0) * 1e-11 * pPa;
 
-	// electron transport (with qLs/NPQs stress knobs)
+	// electron transport (with qLs/NPQs stress knobs). The vcm_* knobs are the public
+	// caveat-#5 calibration interface, so clamp to physical open intervals here (trust
+	// boundary) to keep THETA/Jms/fo0/kPSII/a_e away from degenerate divide-by-zero.
+	// Defaults (qLs=1, po0max=0.88, x=0.4) are inside the clamp, so normal runs are unchanged.
 	double kf_ = vcm_kf, kD_ = vcm_kD, kd_ = vcm_kd, beta = vcm_beta;
-	double kPSII = (kD_ + kf_) * vcm_po0max / (1.0 - vcm_po0max);
+	double qLs  = std::min(std::max(vcm_qLs, 1e-4), 1.0);
+	double po0m = std::min(std::max(vcm_po0max, 1e-3), 1.0 - 1e-3);
+	double kPSII = (kD_ + kf_) * po0m / (1.0 - po0m);
 	double fo0   = kf_ / (kf_ + kPSII + kD_);
-	double kps   = kPSII * vcm_qLs;
+	double kps   = kPSII * qLs;
 	double kNPQs = vcm_NPQs * (kf_ + kD_);
-	double kds   = kd_ * vcm_qLs;
+	double kds   = kd_ * qLs;
 	double kDs   = kD_ + kNPQs;
-	double Jms   = Jmax_ * vcm_qLs;
+	double Jms   = Jmax_ * qLs;
 	double po0   = kps / (kps + kf_ + kDs);
 	double THETA = (kps - kds) / (kps + kf_ + kDs);
 	double Q2 = beta * Q * po0;
