@@ -440,6 +440,15 @@ def _subdivide_skeleton(skeleton, widths, target_spacing=0.5):
     # Number of output points
     m = max(n, int(np.ceil(total_length / target_spacing)) + 1)
 
+    # ponytail: freshly-developed apical leaves can arrive with a widths array
+    # that doesn't match the skeleton point count -> resample to n before splining
+    # (else CubicSpline raises "length of y doesn't match x"). Upgrade path: fix the
+    # width source in extract_organs_for_lofter so they're always aligned.
+    widths = np.asarray(widths, dtype=np.float64)
+    if widths.shape[0] != n:
+        widths = np.interp(np.linspace(0.0, 1.0, n),
+                           np.linspace(0.0, 1.0, widths.shape[0]), widths)
+
     # Cubic spline interpolation for each coordinate and widths
     cs_x = CubicSpline(cumulative, skeleton[:, 0])
     cs_y = CubicSpline(cumulative, skeleton[:, 1])
@@ -483,6 +492,11 @@ def _resample_skeleton_exact(skeleton, widths, target_spacing):
     n = len(skeleton)
     if n < 3:
         return skeleton, widths, np.arange(max(n - 1, 0), dtype=np.int32)
+
+    # ponytail: align widths to skeleton (apical leaves may arrive mismatched)
+    if widths.shape[0] != n:
+        widths = np.interp(np.linspace(0.0, 1.0, n),
+                           np.linspace(0.0, 1.0, widths.shape[0]), widths)
 
     diffs = np.diff(skeleton, axis=0)
     seg_lengths = np.linalg.norm(diffs, axis=1)
