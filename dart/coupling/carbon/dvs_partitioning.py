@@ -191,7 +191,7 @@ def load_daily_met(csv_path=None):
     from pathlib import Path
 
     if csv_path is None:
-        csv_path = Path(__file__).parent.parent / 'data' / 'juelich_2024_daily_met.csv'
+        csv_path = Path(__file__).parent.parent / 'data' / 'cka_2023_daily_met.csv'
 
     result = {}
     with open(csv_path) as f:
