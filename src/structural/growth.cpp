@@ -406,7 +406,7 @@ double MultiPhaseStemGrowth::calcLengthPerPhytomer(int n,
     const double collar_tt = (lrp_n->t_col_emp_Cd >= 0.0)
         ? lrp_n->t_col_emp_Cd
         : (lrp_n->T0_n + lrp_n->lag_exp_n + COLLAR_FRAC_OF_DLIN * lrp_n->D_lin_n);
-    const double init_tt = collar_tt - srp->phase_I_duration;
+    double init_tt = collar_tt - srp->phase_I_duration;
 
     // Negative-init_tt guard: when collar_TT < phase_I_duration the FA schedule
     // is invalid for this rank — Phase I would have started before andrieu_tt=0.
@@ -414,7 +414,21 @@ double MultiPhaseStemGrowth::calcLengthPerPhytomer(int n,
     // − negative_init_tt is always positive), so the internode runs Phase I→IV
     // from day 0 and races ahead of its leaf. Treat as basal-like (zero growth);
     // the rank is implicitly basal because its FA schedule can't fit pre-collar.
-    if (init_tt < 0.0) return 0.0;
+    //
+    // EXCEPTION when the maturity gate is active (internode_maturity_span > 0):
+    // the lower internodes of a real plant DO joint (collar_TT < phase_I_duration
+    // is exactly the basal/lower ranks), the bare schedule just can't represent
+    // them. The race the guard prevents is now controlled by the maturity gate
+    // below (it scales elongation by whole-plant maturity keyed on collar_tt), so
+    // we clamp init_tt to 0 — Phase I starts at andrieu_tt=0 — and let those ranks
+    // elongate under the gate instead of hard-zeroing them.
+    if (init_tt < 0.0) {
+        if (srp->internode_maturity_span > 0.0) {
+            init_tt = 0.0;
+        } else {
+            return 0.0;
+        }
+    }
 
     auto plant_fa = stem->getPlant();
     if (!plant_fa) return 0.0;
