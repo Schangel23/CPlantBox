@@ -549,14 +549,22 @@ double MultiPhaseStemGrowth::calcLengthPerPhytomer(int n,
     // collar order. Upper ranks (collar_tt > onset) are unaffected — max() returns
     // collar_tt — so the tasseling-time over-elongation fix is preserved. Default
     // onset=0 ≤ every collar_tt → max() is a no-op → unchanged gate behaviour.
+    // Gate floor = length an internode holds while its phytomer is immature (m=0).
+    // Default (internode_maturity_floor_cm < 0) keeps the historical floor at
+    // il_at_end_phase_II_cm (~4.5 cm). Lowering it toward 0 lets the upper whorl
+    // and the leafless apical internodes (m≈0 at the current stage) sit near zero
+    // instead of stacking ~6 cm each — fixing both the over-tall whorl and the
+    // bare stem overshooting the last proper leaf. Only active with span>0.
     const double span = srp->internode_maturity_span;
-    if (span > 0.0 && target > srp->il_at_end_phase_II_cm) {
+    const double floor = (srp->internode_maturity_floor_cm >= 0.0)
+                         ? srp->internode_maturity_floor_cm
+                         : srp->il_at_end_phase_II_cm;
+    if (span > 0.0 && target > floor) {
         const double onset = (collar_tt > srp->internode_jointing_onset_tt)
                              ? collar_tt : srp->internode_jointing_onset_tt;
         double m = (andrieu_tt - onset) / span;
         m = (m < 0.0) ? 0.0 : (m > 1.0 ? 1.0 : m);
-        target = srp->il_at_end_phase_II_cm
-                 + m * (target - srp->il_at_end_phase_II_cm);
+        target = floor + m * (target - floor);
     }
 
     const double H = (sp->cultivar_height_factor > 0.0)
