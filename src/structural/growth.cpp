@@ -539,9 +539,21 @@ double MultiPhaseStemGrowth::calcLengthPerPhytomer(int n,
     // so lower (earlier-collared) ranks mature first — the native acropetal wave.
     // Phase I/II (target ≤ il_at_end_phase_II_cm) is left untouched. Default
     // span=0 disables the term → bare FA trajectory, bit-identical baselines.
+    // Jointing-onset refinement (internode_jointing_onset_tt): a real plant keeps
+    // its lower internodes compressed in a whorl until the whole plant bolts, then
+    // they joint acropetally over a short window — not gradually from each rank's
+    // own (early) collar emergence. Per-leaf collar_tt alone makes the basal ranks
+    // elongate too early (they over-grow at intermediate stages, e.g. V9/V10).
+    // Gate maturity on max(collar_tt, jointing_onset_tt): below the onset even an
+    // early-collared basal internode stays compressed; above it the ranks joint in
+    // collar order. Upper ranks (collar_tt > onset) are unaffected — max() returns
+    // collar_tt — so the tasseling-time over-elongation fix is preserved. Default
+    // onset=0 ≤ every collar_tt → max() is a no-op → unchanged gate behaviour.
     const double span = srp->internode_maturity_span;
     if (span > 0.0 && target > srp->il_at_end_phase_II_cm) {
-        double m = (andrieu_tt - collar_tt) / span;
+        const double onset = (collar_tt > srp->internode_jointing_onset_tt)
+                             ? collar_tt : srp->internode_jointing_onset_tt;
+        double m = (andrieu_tt - onset) / span;
         m = (m < 0.0) ? 0.0 : (m > 1.0 ? 1.0 : m);
         target = srp->il_at_end_phase_II_cm
                  + m * (target - srp->il_at_end_phase_II_cm);

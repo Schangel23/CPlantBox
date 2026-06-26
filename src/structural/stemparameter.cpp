@@ -461,6 +461,7 @@ void StemRandomParameter::bindParameters()
     bindParameter("half_plastochron_lag_degCd", &half_plastochron_lag_degCd, "FA lag between leaf primordium and internode init [degCd] (FA 2000 line 207 default 9.6)");
     bindParameter("collar_frac_of_dlin", &collar_frac_of_dlin, "FA α in collar_TT = T0 + lag_exp + α·D_lin (FA 2005 / AHB 2006 literal default 1.0)");
     bindParameter("internode_maturity_span", &internode_maturity_span, "Per-phytomer maturity window [degCd]; >0 scales internode post-Phase-II elongation 0->full over this span past leaf-n collar emergence (default 0 = disabled)");
+    bindParameter("internode_jointing_onset_tt", &internode_jointing_onset_tt, "Whole-plant jointing onset [degCd]; basal internodes stay compressed until plant TT passes this, then joint acropetally (default 0 = no-op)");
     bindParameter("cultivar_height_factor", &cultivar_height_factor,
                   "Genotypic FA Phase III/IV asymptote scale (default 1.0); active only with use_fournier_andrieu_kinetics=1",
                   &cultivar_height_factor_s);
