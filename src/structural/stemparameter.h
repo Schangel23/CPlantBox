@@ -41,6 +41,7 @@ public:
     std::vector<double> internode_v_n;       ///< per-rank Phase III rate [cm/degCd], empty unless flag is true
     std::vector<double> internode_D_n;       ///< per-rank Phase III duration [degCd], empty unless flag is true
     std::vector<double> internode_IL_final;  ///< per-rank Phase IV asymptote [cm], empty unless flag is true (indexed 1-based by rank)
+    std::vector<double> internode_sheath_cm; ///< per-rank mature sheath length [cm], empty unless internode_collar_onset_gate is true (indexed 1-based by rank)
 
     /* Genotypic height factor — single output multiplier on FA Phase III/IV
      * targets (PLAN_CULTIVAR_HEIGHT_FACTOR_2026-05-07 §S1). Default 1.0 →
@@ -169,11 +170,13 @@ public:
     double internode_maturity_span = 0.0;              ///< OPT-IN (>0 enables): per-phytomer maturity window [degCd] over which internode n's post-Phase-II elongation is scaled from 0→full as the plant ages past leaf-n collar emergence. Real maize keeps internodes compressed until the phytomer matures, then telescopes; the bare FA trajectory reaches IL_final ~D_n after collar emergence regardless of whole-plant stage, over-elongating upper internodes pre-tasseling. Default 0.0 = disabled = bit-identical to non-maize baselines.
     double internode_jointing_onset_tt = 0.0;          ///< Whole-plant jointing onset [degCd]: maturity gate keys on max(collar_tt, this), so basal internodes (early collar) stay whorl-compressed until the plant bolts, then joint acropetally. Default 0 ≤ all collar_tt → no-op. Only meaningful with internode_maturity_span>0.
     double internode_maturity_floor_cm = -1.0;         ///< Length [cm] an internode holds while immature (gate m=0). <0 = use il_at_end_phase_II_cm (historical default). Set ~0 to let the upper whorl and leafless apical internodes sit near zero (kills the over-tall whorl + bare-stem overshoot above the last leaf). Only active with internode_maturity_span>0.
-    int internode_collar_onset_gate = 0;               ///< OPT-IN: hold internode n in Phase I until leaf-n collar is above leaf-(n-1) collar, then release to the existing maturity gate. Default 0 = disabled.
+    int internode_collar_onset_gate = 0;               ///< OPT-IN: hold internode n at its own bare Phase I/II/III/IV target until that target exceeds leaf-(n-1)'s visible sheath height, then release unchanged. Requires internode_sheath_cm (rank n-1 lookup); no-op if that array is empty or too short for the current rank. Default 0 = disabled.
+    double internode_sheath_visible_fraction = 0.5;    ///< Fraction of a mature sheath's length that is actually exposed above the whorl at full maturity (telescoping overlap of stacked older sheaths). Only consulted when internode_collar_onset_gate=1. Matches PSEUDOSTEM_VISIBLE_FRACTION in dart/coupling/geometry/cplantbox_adapter.py (Birch 2002 pseudostem-lift geometry) — same physical quantity, ported here so the growth-timing gate and the render-time geometry agree.
     std::vector<int> basal_zero_ranks = {1, 2, 3, 4};  ///< ranks with IL_final=0 (Zhu 2014, He 2021)
     std::vector<double> internode_v_n;                 ///< per-rank Phase III rate [cm/degCd] (FA 2000 Fig 12A); empty→disabled
     std::vector<double> internode_D_n;                 ///< per-rank Phase III duration [degCd] (FA 2000 Fig 12B); empty→disabled
     std::vector<double> internode_IL_final;            ///< per-rank Phase IV asymptote [cm] (FA 2000 Fig 13 / MF3D); empty→disabled
+    std::vector<double> internode_sheath_cm;           ///< per-rank MATURE sheath length [cm] (Vidal 2021 SupData1 sheet 2.sheath_des, M40+M52 top-10% mean; see dart/coupling/data/vidal_per_rank_sheath_cm.json). Only consulted by internode_collar_onset_gate; empty→gate disabled regardless of the flag.
 
     /* Genotypic FA-asymptote scale factor H (PLAN_CULTIVAR_HEIGHT_FACTOR_2026-05-07
      * §D1, §D2). Single output multiplier applied at the end of

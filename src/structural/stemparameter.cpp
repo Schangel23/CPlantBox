@@ -375,6 +375,7 @@ default:
     sp->internode_v_n = this->internode_v_n;
     sp->internode_D_n = this->internode_D_n;
     sp->internode_IL_final = this->internode_IL_final;
+    sp->internode_sheath_cm = this->internode_sheath_cm;
 
     // Genotypic FA-asymptote scale factor H (PLAN_CULTIVAR_HEIGHT_FACTOR_2026-05-07
     // §S1). Gate the randn() pull on cultivar_height_factor_s > 0 so the RNG
@@ -464,6 +465,7 @@ void StemRandomParameter::bindParameters()
     bindParameter("internode_jointing_onset_tt", &internode_jointing_onset_tt, "Whole-plant jointing onset [degCd]; basal internodes stay compressed until plant TT passes this, then joint acropetally (default 0 = no-op)");
     bindParameter("internode_maturity_floor_cm", &internode_maturity_floor_cm, "Length [cm] an internode holds while immature (gate m=0); <0 uses il_at_end_phase_II_cm; ~0 lets whorl/apical internodes sit near zero (default -1)");
     bindParameter("internode_collar_onset_gate", &internode_collar_onset_gate, "Use collar-node onset gate: internode n stays in Phase I until leaf-n collar passes leaf-(n-1) collar [0/1]");
+    bindParameter("internode_sheath_visible_fraction", &internode_sheath_visible_fraction, "Fraction of a mature sheath's length exposed above the whorl (telescoping overlap); only used by internode_collar_onset_gate (default 0.5)");
     bindParameter("cultivar_height_factor", &cultivar_height_factor,
                   "Genotypic FA Phase III/IV asymptote scale (default 1.0); active only with use_fournier_andrieu_kinetics=1",
                   &cultivar_height_factor_s);
@@ -494,6 +496,7 @@ void StemRandomParameter::readXML(tinyxml2::XMLElement* element, bool verbose)
     internode_v_n.resize(0);
     internode_D_n.resize(0);
     internode_IL_final.resize(0);
+    internode_sheath_cm.resize(0);
     bool basal_zero_ranks_overridden = false;
 
     auto p = element->FirstChildElement("parameter");
@@ -509,6 +512,8 @@ void StemRandomParameter::readXML(tinyxml2::XMLElement* element, bool verbose)
                     internode_D_n = string2vector(values, 0.0);
                 } else if (key == "IL_final") {
                     internode_IL_final = string2vector(values, 0.0);
+                } else if (key == "sheath_cm") {
+                    internode_sheath_cm = string2vector(values, 0.0);
                 } else if (key == "basal_zero_ranks") {
                     if (!basal_zero_ranks_overridden) {
                         basal_zero_ranks.resize(0);
@@ -568,6 +573,8 @@ tinyxml2::XMLElement* StemRandomParameter::writeXML(tinyxml2::XMLDocument& doc, 
                         "MultiPhaseStemGrowth Phase III duration per rank [degCd]");
     append_array_double("IL_final", internode_IL_final,
                         "MultiPhaseStemGrowth Phase IV asymptote per rank [cm]");
+    append_array_double("sheath_cm", internode_sheath_cm,
+                        "Per-rank mature sheath length [cm] (Vidal 2021); used by internode_collar_onset_gate");
     if (use_fournier_andrieu_kinetics) {
         append_array_int("basal_zero_ranks", basal_zero_ranks,
                          "Ranks pinned to IL_final=0 (basal-zero, Zhu 2014 / He 2021)");

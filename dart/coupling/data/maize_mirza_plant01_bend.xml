@@ -166,7 +166,9 @@
         <parameter name="basal_internode_cm" value="0.543265" />
         <parameter name="collar_frac_of_dlin" value="1" />
         <parameter name="internode_jointing_onset_tt" value="374.080322" />
-        <parameter name="internode_collar_onset_gate" value="1" />
+        <parameter name="internode_collar_onset_gate" value="0" />
+        <parameter name="internode_sheath_visible_fraction" value="0.5" />
+        <parameter name="sheath_cm" values="3.337,3.675,4.392,6.289,8.229,11.875,15.054,16.925,16.538,15.512,14.169,13.473,13.936,14.267,14.55,14.133,13.667,12.937,11.45,5.8" />
         <parameter name="internode_maturity_floor_cm" value="0.0" />
         <parameter name="internode_maturity_span" value="410.778432" />
         <parameter name="cultivar_height_factor" value="1.34" dev="0.091999999999999998" />

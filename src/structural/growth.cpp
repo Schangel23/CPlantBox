@@ -565,11 +565,34 @@ double MultiPhaseStemGrowth::calcLengthPerPhytomer(int n,
     // Phase I->II trigger. Birch et al. 2002 (Agronomie 22:511-524, section
     // 3.3.1 / Fig. 8) re-tests this directly: the internode_n/internode_(n+1)
     // ratio stays flat around 1.6 until visible sheath length of leaf n crosses
-    // zero, i.e. collar n passes collar n-1, then jumps upward. The numeric
-    // Phase-I hold used here is CPlantBox's discretization of that trigger,
-    // not a formula transcribed from either paper. Once released, the existing
-    // jointing-onset and maturity-span kinetics below run unchanged.
-    if (srp->internode_collar_onset_gate && n > 1) {
+    // zero, i.e. collar n passes collar n-1, then jumps upward.
+    //
+    // "Collar n passes collar n-1" is a pseudostem-height event, not a raw
+    // node-height event: leaf n's ligule is enclosed WITHIN leaf (n-1)'s
+    // sheath tube until it grows tall enough to emerge above it. CPlantBox's
+    // stem places nodes strictly cumulatively (collar_pos(n) = collar_pos(n-1)
+    // + internode_n, and internode_n > 0 always), so a raw node/collar_pos
+    // comparison can never be false and can't encode "still hidden inside the
+    // whorl" -- an earlier version of this gate compared collar_pos(n) to
+    // collar_pos(n-1) directly and was a structural no-op (verified via a
+    // day-by-day A/B growth sweep, gate on vs off, zero divergence at any
+    // rank/day). The quantity that actually distinguishes "hidden" from
+    // "emerged" is whether this rank's OWN bare internode target has grown
+    // past the height of the sheath tube it is still wrapped in, i.e.
+    // bare target(n) vs visible_sheath(n-1) = mature_sheath_cm(n-1) *
+    // blade_maturity_fraction(n-1) * internode_sheath_visible_fraction. Same
+    // physical construction as dart/coupling/geometry/cplantbox_adapter.py's
+    // _apply_pseudostem_lift (PSEUDOSTEM_VISIBLE_FRACTION), ported here so the
+    // growth-timing gate and the render-time geometry read the same event.
+    // While bare target(n) <= visible_sheath(n-1) the internode holds at its
+    // own Phase-I trajectory (capped at phase_I_duration); once it exceeds
+    // the enclosing sheath height it has "escaped" the whorl and the existing
+    // jointing-onset / maturity-span kinetics below run unchanged. No-op
+    // (collar_gate_holding stays false) whenever internode_sheath_cm has no
+    // entry for rank n-1 or leaf (n-1)'s lmax is unset -- Birch's proxy
+    // requires per-rank sheath calibration, not a formula fallback.
+    if (srp->internode_collar_onset_gate && n > 1
+        && static_cast<std::size_t>(n - 2) < sp->internode_sheath_cm.size()) {
         std::shared_ptr<Leaf> leaf_prev;
         leaf_ordinal = 0;
         for (int ci = 0; ci < n_children; ++ci) {
@@ -583,15 +606,18 @@ double MultiPhaseStemGrowth::calcLengthPerPhytomer(int n,
             }
         }
         if (!leaf_prev) return 0.0;
-        const int parent_ni_n = static_cast<int>(leaf_n->getParameter("parentNI"));
-        const int parent_ni_prev = static_cast<int>(leaf_prev->getParameter("parentNI"));
-        const double collar_pos_n = stem->getLength(parent_ni_n);
-        const double collar_pos_prev = stem->getLength(parent_ni_prev);
-        if (collar_pos_n <= collar_pos_prev) {
-            const double tau_phase_i = (tau < phase_I_duration)
-                ? tau : phase_I_duration;
-            target = srp->il_init_cm * std::exp(r_I * tau_phase_i);
-            collar_gate_holding = true;
+        auto lrp_prev = leaf_prev->getLeafRandomParameter();
+        if (lrp_prev && lrp_prev->lmax > 0.0) {
+            double blade_maturity = leaf_prev->getLength(true) / lrp_prev->lmax;
+            blade_maturity = (blade_maturity < 0.0) ? 0.0 : (blade_maturity > 1.0 ? 1.0 : blade_maturity);
+            const double visible_sheath_prev = sp->internode_sheath_cm[n - 2]
+                * blade_maturity * srp->internode_sheath_visible_fraction;
+            if (target <= visible_sheath_prev) {
+                const double tau_phase_i = (tau < phase_I_duration)
+                    ? tau : phase_I_duration;
+                target = srp->il_init_cm * std::exp(r_I * tau_phase_i);
+                collar_gate_holding = true;
+            }
         }
     }
     if (!collar_gate_holding && span > 0.0 && target > floor) {
