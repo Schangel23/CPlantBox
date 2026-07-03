@@ -463,6 +463,7 @@ void StemRandomParameter::bindParameters()
     bindParameter("internode_maturity_span", &internode_maturity_span, "Per-phytomer maturity window [degCd]; >0 scales internode post-Phase-II elongation 0->full over this span past leaf-n collar emergence (default 0 = disabled)");
     bindParameter("internode_jointing_onset_tt", &internode_jointing_onset_tt, "Whole-plant jointing onset [degCd]; basal internodes stay compressed until plant TT passes this, then joint acropetally (default 0 = no-op)");
     bindParameter("internode_maturity_floor_cm", &internode_maturity_floor_cm, "Length [cm] an internode holds while immature (gate m=0); <0 uses il_at_end_phase_II_cm; ~0 lets whorl/apical internodes sit near zero (default -1)");
+    bindParameter("internode_collar_onset_gate", &internode_collar_onset_gate, "Use collar-node onset gate: internode n stays at maturity floor until leaf-n collar passes leaf-(n-1) collar [0/1]");
     bindParameter("cultivar_height_factor", &cultivar_height_factor,
                   "Genotypic FA Phase III/IV asymptote scale (default 1.0); active only with use_fournier_andrieu_kinetics=1",
                   &cultivar_height_factor_s);

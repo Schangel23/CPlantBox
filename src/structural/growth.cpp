@@ -559,6 +559,37 @@ double MultiPhaseStemGrowth::calcLengthPerPhytomer(int n,
     const double floor = (srp->internode_maturity_floor_cm >= 0.0)
                          ? srp->internode_maturity_floor_cm
                          : srp->il_at_end_phase_II_cm;
+    // Optional collar-node onset gate. Fournier & Andrieu 2000 (Ann Bot
+    // 86:551-563) propose same-phytomer collar emergence as the internode
+    // Phase I->II trigger. Birch et al. 2002 (Agronomie 22:511-524, section
+    // 3.3.1 / Fig. 8) re-tests this directly: the internode_n/internode_(n+1)
+    // ratio stays flat around 1.6 until visible sheath length of leaf n crosses
+    // zero, i.e. collar n passes collar n-1, then jumps upward. The numeric
+    // floor used here is CPlantBox's discretization of that trigger, not a
+    // formula transcribed from either paper. Once released, the existing
+    // jointing-onset and maturity-span kinetics below run unchanged.
+    if (srp->internode_collar_onset_gate && n > 1 && target > floor) {
+        std::shared_ptr<Leaf> leaf_prev;
+        leaf_ordinal = 0;
+        for (int ci = 0; ci < n_children; ++ci) {
+            auto c = stem_mut->getChild(ci);
+            if (c->organType() == Organism::ot_leaf) {
+                ++leaf_ordinal;
+                if (leaf_ordinal == n - 1) {
+                    leaf_prev = std::static_pointer_cast<Leaf>(c);
+                    break;
+                }
+            }
+        }
+        if (!leaf_prev) return 0.0;
+        const int parent_ni_n = static_cast<int>(leaf_n->getParameter("parentNI"));
+        const int parent_ni_prev = static_cast<int>(leaf_prev->getParameter("parentNI"));
+        const double collar_pos_n = stem->getLength(parent_ni_n);
+        const double collar_pos_prev = stem->getLength(parent_ni_prev);
+        if (collar_pos_n <= collar_pos_prev) {
+            target = floor;
+        }
+    }
     if (span > 0.0 && target > floor) {
         const double onset = (collar_tt > srp->internode_jointing_onset_tt)
                              ? collar_tt : srp->internode_jointing_onset_tt;

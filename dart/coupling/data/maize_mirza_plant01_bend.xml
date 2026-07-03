@@ -1,0 +1,1527 @@
+<plant>
+    <seed name="undefined*" subType="0">
+        <parameter name="decompose_phytomer" value="0" />
+        <parameter name="reserve_capacity_factor" value="0.04" />
+        <parameter name="starch_remob_rate" value="2.0" />
+        <parameter name="starch_storage_efficiency" value="0.95" />
+        <parameter name="starch_remob_efficiency" value="0.98" />
+        <parameter name="sink_feedback_theta_full" value="0.80" />
+        <parameter name="delayDefinition" value="0" />
+        <parameter name="delayDefinitionShoot" value="2" />
+        <parameter name="maxTil" value="0" />
+        <parameter name="a" value="0.10000000000000001" />
+        <parameter name="delayB" value="0" />
+        <parameter name="delayRC" value="7" />
+        <parameter name="delaySB" value="0" />
+        <parameter name="delayTil" value="1000000000" />
+        <parameter name="dx" value="0.25" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="firstB" value="0" />
+        <parameter name="firstSB" value="14" />
+        <parameter name="firstTil" value="1000000000" />
+        <parameter name="ldelay" value="-1" />
+        <parameter name="maxB" value="7" />
+        <parameter name="nC" value="0" />
+        <parameter name="nz" value="0" />
+        <parameter name="seedPos.x" value="200" />
+        <parameter name="seedPos.y" value="200" />
+        <parameter name="seedPos.z" value="-3" />
+        <parameter name="simulationTime" value="56" />
+    </seed>
+    <root name="taproot" subType="1">
+        <parameter name="gf" value="1" />
+        <parameter name="c_cost_per_cm" value="0.20" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="tropismT" value="1" />
+        <parameter name="a" value="0.20000000000000001" dev="0.02" />
+        <parameter name="dx" value="0.25" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="hairsElongation" value="0" />
+        <parameter name="hairsLength" value="0" />
+        <parameter name="hairsZone" value="0" />
+        <parameter name="la" value="8" />
+        <parameter name="lb" value="2" />
+        <parameter name="ldelay" value="-1" />
+        <parameter name="lmax" value="159" />
+        <parameter name="ln" value="0.5" dev="9.9999996999999993e-06" />
+        <parameter name="lnk" value="0" />
+        <parameter name="r" value="4.5" dev="0.44999999000000002" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="theta" value="1.3" dev="0.40000001000000002" />
+        <parameter name="tropismN" value="1.5" />
+        <parameter name="tropismS" value="0.13" />
+        <parameter name="successor" ruleId="0" numLat="1" where="" subType="2" organType="2" percentage="0.5" />
+        <parameter name="successor" ruleId="1" numLat="1" where="" subType="3" organType="2" percentage="0.5" />
+    </root>
+    <root name="lateral1" subType="2">
+        <parameter name="gf" value="1" />
+        <parameter name="c_cost_per_cm" value="0.20" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="tropismT" value="2" />
+        <parameter name="a" value="0.012500000000000001" dev="0.00125" />
+        <parameter name="dx" value="0.25" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="hairsElongation" value="0" />
+        <parameter name="hairsLength" value="0" />
+        <parameter name="hairsZone" value="0" />
+        <parameter name="la" value="1.76" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="-1" />
+        <parameter name="lmax" value="1.76" />
+        <parameter name="ln" value="0" />
+        <parameter name="lnk" value="0" />
+        <parameter name="r" value="0.34999998999999998" dev="0.035000000000000003" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="theta" value="1.22173" />
+        <parameter name="tropismN" value="2" />
+        <parameter name="tropismS" value="0.52359902999999997" />
+    </root>
+    <root name="lateral2" subType="3">
+        <parameter name="gf" value="1" />
+        <parameter name="c_cost_per_cm" value="0.20" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="tropismT" value="2" />
+        <parameter name="a" value="0.02" dev="0.0020000001000000001" />
+        <parameter name="dx" value="0.25" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="hairsElongation" value="0" />
+        <parameter name="hairsLength" value="0" />
+        <parameter name="hairsZone" value="0" />
+        <parameter name="la" value="6.0100002000000003" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="-1" />
+        <parameter name="lmax" value="6.0100002000000003" />
+        <parameter name="ln" value="0" />
+        <parameter name="lnk" value="0" />
+        <parameter name="r" value="0.40000001000000002" dev="0.039999999000000001" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="theta" value="1.22173" />
+        <parameter name="tropismN" value="2" />
+        <parameter name="tropismS" value="0.52359902999999997" />
+    </root>
+    <root name="nodal_root" subType="4">
+        <parameter name="gf" value="1" />
+        <parameter name="c_cost_per_cm" value="0.20" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="tropismT" value="1" />
+        <parameter name="a" value="0.20000000000000001" dev="0.02" />
+        <parameter name="dx" value="0.25" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="hairsElongation" value="0" />
+        <parameter name="hairsLength" value="0" />
+        <parameter name="hairsZone" value="0" />
+        <parameter name="la" value="8" />
+        <parameter name="lb" value="2" />
+        <parameter name="ldelay" value="-1" />
+        <parameter name="lmax" value="159" dev="15.9" />
+        <parameter name="ln" value="1" dev="0.10000000000000001" />
+        <parameter name="lnk" value="0" />
+        <parameter name="r" value="4.5" dev="0.44999999000000002" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="theta" value="0.3200" dev="0.15707999" />
+        <parameter name="tropismN" value="1" />
+        <parameter name="tropismS" value="0.050000001000000002" />
+        <parameter name="successor" ruleId="0" numLat="1" where="" subType="2" organType="2" percentage="0.5" />
+        <parameter name="successor" ruleId="1" numLat="1" where="" subType="3" organType="2" percentage="0.5" />
+    </root>
+    <root name="shoot_borne_root" subType="5">
+        <parameter name="gf" value="1" />
+        <parameter name="c_cost_per_cm" value="0.20" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="tropismT" value="1" />
+        <parameter name="a" value="0.20000000000000001" dev="0.02" />
+        <parameter name="dx" value="0.25" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="hairsElongation" value="0" />
+        <parameter name="hairsLength" value="0" />
+        <parameter name="hairsZone" value="0" />
+        <parameter name="la" value="8" />
+        <parameter name="lb" value="2" />
+        <parameter name="ldelay" value="-1" />
+        <parameter name="lmax" value="59.049999" dev="5.9000000999999997" />
+        <parameter name="ln" value="0.5" dev="9.9999996999999993e-06" />
+        <parameter name="lnk" value="0" />
+        <parameter name="r" value="4.5" dev="0.44999999000000002" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="theta" value="1.3" dev="0.109956" />
+        <parameter name="tropismN" value="1" />
+        <parameter name="tropismS" value="0.050000001000000002" />
+        <parameter name="successor" ruleId="0" numLat="1" where="" subType="2" organType="2" percentage="0.5" />
+        <parameter name="successor" ruleId="1" numLat="1" where="" subType="3" organType="2" percentage="0.5" />
+    </root>
+    <stem name="mainstem" subType="1">
+        <parameter name="gf" value="1" />
+        <parameter name="c_cost_per_cm" value="0.55" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="lnf" value="0" />
+        <parameter name="nodalGrowth" value="1" />
+        <parameter name="tropismT" value="1" />
+        <parameter name="use_fournier_andrieu_kinetics" value="1" />
+        <parameter name="use_thermal_cessation" value="1" />
+        <parameter name="use_thermal_emergence" value="0" />
+        <parameter name="BetaDev" value="0.22" />
+        <parameter name="InitBeta" value="0" />
+        <parameter name="RotBeta" value="3.1415926535897931" />
+        <parameter name="a" value="0.20000000000000001" dev="0.02" />
+        <parameter name="basal_internode_cm" value="0.543265" />
+        <parameter name="collar_frac_of_dlin" value="1" />
+        <parameter name="internode_jointing_onset_tt" value="374.080322" />
+        <parameter name="internode_collar_onset_gate" value="1" />
+        <parameter name="internode_maturity_floor_cm" value="0.0" />
+        <parameter name="internode_maturity_span" value="410.778432" />
+        <parameter name="cultivar_height_factor" value="1.34" dev="0.091999999999999998" />
+        <parameter name="delayNGEnd" value="0" />
+        <parameter name="delayNGStart" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="half_plastochron_lag_degCd" value="55.2" />
+        <parameter name="il_at_end_phase_II_cm" value="4.5" />
+        <parameter name="il_init_cm" value="0.0025000000000000001" />
+        <parameter name="la" value="8" />
+        <parameter name="lb" value="0.7" />
+        <parameter name="ldelay" value="-1" />
+        <parameter name="lmax" value="210" dev="15" />
+        <parameter name="ln" value="3.5" dev="0.5" />
+        <parameter name="phase_II_duration" value="25" />
+        <parameter name="phase_IV_duration" value="30" />
+        <parameter name="phase_IV_k" value="0.089999999999999997" />
+        <parameter name="phase_I_duration" value="309" />
+        <parameter name="plastochron_andrieu" value="23" />
+        <parameter name="r" value="3.5" dev="0.34999999999999998" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="theta" value="0" />
+        <parameter name="tropismAge" value="0" />
+        <parameter name="tropismN" value="1" />
+        <parameter name="tropismS" value="0" />
+        <parameter name="tt_cessation" value="0" />
+        <parameter name="tt_emergence" value="-1" />
+        <parameter name="successor" ruleId="0" numLat="1" where="0" subType="2" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="1" numLat="1" where="1" subType="3" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="2" numLat="1" where="2" subType="4" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="3" numLat="1" where="3" subType="5" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="4" numLat="1" where="4" subType="6" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="5" numLat="1" where="5" subType="7" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="6" numLat="1" where="6" subType="8" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="7" numLat="1" where="7" subType="9" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="8" numLat="1" where="8" subType="10" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="9" numLat="1" where="9" subType="11" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="10" numLat="1" where="10" subType="12" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="11" numLat="1" where="11" subType="13" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="12" numLat="1" where="12" subType="14" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="13" numLat="1" where="13" subType="15" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="14" numLat="1" where="14" subType="16" organType="4" percentage="1" />
+        <parameter name="successor" ruleId="15" numLat="1" where="15" subType="17" organType="4" percentage="1" />
+<parameter name="successor" ruleId="16" numLat="1" where="16" subType="20" organType="3" percentage="1" />
+        <parameter name="v_n" values="0.16, 0.16, 0.16, 0.16, 0.16, 0.16, 0.13, 0.2, 0.32, 0.38, 0.36, 0.28, 0.25, 0.24, 0.19, 0.16" />
+        <parameter name="D_n" values="110, 110, 110, 110, 110, 70, 75, 58, 55, 50, 55, 60, 54, 66, 82" />
+        <parameter name="IL_final" values="13.00, 23.00, 18.00, 11.00, 3.00, 3.00, 3.00, 5.00, 20.80, 24.80, 24.00, 24.00, 20.80, 14.40, 3.20, 3.20" />
+        <parameter name="basal_zero_ranks" values="1" />
+    </stem>
+    <stem name="tassel_spike" subType="20">
+        <parameter name="gf" value="1" />
+        <parameter name="c_cost_per_cm" value="0.55" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="lnf" value="0" />
+        <parameter name="nodalGrowth" value="1" />
+        <parameter name="tropismT" value="1" />
+        <parameter name="use_fournier_andrieu_kinetics" value="0" />
+        <parameter name="use_thermal_cessation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.070000000000000007" />
+        <parameter name="InitBeta" value="0" />
+        <parameter name="RotBeta" value="1" />
+        <parameter name="a" value="0.25" dev="0.025000000000000001" />
+        <parameter name="basal_internode_cm" value="0.40000000000000002" />
+        <parameter name="collar_frac_of_dlin" value="1" />
+        <parameter name="cultivar_height_factor" value="1" />
+        <parameter name="delayNGEnd" value="0" />
+        <parameter name="delayNGStart" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="half_plastochron_lag_degCd" value="9.5999999999999996" />
+        <parameter name="il_at_end_phase_II_cm" value="4.5" />
+        <parameter name="il_init_cm" value="0.0025000000000000001" />
+        <parameter name="la" value="18" />
+        <parameter name="lb" value="14" />
+        <parameter name="ldelay" value="-1" />
+        <parameter name="lmax" value="40" dev="2" />
+        <parameter name="ln" value="0.69999999999999996" dev="0.080000000000000002" />
+        <parameter name="phase_II_duration" value="25" />
+        <parameter name="phase_IV_duration" value="30" />
+        <parameter name="phase_IV_k" value="0.089999999999999997" />
+        <parameter name="phase_I_duration" value="309" />
+        <parameter name="plastochron_andrieu" value="23" />
+        <parameter name="r" value="5" dev="0.5" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="theta" value="0" />
+        <parameter name="tropismAge" value="0" />
+        <parameter name="tropismN" value="1.5" />
+        <parameter name="tropismS" value="0" />
+        <parameter name="tt_cessation" value="-1" />
+        <parameter name="tt_emergence" value="1200" />
+        <parameter name="successor" ruleId="0" numLat="1" where="" subType="21" organType="3" percentage="1" />
+    </stem>
+    <stem name="tassel_branch" subType="21">
+        <parameter name="gf" value="1" />
+        <parameter name="c_cost_per_cm" value="0.55" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="lnf" value="0" />
+        <parameter name="nodalGrowth" value="1" />
+        <parameter name="tropismT" value="1" />
+        <parameter name="use_fournier_andrieu_kinetics" value="0" />
+        <parameter name="use_thermal_cessation" value="0" />
+        <parameter name="use_thermal_emergence" value="0" />
+        <parameter name="BetaDev" value="0.17999999999999999" />
+        <parameter name="InitBeta" value="0" />
+        <parameter name="RotBeta" value="0.76400000000000001" />
+        <parameter name="a" value="0.11" dev="0.014999999999999999" />
+        <parameter name="basal_internode_cm" value="0.40000000000000002" />
+        <parameter name="collar_frac_of_dlin" value="1" />
+        <parameter name="cultivar_height_factor" value="1" />
+        <parameter name="delayNGEnd" value="0" />
+        <parameter name="delayNGStart" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="half_plastochron_lag_degCd" value="9.5999999999999996" />
+        <parameter name="il_at_end_phase_II_cm" value="4.5" />
+        <parameter name="il_init_cm" value="0.0025000000000000001" />
+        <parameter name="la" value="1" />
+        <parameter name="lb" value="0.5" />
+        <parameter name="ldelay" value="-1" />
+        <parameter name="lmax" value="15" dev="1.5" />
+        <parameter name="ln" value="1" />
+        <parameter name="phase_II_duration" value="25" />
+        <parameter name="phase_IV_duration" value="30" />
+        <parameter name="phase_IV_k" value="0.089999999999999997" />
+        <parameter name="phase_I_duration" value="309" />
+        <parameter name="plastochron_andrieu" value="23" />
+        <parameter name="r" value="2.5" dev="0.25" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="theta" value="0.2880" dev="0.12" />
+        <parameter name="tropismAge" value="0" />
+        <parameter name="tropismN" value="2" />
+        <parameter name="tropismS" value="0.10000000000000001" />
+        <parameter name="tt_cessation" value="-1" />
+        <parameter name="tt_emergence" value="-1" />
+    </stem>
+    <leaf name="maize_leaf_L0" subType="2">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="1" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="0" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="0" />
+        <parameter name="InitBeta" value="0.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0" />
+        <parameter name="R2_n" value="0" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="0" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="3" />
+        <parameter name="Width_petiole" value="0.7218675801583716" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="220.515" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="0" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="6" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="2" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="-1" />
+        <parameter name="tau_extension_n" value="115.8" />
+        <parameter name="theta" value="0.953886" dev="0.05" />
+        <parameter name="tropismAge" value="0.907" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="0" />
+        <parameter name="leafGeometry" phi="-4" x="0.83999999999999997" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.82999999999999996" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.84999999999999998" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.91000000000000003" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
+        <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.89000000000000001" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.78000000000000003" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.129971" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0651419" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.249403" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.441141" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.755228" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.507083" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.368919" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.332407" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.307502" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.230322" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.102694" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0384784" />
+    </leaf>
+<leaf name="maize_leaf_L1" subType="3">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="1" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="0" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="0" />
+        <parameter name="InitBeta" value="1.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0" />
+        <parameter name="R2_n" value="0" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="19.199999999999999" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="6" />
+        <parameter name="Width_petiole" value="0.7218675801583716" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="220.515" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="0" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="20" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="2" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="-1" />
+        <parameter name="tau_extension_n" value="115.8" />
+        <parameter name="theta" value="0.78" dev="0.05" />
+        <parameter name="tropismAge" value="0.907" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="0" />
+        <parameter name="leafGeometry" phi="-4" x="0.83999999999999997" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.82999999999999996" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.84999999999999998" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.91000000000000003" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
+        <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.89000000000000001" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.78000000000000003" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.0389913" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0195426" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0748208" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.132342" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.226568" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.152125" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.110676" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0997222" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0922506" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0690966" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0308083" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0115435" />
+    </leaf>
+    <leaf name="maize_leaf_L2" subType="4">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="1" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="1" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="0" />
+        <parameter name="InitBeta" value="0.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0" />
+        <parameter name="R2_n" value="0" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="38.399999999999999" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="8" />
+        <parameter name="Width_petiole" value="1.0267277278502556" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="243.573" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="0" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="32" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="2" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="-1" />
+        <parameter name="tau_extension_n" value="173.69999999999999" />
+        <parameter name="theta" value="0.78" dev="0.05" />
+        <parameter name="tropismAge" value="0.902" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="57.899999999999999" />
+        <parameter name="leafGeometry" phi="-4" x="0.83999999999999997" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.82999999999999996" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.84999999999999998" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.91000000000000003" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
+        <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.89000000000000001" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.78000000000000003" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0" kappa="0.00733695" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0556444" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0892439" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.108717" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.0941842" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.0556943" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0364979" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0453214" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0454229" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0316001" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0370303" />
+        <parameter name="leafCurvature" phi="1" kappa="0.070357" />
+    </leaf>
+    <leaf name="maize_leaf_L3" subType="5">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="2" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="99.5" />
+        <parameter name="InitBeta" value="1.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.012401" />
+        <parameter name="R2_n" value="0.205397" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="57.600000000000001" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="8" />
+        <parameter name="Width_petiole" value="1.3038733166610588" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="277.61" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="523.832647" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="37" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="2.3969999999999998" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="163.8" />
+        <parameter name="tau_extension_n" value="231.59999999999999" />
+        <parameter name="theta" value="1.056563" dev="0" />
+        <parameter name="tropismAge" value="1.541" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="115.8" />
+        <parameter name="leafGeometry" phi="-4" x="0.83999999999999997" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.82999999999999996" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.84999999999999998" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.91000000000000003" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
+        <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.89000000000000001" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.78000000000000003" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="-0.00388" /><parameter name="leafCurvature" phi="0.12500" kappa="-0.00305" /><parameter name="leafCurvature" phi="0.25000" kappa="0.01862" /><parameter name="leafCurvature" phi="0.37500" kappa="0.04689" /><parameter name="leafCurvature" phi="0.50000" kappa="0.05801" /><parameter name="leafCurvature" phi="0.62500" kappa="0.04005" /><parameter name="leafCurvature" phi="0.75000" kappa="0.03755" /><parameter name="leafCurvature" phi="0.87500" kappa="0.02878" /><parameter name="leafCurvature" phi="1.00000" kappa="0.00310" /></leaf>
+    <leaf name="maize_leaf_L4" subType="6">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="3" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="139.69999999999999" />
+        <parameter name="InitBeta" value="0.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.057883" />
+        <parameter name="R2_n" value="0.263097" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="76.799999999999997" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="8" />
+        <parameter name="Width_petiole" value="1.5117325082691615" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="281.721" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="89.887862" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="41.3" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="2.8130000000000002" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="214.277" />
+        <parameter name="tau_extension_n" value="289.5" />
+        <parameter name="theta" value="0.88551" dev="0" />
+        <parameter name="tropismAge" value="1.540" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="173.69999999999999" />
+        <parameter name="leafGeometry" phi="-4" x="0.83999999999999997" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.82999999999999996" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.84999999999999998" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.90000000000000002" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
+        <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.88" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.79000000000000004" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.70999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.58999999999999997" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="0.00459" /><parameter name="leafCurvature" phi="0.12500" kappa="0.02262" /><parameter name="leafCurvature" phi="0.25000" kappa="0.04235" /><parameter name="leafCurvature" phi="0.37500" kappa="0.04769" /><parameter name="leafCurvature" phi="0.50000" kappa="0.05701" /><parameter name="leafCurvature" phi="0.62500" kappa="0.10280" /><parameter name="leafCurvature" phi="0.75000" kappa="0.05522" /><parameter name="leafCurvature" phi="0.87500" kappa="0.02073" /><parameter name="leafCurvature" phi="1.00000" kappa="-0.00000" /></leaf>
+    <leaf name="maize_leaf_L5" subType="7">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="4" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="161.80000000000001" />
+        <parameter name="InitBeta" value="1.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.014220" />
+        <parameter name="R2_n" value="0.205063" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="96" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="8" />
+        <parameter name="Width_petiole" value="1.7195915325585611" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="243.419" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="447.084990" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="47.6000" dev="3.77769" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="4.4470000000000001" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="262.083" />
+        <parameter name="tau_extension_n" value="347.39999999999998" />
+        <parameter name="theta" value="0.420921" dev="0" />
+        <parameter name="tropismAge" value="0.710" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="231.59999999999999" />
+        <parameter name="leafGeometry" phi="-4" x="0.81000000000000005" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.80000000000000004" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.81000000000000005" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.84999999999999998" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="0.93000000000000005" />
+        <parameter name="leafGeometry" phi="0" x="1" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.90000000000000002" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.79000000000000004" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.69999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.58999999999999997" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="0.00244" /><parameter name="leafCurvature" phi="0.12500" kappa="0.02625" /><parameter name="leafCurvature" phi="0.25000" kappa="0.03914" /><parameter name="leafCurvature" phi="0.37500" kappa="0.03029" /><parameter name="leafCurvature" phi="0.50000" kappa="0.02520" /><parameter name="leafCurvature" phi="0.62500" kappa="0.04834" /><parameter name="leafCurvature" phi="0.75000" kappa="0.04997" /><parameter name="leafCurvature" phi="0.87500" kappa="0.03273" /><parameter name="leafCurvature" phi="1.00000" kappa="0.00377" /></leaf>
+    <leaf name="maize_leaf_L6" subType="8">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="5" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="147" />
+        <parameter name="InitBeta" value="0.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.041544" />
+        <parameter name="R2_n" value="0.307241" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="115.2" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="11" />
+        <parameter name="Width_petiole" value="1.9135933141322627" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="231.996" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="136.957421" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="52.5600" dev="3.50688" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="4.992" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="316.388" />
+        <parameter name="tau_extension_n" value="405.30000000000001" />
+        <parameter name="theta" value="0.574278" dev="0" />
+        <parameter name="tropismAge" value="1.896" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="289.5" />
+        <parameter name="leafGeometry" phi="-4" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.84999999999999998" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.90000000000000002" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
+        <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.88" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.78000000000000003" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="-0.00773" /><parameter name="leafCurvature" phi="0.12500" kappa="-0.04358" /><parameter name="leafCurvature" phi="0.25000" kappa="-0.00739" /><parameter name="leafCurvature" phi="0.37500" kappa="0.01806" /><parameter name="leafCurvature" phi="0.50000" kappa="0.06135" /><parameter name="leafCurvature" phi="0.62500" kappa="0.04216" /><parameter name="leafCurvature" phi="0.75000" kappa="0.00059" /><parameter name="leafCurvature" phi="0.87500" kappa="-0.01809" /><parameter name="leafCurvature" phi="1.00000" kappa="-0.00678" /></leaf>
+    <leaf name="maize_leaf_L7" subType="9">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="6" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="155.90000000000001" />
+        <parameter name="InitBeta" value="1.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.021211" />
+        <parameter name="R2_n" value="0.255263" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="170" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="11" />
+        <parameter name="Width_petiole" value="2.2438869335426945" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="203.63" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="291.200538" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="51.8300" dev="2.83022" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="5.5460000000000003" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="371.067" />
+        <parameter name="tau_extension_n" value="463.19999999999999" />
+        <parameter name="theta" value="0.725267" dev="0" />
+        <parameter name="tropismAge" value="1.692" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="347.39999999999998" />
+        <parameter name="leafGeometry" phi="-4" x="0.79000000000000004" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.80000000000000004" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.85999999999999999" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="0.93000000000000005" />
+        <parameter name="leafGeometry" phi="0" x="1" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.91000000000000003" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.81000000000000005" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.70999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.56999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="-0.03704" /><parameter name="leafCurvature" phi="0.12500" kappa="-0.05027" /><parameter name="leafCurvature" phi="0.25000" kappa="-0.03051" /><parameter name="leafCurvature" phi="0.37500" kappa="0.05820" /><parameter name="leafCurvature" phi="0.50000" kappa="0.06022" /><parameter name="leafCurvature" phi="0.62500" kappa="0.06778" /><parameter name="leafCurvature" phi="0.75000" kappa="0.07838" /><parameter name="leafCurvature" phi="0.87500" kappa="0.07534" /><parameter name="leafCurvature" phi="1.00000" kappa="0.01798" /></leaf>
+    <leaf name="maize_leaf_L8" subType="10">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="7" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="135.30000000000001" />
+        <parameter name="InitBeta" value="0.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.048253" />
+        <parameter name="R2_n" value="0.322835" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="153.59999999999999" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="11" />
+        <parameter name="Width_petiole" value="2.6140622839267511" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="245.929" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="115.838642" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="50.3700" dev="3.02724" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="5.7599999999999998" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="424.577" />
+        <parameter name="tau_extension_n" value="521.10000000000002" />
+        <parameter name="theta" value="0.768487" dev="0" />
+        <parameter name="tropismAge" value="0.821" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="405.30000000000001" />
+        <parameter name="leafGeometry" phi="-4" x="0.81000000000000005" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.82999999999999996" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.84999999999999998" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.91000000000000003" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
+        <parameter name="leafGeometry" phi="0" x="0.92000000000000004" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.73999999999999999" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.67000000000000004" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.55000000000000004" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="-0.00208" /><parameter name="leafCurvature" phi="0.12500" kappa="-0.00056" /><parameter name="leafCurvature" phi="0.25000" kappa="0.01490" /><parameter name="leafCurvature" phi="0.37500" kappa="0.04278" /><parameter name="leafCurvature" phi="0.50000" kappa="0.04767" /><parameter name="leafCurvature" phi="0.62500" kappa="0.03523" /><parameter name="leafCurvature" phi="0.75000" kappa="0.03590" /><parameter name="leafCurvature" phi="0.87500" kappa="0.03326" /><parameter name="leafCurvature" phi="1.00000" kappa="0.00313" /></leaf>
+    <leaf name="maize_leaf_L9" subType="11">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="8" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="98.799999999999997" />
+        <parameter name="InitBeta" value="1.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.105163" />
+        <parameter name="R2_n" value="0.512238" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="187.19999999999999" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="11" />
+        <parameter name="Width_petiole" value="3.1700959418810477" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="234.375" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="50.133194" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="55.4800" dev="2.66409" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="5.8810000000000002" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="460.35" />
+        <parameter name="tau_extension_n" value="579" />
+        <parameter name="theta" value="0.663205" dev="0" />
+        <parameter name="tropismAge" value="1.910" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="463.19999999999999" />
+        <parameter name="leafGeometry" phi="-4" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.82999999999999996" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.85999999999999999" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.91000000000000003" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
+        <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.89000000000000001" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.79000000000000004" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.69999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="0.00358" /><parameter name="leafCurvature" phi="0.12500" kappa="0.01864" /><parameter name="leafCurvature" phi="0.25000" kappa="0.02860" /><parameter name="leafCurvature" phi="0.37500" kappa="0.02929" /><parameter name="leafCurvature" phi="0.50000" kappa="0.01311" /><parameter name="leafCurvature" phi="0.62500" kappa="-0.01821" /><parameter name="leafCurvature" phi="0.75000" kappa="-0.00335" /><parameter name="leafCurvature" phi="0.87500" kappa="0.02193" /><parameter name="leafCurvature" phi="1.00000" kappa="0.00529" /></leaf>
+    <leaf name="maize_leaf_L10" subType="12">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="9" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="90.099999999999994" />
+        <parameter name="InitBeta" value="0.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.037251" />
+        <parameter name="R2_n" value="0.586772" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="220.80000000000001" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="11" />
+        <parameter name="Width_petiole" value="2.6822265261156693" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="194.363" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="173.037957" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="68.6200" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="5.875" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="522.323" />
+        <parameter name="tau_extension_n" value="636.89999999999998" />
+        <parameter name="theta" value="0.547290" dev="0" />
+        <parameter name="tropismAge" value="1.471" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="521.10000000000002" />
+        <parameter name="leafGeometry" phi="-4" x="0.81000000000000005" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.80000000000000004" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.85999999999999999" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="0.93000000000000005" />
+        <parameter name="leafGeometry" phi="0" x="1" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.91000000000000003" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.80000000000000004" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.56000000000000005" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="0.00067" /><parameter name="leafCurvature" phi="0.12500" kappa="0.01361" /><parameter name="leafCurvature" phi="0.25000" kappa="0.04551" /><parameter name="leafCurvature" phi="0.37500" kappa="0.02523" /><parameter name="leafCurvature" phi="0.50000" kappa="0.03093" /><parameter name="leafCurvature" phi="0.62500" kappa="0.01531" /><parameter name="leafCurvature" phi="0.75000" kappa="0.13224" /><parameter name="leafCurvature" phi="0.87500" kappa="0.13146" /><parameter name="leafCurvature" phi="1.00000" kappa="0.02049" /></leaf>
+    <leaf name="maize_leaf_L11" subType="13">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="10" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="113.2" />
+        <parameter name="InitBeta" value="1.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.042300" />
+        <parameter name="R2_n" value="0.282738" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="254.40000000000001" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="11" />
+        <parameter name="Width_petiole" value="2.4096530253287183" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="111.081" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="132.118478" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="38.6900" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="6" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="567.1" />
+        <parameter name="tau_extension_n" value="694.79999999999995" />
+        <parameter name="theta" value="0.58687" dev="0" />
+        <parameter name="tropismAge" value="0.499" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="579" />
+        <parameter name="leafGeometry" phi="-4" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.82999999999999996" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.88" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.96999999999999997" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
+        <parameter name="leafGeometry" phi="0" x="0.91000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.81000000000000005" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.73999999999999999" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.66000000000000003" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.52000000000000002" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="0.00079" /><parameter name="leafCurvature" phi="0.12500" kappa="0.00724" /><parameter name="leafCurvature" phi="0.25000" kappa="-0.02520" /><parameter name="leafCurvature" phi="0.37500" kappa="-0.00909" /><parameter name="leafCurvature" phi="0.50000" kappa="0.01116" /><parameter name="leafCurvature" phi="0.62500" kappa="0.03189" /><parameter name="leafCurvature" phi="0.75000" kappa="0.06387" /><parameter name="leafCurvature" phi="0.87500" kappa="0.06040" /><parameter name="leafCurvature" phi="1.00000" kappa="0.00915" /></leaf>
+    <leaf name="maize_leaf_L12" subType="14">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="11" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="120.8" />
+        <parameter name="InitBeta" value="0.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.014414" />
+        <parameter name="R2_n" value="0.276373" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="288" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="11" />
+        <parameter name="Width_petiole" value="2.028012586909568" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="64.6701" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="460.838537" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="52.5600" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="6" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="615.025" />
+        <parameter name="tau_extension_n" value="752.69999999999993" />
+        <parameter name="theta" value="0.693801" dev="0" />
+        <parameter name="tropismAge" value="1.701" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="636.89999999999998" />
+        <parameter name="leafGeometry" phi="-4" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.84999999999999998" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.90000000000000002" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
+        <parameter name="leafGeometry" phi="0" x="0.98999999999999999" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.88" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.79000000000000004" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.69999999999999996" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.56999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="-0.01748" /><parameter name="leafCurvature" phi="0.12500" kappa="-0.05388" /><parameter name="leafCurvature" phi="0.25000" kappa="-0.02397" /><parameter name="leafCurvature" phi="0.37500" kappa="0.00209" /><parameter name="leafCurvature" phi="0.50000" kappa="0.04207" /><parameter name="leafCurvature" phi="0.62500" kappa="0.04990" /><parameter name="leafCurvature" phi="0.75000" kappa="0.06760" /><parameter name="leafCurvature" phi="0.87500" kappa="0.08091" /><parameter name="leafCurvature" phi="1.00000" kappa="0.01684" /></leaf>
+    <leaf name="maize_leaf_L13" subType="15">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="12" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="161.90000000000001" />
+        <parameter name="InitBeta" value="1.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.072700" />
+        <parameter name="R2_n" value="0.239105" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="321.60000000000002" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="10" />
+        <parameter name="Width_petiole" value="2.1049144979307628" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="695.37871157060761" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="67.117472" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="42.0" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="6" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="661.521" />
+        <parameter name="tau_extension_n" value="810.59999999999991" />
+        <parameter name="theta" value="1.150742" dev="0" />
+        <parameter name="tropismAge" value="1.500" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="694.79999999999995" />
+        <parameter name="leafGeometry" phi="-4" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.85999999999999999" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.96999999999999997" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
+        <parameter name="leafGeometry" phi="0" x="0.91000000000000003" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.81999999999999995" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.75" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68000000000000005" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.54000000000000004" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="-0.01748" /><parameter name="leafCurvature" phi="0.12500" kappa="-0.05388" /><parameter name="leafCurvature" phi="0.25000" kappa="-0.02397" /><parameter name="leafCurvature" phi="0.37500" kappa="0.00209" /><parameter name="leafCurvature" phi="0.50000" kappa="0.04207" /><parameter name="leafCurvature" phi="0.62500" kappa="0.04990" /><parameter name="leafCurvature" phi="0.75000" kappa="0.06760" /><parameter name="leafCurvature" phi="0.87500" kappa="0.08091" /><parameter name="leafCurvature" phi="1.00000" kappa="0.01684" /></leaf>
+    <leaf name="maize_leaf_L14" subType="16">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="13" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="166.90000000000001" />
+        <parameter name="InitBeta" value="0.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.027515" />
+        <parameter name="R2_n" value="0.177127" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="355.19999999999999" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="9" />
+        <parameter name="Width_petiole" value="1.7462080281571066" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="535.07166702147822" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="201.746863" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="36.0" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="6" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="690.263" />
+        <parameter name="tau_extension_n" value="868.49999999999989" />
+        <parameter name="theta" value="0.569536" dev="0" />
+        <parameter name="tropismAge" value="1.500" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="752.69999999999993" />
+        <parameter name="leafGeometry" phi="-4" x="0.80000000000000004" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.81000000000000005" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.83999999999999997" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.90000000000000002" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="1" />
+        <parameter name="leafGeometry" phi="0" x="1" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.88" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.77000000000000002" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68000000000000005" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.55000000000000004" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="-0.01748" /><parameter name="leafCurvature" phi="0.12500" kappa="-0.05388" /><parameter name="leafCurvature" phi="0.25000" kappa="-0.02397" /><parameter name="leafCurvature" phi="0.37500" kappa="0.00209" /><parameter name="leafCurvature" phi="0.50000" kappa="0.04207" /><parameter name="leafCurvature" phi="0.62500" kappa="0.04990" /><parameter name="leafCurvature" phi="0.75000" kappa="0.06760" /><parameter name="leafCurvature" phi="0.87500" kappa="0.08091" /><parameter name="leafCurvature" phi="1.00000" kappa="0.01684" /></leaf>
+    <leaf name="maize_leaf_L15" subType="17">
+        <parameter name="geometryN" value="100" />
+        <parameter name="gf" value="6" />
+        <parameter name="c_cost_per_cm" value="0.35" />
+        <parameter name="local_C_pool_capacity_factor" value="0.5" />
+        <parameter name="isPseudostem" value="0" />
+        <parameter name="lnf" value="0" />
+        <parameter name="parametrisationType" value="1" />
+        <parameter name="shapeType" value="2" />
+        <parameter name="shape_rank_index" value="14" />
+        <parameter name="surface_deg_u" value="3" />
+        <parameter name="surface_deg_v" value="2" />
+        <parameter name="surface_n_u" value="11" />
+        <parameter name="surface_n_v" value="5" />
+        <parameter name="tropismT" value="9" />
+        <parameter name="use_tropism_midrib" value="1" />
+        <parameter name="use_fa_kinetics" value="1" />
+        <parameter name="use_thermal_elongation" value="0" />
+        <parameter name="use_thermal_emergence" value="1" />
+        <parameter name="BetaDev" value="0.05" />
+        <parameter name="D_lin_n" value="186.5" />
+        <parameter name="InitBeta" value="1.0" />
+        <parameter name="LER_max" value="1.5" />
+        <parameter name="L_min" value="0.025000000000000001" />
+        <parameter name="R1_n" value="0.171682" />
+        <parameter name="R2_n" value="0.129988" />
+        <parameter name="RotBeta" value="0" />
+        <parameter name="T0_n" value="388.80000000000001" />
+        <parameter name="T_base" value="8" />
+        <parameter name="T_max" value="41" />
+        <parameter name="T_opt" value="30" />
+        <parameter name="Width_blade" value="9" />
+        <parameter name="Width_petiole" value="1.5550035267766025" />
+        <parameter name="a" value="0.040000000000000001" />
+        <parameter name="areaMax" value="445.10903001546785" />
+        <parameter name="collarLength" value="0" />
+        <parameter name="dx" value="0.10000000000000001" />
+        <parameter name="dxMin" value="9.9999999999999995e-07" />
+        <parameter name="la" value="0" />
+        <parameter name="lag_exp_n" value="19.866305" />
+        <parameter name="lb" value="0" />
+        <parameter name="ldelay" value="0" />
+        <parameter name="lmax" value="25.0" />
+        <parameter name="ln" value="1" />
+        <parameter name="phyllochron_tt" value="57.899999999999999" />
+        <parameter name="r" value="6" />
+        <parameter name="rlt" value="1000000000" />
+        <parameter name="shape_variation_scale" value="1.0" />
+        <parameter name="midrib_curvature_scale" value="1.0" />
+        <parameter name="young_fade_end" value="0.35" />
+        <parameter name="young_template_curvature_scale" value="0.35" />
+        <parameter name="sigma_extension_n" value="57.899999999999999" />
+        <parameter name="sl_ratio" value="0.40000000000000002" />
+        <parameter name="t_col_emp_Cd" value="731" />
+        <parameter name="tau_extension_n" value="926.39999999999998" />
+        <parameter name="theta" value="0.791718" dev="0" />
+        <parameter name="tropismAge" value="1.500" />
+        <parameter name="tropismExponent" value="1" />
+        <parameter name="tropismN" value="4.000" />
+        <parameter name="tropismS" value="0.300" />
+        <parameter name="tt_emergence" value="810.60000000000002" />
+        <parameter name="leafGeometry" phi="-4" x="0.75" />
+        <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.77000000000000002" />
+        <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.80000000000000004" />
+        <parameter name="leafGeometry" phi="-1.6000000000000001" x="0.82999999999999996" />
+        <parameter name="leafGeometry" phi="-0.80000000000000004" x="0.90000000000000002" />
+        <parameter name="leafGeometry" phi="0" x="1" />
+        <parameter name="leafGeometry" phi="0.91999999999999993" x="0.93999999999999995" />
+        <parameter name="leafGeometry" phi="1.8399999999999999" x="0.81000000000000005" />
+        <parameter name="leafGeometry" phi="2.7599999999999998" x="0.68999999999999995" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.53000000000000003" />
+        <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
+        <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
+        <parameter name="leafCurvature" phi="0.00000" kappa="-0.01748" /><parameter name="leafCurvature" phi="0.12500" kappa="-0.05388" /><parameter name="leafCurvature" phi="0.25000" kappa="-0.02397" /><parameter name="leafCurvature" phi="0.37500" kappa="0.00209" /><parameter name="leafCurvature" phi="0.50000" kappa="0.04207" /><parameter name="leafCurvature" phi="0.62500" kappa="0.04990" /><parameter name="leafCurvature" phi="0.75000" kappa="0.06760" /><parameter name="leafCurvature" phi="0.87500" kappa="0.08091" /><parameter name="leafCurvature" phi="1.00000" kappa="0.01684" /></leaf>
+</plant>
