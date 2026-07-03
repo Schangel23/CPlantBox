@@ -559,16 +559,17 @@ double MultiPhaseStemGrowth::calcLengthPerPhytomer(int n,
     const double floor = (srp->internode_maturity_floor_cm >= 0.0)
                          ? srp->internode_maturity_floor_cm
                          : srp->il_at_end_phase_II_cm;
+    bool collar_gate_holding = false;
     // Optional collar-node onset gate. Fournier & Andrieu 2000 (Ann Bot
     // 86:551-563) propose same-phytomer collar emergence as the internode
     // Phase I->II trigger. Birch et al. 2002 (Agronomie 22:511-524, section
     // 3.3.1 / Fig. 8) re-tests this directly: the internode_n/internode_(n+1)
     // ratio stays flat around 1.6 until visible sheath length of leaf n crosses
     // zero, i.e. collar n passes collar n-1, then jumps upward. The numeric
-    // floor used here is CPlantBox's discretization of that trigger, not a
-    // formula transcribed from either paper. Once released, the existing
+    // Phase-I hold used here is CPlantBox's discretization of that trigger,
+    // not a formula transcribed from either paper. Once released, the existing
     // jointing-onset and maturity-span kinetics below run unchanged.
-    if (srp->internode_collar_onset_gate && n > 1 && target > floor) {
+    if (srp->internode_collar_onset_gate && n > 1) {
         std::shared_ptr<Leaf> leaf_prev;
         leaf_ordinal = 0;
         for (int ci = 0; ci < n_children; ++ci) {
@@ -587,10 +588,13 @@ double MultiPhaseStemGrowth::calcLengthPerPhytomer(int n,
         const double collar_pos_n = stem->getLength(parent_ni_n);
         const double collar_pos_prev = stem->getLength(parent_ni_prev);
         if (collar_pos_n <= collar_pos_prev) {
-            target = floor;
+            const double tau_phase_i = (tau < phase_I_duration)
+                ? tau : phase_I_duration;
+            target = srp->il_init_cm * std::exp(r_I * tau_phase_i);
+            collar_gate_holding = true;
         }
     }
-    if (span > 0.0 && target > floor) {
+    if (!collar_gate_holding && span > 0.0 && target > floor) {
         const double onset = (collar_tt > srp->internode_jointing_onset_tt)
                              ? collar_tt : srp->internode_jointing_onset_tt;
         double m = (andrieu_tt - onset) / span;
