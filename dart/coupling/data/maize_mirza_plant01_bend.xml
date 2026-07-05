@@ -662,8 +662,8 @@
         <parameter name="InitBeta" value="0.0" />
         <parameter name="LER_max" value="1.5" />
         <parameter name="L_min" value="0.025000000000000001" />
-        <parameter name="R1_n" value="0.01883845932301105" />
-        <parameter name="R2_n" value="0.2142306220928465" />
+        <parameter name="R1_n" value="0.04" />
+        <parameter name="R2_n" value="0.2507589556769884" />
         <parameter name="RotBeta" value="0" />
         <parameter name="T0_n" value="76.799999999999997" />
         <parameter name="T_base" value="8" />
@@ -677,7 +677,7 @@
         <parameter name="dx" value="0.10000000000000001" />
         <parameter name="dxMin" value="9.9999999999999995e-07" />
         <parameter name="la" value="0" />
-        <parameter name="lag_exp_n" value="324.86903352144947" />
+        <parameter name="lag_exp_n" value="138.11230354413823" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
         <parameter name="lmax" value="41.3" />
@@ -884,8 +884,8 @@
         <parameter name="InitBeta" value="1.0" />
         <parameter name="LER_max" value="1.5" />
         <parameter name="L_min" value="0.025000000000000001" />
-        <parameter name="R1_n" value="0.02281846774876655" />
-        <parameter name="R2_n" value="0.2595079236534076" />
+        <parameter name="R1_n" value="0.05" />
+        <parameter name="R2_n" value="0.2946560545764638" />
         <parameter name="RotBeta" value="0" />
         <parameter name="T0_n" value="170" />
         <parameter name="T_base" value="8" />
@@ -899,7 +899,7 @@
         <parameter name="dx" value="0.10000000000000001" />
         <parameter name="dxMin" value="9.9999999999999995e-07" />
         <parameter name="la" value="0" />
-        <parameter name="lag_exp_n" value="268.208039245626" />
+        <parameter name="lag_exp_n" value="109.25330416252059" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
         <parameter name="lmax" value="51.8300" dev="2.83022" />
