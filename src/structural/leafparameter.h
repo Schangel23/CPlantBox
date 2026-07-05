@@ -258,11 +258,13 @@ public:
 	double R2_n = 0.0;          ///< Phase L (linear) rate [cm/°Cd]; rescaled to honour MF3D L_fin
 	double lag_exp_n = 0.0;     ///< Phase E duration on Andrieu axis [°Cd]
 	double D_lin_n = 0.0;       ///< Phase L duration on Andrieu axis [°Cd]
-	double T0_n = 0.0;          ///< Phase E origin on Andrieu axis [°Cd] = (rank − 1) · plastochron
-	double L_min = 0.025;       ///< Phase E initial length at T0_n [cm]; Andrieu et al. 2006 p. 1007
-	double t_col_emp_Cd = -1.0; ///< Empirical collar emergence on Andrieu (Tb=9.8) axis [°Cd]; <0 disables (uses computed fallback T0+lag_exp+α·D_lin)
+		double T0_n = 0.0;          ///< Phase E origin on Andrieu axis [°Cd] = (rank − 1) · plastochron
+		double L_min = 0.025;       ///< Phase E initial length at T0_n [cm]; Andrieu et al. 2006 p. 1007
+		double t_col_emp_Cd = -1.0; ///< Empirical collar emergence on Andrieu (Tb=9.8) axis [°Cd]; <0 disables (uses computed fallback T0+lag_exp+α·D_lin)
+		double tt_visibility = -1.0;              ///< OPT-IN: legacy-TT threshold where the leaf may expose a fixed comparison stub before tt_emergence opens growth; <0 disables
+		double visibility_stub_length_cm = -1.0;  ///< reveal-only stub length [cm]; <0 uses L_min
 
-	/* call back functions */
+		/* call back functions */
     std::shared_ptr<SoilLookUp> f_se = std::make_shared<SoilLookUp>(); ///< scale elongation function
     std::shared_ptr<SoilLookUp> f_sa = std::make_shared<SoilLookUp>(); ///< scale angle function
     std::shared_ptr<SoilLookUp> f_sbp = std::make_shared<SoilLookUp>(); ///< scale branching probability function

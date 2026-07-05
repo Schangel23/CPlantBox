@@ -146,13 +146,19 @@ void Leaf::simulate(double dt, bool verbose)
 		// way. Existing XMLs default `ldelayAxis = Calendar` → axis-TT branch is
 		// inert → bit-identical behaviour. Symmetric to Lock #1's `delayNGEndAxis`
 		// on the cessation gate.
+		bool visibility_only = false;
 		{
 			auto plant_tt = getPlant();
 			const auto& lrp_tt = *getLeafRandomParameter();
 			if (plant_tt && lrp_tt.use_thermal_emergence && lrp_tt.tt_emergence > 0.0) {
 				if (plant_tt->getAccumulatedTT() < lrp_tt.tt_emergence) {
-					age -= dt;          // unborn: revert age, no growth this step
-					return;
+					const bool reveal_ready = (lrp_tt.tt_visibility >= 0.0)
+						&& (plant_tt->getAccumulatedTT() >= lrp_tt.tt_visibility);
+					if (!reveal_ready) {
+						age -= dt;          // unborn: revert age, no growth this step
+						return;
+					}
+					visibility_only = true;
 				}
 			}
 			if (plant_tt && lrp_tt.ldelayAxis == DelayAxis::TT && lrp_tt.ldelay > 0.0) {
@@ -243,7 +249,7 @@ void Leaf::simulate(double dt, bool verbose)
 		// first step the leaf is actually born. Cheap bookkeeping — no effect on
 		// the scalar path (field is only read when a sibling mainstem has
 		// use_fournier_andrieu_kinetics=true and calls Stem::calcLengthPerPhytomerSum).
-		if (age > 0.0 && emergence_andrieu_tt_ < 0.0) {
+		if (!visibility_only && age > 0.0 && emergence_andrieu_tt_ < 0.0) {
 			auto plant_fa = getPlant();
 			if (plant_fa) {
 				emergence_andrieu_tt_ = plant_fa->getAccumulatedAndrieuTT();

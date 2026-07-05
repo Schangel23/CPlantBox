@@ -1025,6 +1025,23 @@ double MultiPhaseLeafGrowth::getLength(double t, double r, double k,
     // realised getK(). The caller already passed `k = param()->getK()`,
     // so we override only when sibling-leaf coordination is active.
     const double k_final = (leaf->coordinated_lmax > 0.0) ? leaf->coordinated_lmax : k;
+    const double L_min = (lrp->L_min > 0.0) ? lrp->L_min : 0.025;
+
+    // Reveal-only mode: the leaf has crossed tt_visibility, so it should
+    // have enough geometry to be counted/exported, but the original
+    // tt_emergence gate has not opened growth yet. Keep the FA clock
+    // untouched by returning a flat stub through the normal GF dispatch.
+    if (lrp->use_thermal_emergence && lrp->tt_visibility >= 0.0
+        && lrp->tt_emergence > 0.0) {
+        const double legacy_tt = plant->getAccumulatedTT();
+        if (legacy_tt >= lrp->tt_visibility && legacy_tt < lrp->tt_emergence) {
+            double stub = (lrp->visibility_stub_length_cm >= 0.0)
+                ? lrp->visibility_stub_length_cm
+                : L_min;
+            if (stub > k_final) stub = k_final;
+            return stub;
+        }
+    }
 
     const double R1 = lrp->R1_n;
     const double R2 = lrp->R2_n;
@@ -1034,7 +1051,6 @@ double MultiPhaseLeafGrowth::getLength(double t, double r, double k,
     const double T0 = (birth_tt > T1_raw) ? birth_tt : T0_raw;
     const double T1 = T0 + lrp->lag_exp_n;
     const double T2 = T1 + lrp->D_lin_n;
-    const double L_min = (lrp->L_min > 0.0) ? lrp->L_min : 0.025;
     const double L1 = L_min * std::exp(R1 * lrp->lag_exp_n);
 
     double L;

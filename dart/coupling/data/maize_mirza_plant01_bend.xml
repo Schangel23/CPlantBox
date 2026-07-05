@@ -995,6 +995,7 @@
         <parameter name="tropismN" value="4.000" />
         <parameter name="tropismS" value="0.300" />
         <parameter name="tt_emergence" value="405.30000000000001" />
+        <parameter name="tt_visibility" value="283.4" />
         <parameter name="leafGeometry" phi="-4" x="0.81000000000000005" />
         <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.82999999999999996" />
         <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.84999999999999998" />
@@ -1069,6 +1070,7 @@
         <parameter name="tropismN" value="4.000" />
         <parameter name="tropismS" value="0.300" />
         <parameter name="tt_emergence" value="463.19999999999999" />
+        <parameter name="tt_visibility" value="315.5" />
         <parameter name="leafGeometry" phi="-4" x="0.81999999999999995" />
         <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.82999999999999996" />
         <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.85999999999999999" />
@@ -1143,6 +1145,7 @@
         <parameter name="tropismN" value="4.000" />
         <parameter name="tropismS" value="0.300" />
         <parameter name="tt_emergence" value="521.10000000000002" />
+        <parameter name="tt_visibility" value="351.7" />
         <parameter name="leafGeometry" phi="-4" x="0.81000000000000005" />
         <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.80000000000000004" />
         <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.81999999999999995" />
@@ -1217,6 +1220,7 @@
         <parameter name="tropismN" value="4.000" />
         <parameter name="tropismS" value="0.300" />
         <parameter name="tt_emergence" value="579" />
+        <parameter name="tt_visibility" value="366.9" />
         <parameter name="leafGeometry" phi="-4" x="0.81999999999999995" />
         <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.82999999999999996" />
         <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.88" />
@@ -1291,6 +1295,7 @@
         <parameter name="tropismN" value="4.000" />
         <parameter name="tropismS" value="0.300" />
         <parameter name="tt_emergence" value="636.89999999999998" />
+        <parameter name="tt_visibility" value="396.2" />
         <parameter name="leafGeometry" phi="-4" x="0.81999999999999995" />
         <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.81999999999999995" />
         <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.84999999999999998" />
@@ -1365,6 +1370,7 @@
         <parameter name="tropismN" value="4.000" />
         <parameter name="tropismS" value="0.300" />
         <parameter name="tt_emergence" value="694.79999999999995" />
+        <parameter name="tt_visibility" value="500.0" />
         <parameter name="leafGeometry" phi="-4" x="0.81999999999999995" />
         <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.81999999999999995" />
         <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.85999999999999999" />
@@ -1439,6 +1445,7 @@
         <parameter name="tropismN" value="4.000" />
         <parameter name="tropismS" value="0.300" />
         <parameter name="tt_emergence" value="752.69999999999993" />
+        <parameter name="tt_visibility" value="500.0" />
         <parameter name="leafGeometry" phi="-4" x="0.80000000000000004" />
         <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.81000000000000005" />
         <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.83999999999999997" />
@@ -1513,6 +1520,7 @@
         <parameter name="tropismN" value="4.000" />
         <parameter name="tropismS" value="0.300" />
         <parameter name="tt_emergence" value="810.60000000000002" />
+        <parameter name="tt_visibility" value="600.0" />
         <parameter name="leafGeometry" phi="-4" x="0.75" />
         <parameter name="leafGeometry" phi="-3.2000000000000002" x="0.77000000000000002" />
         <parameter name="leafGeometry" phi="-2.3999999999999999" x="0.80000000000000004" />

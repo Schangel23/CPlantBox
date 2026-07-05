@@ -762,10 +762,12 @@ void LeafRandomParameter::bindParameters()
     bindParameter("R2_n", &R2_n, "Andrieu Phase L linear rate [cm/degCd]; MF3D-anchored rescale");
     bindParameter("lag_exp_n", &lag_exp_n, "Andrieu Phase E duration on Andrieu axis [degCd]");
     bindParameter("D_lin_n", &D_lin_n, "Andrieu Phase L duration on Andrieu axis [degCd]");
-    bindParameter("T0_n", &T0_n, "Andrieu Phase E origin on Andrieu axis [degCd] = (rank-1)*plastochron");
-    bindParameter("L_min", &L_min, "Andrieu Phase E initial length at T0_n [cm]; Andrieu et al. 2006 p. 1007");
-    bindParameter("t_col_emp_Cd", &t_col_emp_Cd, "Empirical collar emergence on Andrieu axis [degCd], <0 disables (uses T0+lag_exp+D_lin fallback)");
-    // Native 2D leaf-surface NURBS grid (Phase A)
+	    bindParameter("T0_n", &T0_n, "Andrieu Phase E origin on Andrieu axis [degCd] = (rank-1)*plastochron");
+	    bindParameter("L_min", &L_min, "Andrieu Phase E initial length at T0_n [cm]; Andrieu et al. 2006 p. 1007");
+	    bindParameter("t_col_emp_Cd", &t_col_emp_Cd, "Empirical collar emergence on Andrieu axis [degCd], <0 disables (uses T0+lag_exp+D_lin fallback)");
+	    bindParameter("tt_visibility", &tt_visibility, "Legacy-TT threshold where a leaf exposes a fixed comparison stub before tt_emergence opens growth; <0 disables");
+	    bindParameter("visibility_stub_length_cm", &visibility_stub_length_cm, "Reveal-only stub length [cm]; <0 uses L_min");
+	    // Native 2D leaf-surface NURBS grid (Phase A)
     bindParameter("surface_n_u", &surface_n_u, "Surface CP grid: number of CPs along midrib");
     bindParameter("surface_n_v", &surface_n_v, "Surface CP grid: number of CPs across width");
     bindParameter("surface_deg_u", &surface_deg_u, "Surface CP grid: degree in u direction");
