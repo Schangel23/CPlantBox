@@ -730,6 +730,9 @@ void LeafRandomParameter::bindParameters()
     bindParameter("tropismS", &tropismS, "Mean value of expected change of leaf tropism [1/cm]");
     bindParameter("tropismAge", &tropismAge, "Age at which organ switch tropism", &tropismAges);
     bindParameter("theta", &theta, "Angle between leaf and parent leaf [rad]", &thetas);
+    bindParameter("theta_young_rad", &theta_young_rad, "Young-leaf insertion angle [rad]; <0 disables maturity-coupled heading");
+    bindParameter("m_young_lo", &m_young_lo, "Maturity fraction below which theta_young_rad is fully active");
+    bindParameter("m_young_hi", &m_young_hi, "Maturity fraction above which mature theta is fully active");
     bindParameter("rlt", &rlt, "Leaf life time [day]", &rlts);
     bindParameter("gf", &gf, "Growth function number [1]");
     bindParameter("lnf", &lnf, "Type of inter-branching distance (0 homogeneous, 1 linear inc, 2 linear dec, 3 exp inc, 4 exp dec)");

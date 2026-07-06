@@ -116,6 +116,7 @@ protected:
 
 	Vector3d getIncrement(const Vector3d& p, double sdx, int n = -1) override; ///< called by createSegments, to determine growth direction
     Vector3d heading(int n)  const override; ///< current (absolute) heading of the organs at node n
+	Vector3d maturityHeading() const; ///< absolute insertion heading with opt-in young-theta blend
     int getleafphytomerID(int subtype);
     void minusPhytomerId(int subtype);
     void addleafphytomerID(int subtype);

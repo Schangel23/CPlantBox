@@ -119,6 +119,9 @@ public:
 	double tropismAges = 0.;///< Leaf tropism parameter (age when switch tropism, standard deviation)
 	double theta = 1.22;	///< Angle between leafvein and parent leafvein (rad)
 	double thetas = 0.; 	///< Standard deviation angle between leafvein and parent leafvein (rad)
+	double theta_young_rad = -1.; ///< Young-leaf insertion angle [rad]; <0 disables maturity-coupled heading
+	double m_young_lo = 0.3; ///< Maturity fraction where young insertion angle is fully active
+	double m_young_hi = 0.7; ///< Maturity fraction where mature theta is fully active
 	double rlt = 1.e9;		///< Leaf life time (days)
 	double rlts = 0.;		///< Standard deviation of leaf life time (days)
 	double Width_blade = 0.;		///< width of leafe blade (cm) = length - lb zone. define later a width growth rate?

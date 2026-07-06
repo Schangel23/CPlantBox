@@ -1206,6 +1206,48 @@ Vector3d Leaf::heading(int n ) const
 }
 
 
+Vector3d Leaf::maturityHeading() const
+{
+	auto lrp = getLeafRandomParameter();
+	if (!lrp || lrp->theta_young_rad < 0.) {
+		return heading(-1);
+	}
+	const double mature_length = std::max(lrp->lmax, 1e-9);
+	const double maturity = std::min(std::max(getLength(true) / mature_length, 0.0), 1.0);
+	const double lo = std::min(lrp->m_young_lo, lrp->m_young_hi);
+	const double hi = std::max(lrp->m_young_lo, lrp->m_young_hi);
+	double w = 1.0;
+	if (hi > lo) {
+		w = std::min(std::max((maturity - lo) / (hi - lo), 0.0), 1.0);
+		w = w * w * (3.0 - 2.0 * w);
+	} else if (maturity >= hi) {
+		w = 1.0;
+	} else {
+		w = 0.0;
+	}
+	double theta = (1.0 - w) * lrp->theta_young_rad + w * param()->theta;
+	std::shared_ptr<Organ> parent_org = getParent();
+	if (parent_org && parent_org->organType()!=Organism::ot_seed) {
+		double scale = lrp->f_sa->getValue(parent_org->getNode(parentNI), parent_org);
+		theta *= scale;
+	}
+	Vector3d partial = Vector3d::rotAB(theta, beta);
+
+	Matrix3d parentHeading;
+	bool isBaseOrgan = (!parent_org || parent_org->organType()==Organism::ot_seed);
+	bool isRootBornShoot = parent_org && parent_org->organType()==Organism::ot_root;
+	if (isBaseOrgan || isRootBornShoot) {
+		parentHeading = Matrix3d(Vector3d(0, 0, 1), Vector3d(0, 1, 0), Vector3d(1, 0, 0));
+	} else {
+		Vector3d vparentHeading = parent_org->heading(parentNI);
+		parentHeading = Matrix3d::ons(vparentHeading);
+	}
+	auto heading0 = parentHeading.column(0);
+	Vector3d new_heading = Matrix3d::ons(heading0).times(partial);
+	return Matrix3d::ons(new_heading).column(0);
+}
+
+
 /**
  * Returns the increment of the next segments
  *
@@ -1217,6 +1259,9 @@ Vector3d Leaf::getIncrement(const Vector3d& p, double sdx, int n)
 {
 
     Vector3d h = heading(n);
+	if (getLeafRandomParameter()->theta_young_rad >= 0.) {
+		h = maturityHeading();
+	}
     Matrix3d ons = Matrix3d::ons(h);
 	bool isPseudoStem = getParameter("isPseudostem");
 	bool isSheath = ( getLength(n) - getParameter("lb") < -1e-10);
