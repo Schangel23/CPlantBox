@@ -886,28 +886,6 @@ def load_fitted_params(json_path):
         return json.load(f)
 
 
-YOUNG_MORPH_FADE_END = 1.0
-YOUNG_MORPH_EXP = 2.0
-
-
-def _slerp_tangent(t_curr: np.ndarray, t_par: np.ndarray, alpha: float) -> np.ndarray:
-    """Spherical interpolation from ``t_curr`` to ``t_par`` by fraction ``alpha``.
-
-    ``alpha=0`` → ``t_curr``; ``alpha=1`` → ``t_par``. Unit vectors assumed.
-    Mirrors `_gen_young_theta_test.py` — kept in sync deliberately.
-    """
-    c = float(np.clip(np.dot(t_curr, t_par), -1.0, 1.0))
-    omega = np.arccos(c)
-    if omega < 1e-6:
-        return t_curr
-    sin_omega = np.sin(omega)
-    w_curr = np.sin((1.0 - alpha) * omega) / sin_omega
-    w_par = np.sin(alpha * omega) / sin_omega
-    out = w_curr * t_curr + w_par * t_par
-    n = float(np.linalg.norm(out))
-    return out / n if n > 1e-12 else t_curr
-
-
 # Per-position GDD onset for the senescence wave. Onsets propagate from base
 # to top at ~150 °Cd per leaf rank, so positions 0–2 senesce around V7–V11
 # (700–1000 °Cd) and the wave reaches the ear-zone leaves (pos 6–8) only
@@ -1711,7 +1689,7 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                               skip_roots=True, deformation_stats=None,
                               stem_profile=None, name_prefix="",
                               fitted_params=None, species='maize',
-                              young_morph='soft', leaf_fracture=None,
+                              leaf_fracture=None,
                               enable_senescent_split=False,
                               senescent_rho_threshold=0.50):
     """
@@ -1739,24 +1717,6 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
         List of organ dicts with resampled skeletons
     """
     import plantbox as pb
-
-    young_morph_profiles = {
-        'off':  (None, None),
-        # 'soft' aligned with the C++ kYoungFadeEnd=0.7 / kYoungExp=2.0 gate
-        # so mature leaves (m >= 0.7) are bit-for-bit untouched. The original
-        # preview profile used fade_end=1.0 which still morphs m=0.5 leaves
-        # and visibly shrinks mature plants — avoid for production.
-        'soft': (0.7, 2.0),
-        # Preview profiles retained for _gen_young_theta_test.py compatibility.
-        'soft-preview': (1.0, 2.0),
-        'hard': (1.0, 1.0),
-        'max':  (0.9, 0.7),
-    }
-    if young_morph not in young_morph_profiles:
-        raise ValueError(
-            f"young_morph={young_morph!r} not in {list(young_morph_profiles)}"
-        )
-    ym_fade_end, ym_exp = young_morph_profiles[young_morph]
 
     # Auto-load deformation stats if not provided
     if deformation_stats is None:
@@ -2150,37 +2110,6 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                 # mature amplitude.
                 nurbs_maturity = min(current_length / max(mature_length, 1.0), 1.0)
 
-                # Young-stage posture (PLAN_YOUNG_LEAF_PHYSICS_2026-04-25 §Gap 2):
-                # Maturity-coupled effective theta. The leaf insertion angle
-                # smoothly opens from THETA_YOUNG (near-vertical, 8° off
-                # stem axis) at m≤0.3 to the leaf's mature theta_rank at
-                # m≥0.7 (smoothstep). This matches the biology — young
-                # blades are essentially vertical inside the whorl, then
-                # splay to their rank-determined posture as they mature —
-                # and replaces the earlier two-regime collar gate which
-                # pulled too sharply toward vertical and lost the Nielsen
-                # splay for V3+ leaves.
-                #
-                # We rotate BOTH the collar tangent (used to place cps_local
-                # in world space and to seed the SDF capsule chain) AND
-                # the underlying world-frame skeleton (used for DART
-                # segment IDs and leaf capsule generation), so SDF
-                # collision against the stem capsule, and the rendered
-                # NURBS surface, and the segment-mapping skeleton all
-                # agree on where the blade actually sits.
-                #
-                # ym_fade_end/ym_exp survives as an opt-out ceiling:
-                # young_morph='off' gives ym_fade_end=None which skips
-                # the whole block, leaving mature regression bit-identical.
-                THETA_YOUNG_FROM_STEM = math.radians(5.0)  # near-vertical = 5° off stem axis (was 8°, pushed for tighter whorl)
-                # Window widened 2026-05-12 from [0.95, 0.99] → [0.80, 1.00]: the
-                # 4 % window was C¹ continuous but invisible because FA growth
-                # lands maturity at 0.92 one day and 1.00 the next, skipping the
-                # interior entirely → leaf snapped from vertical to splayed in
-                # one render frame (slot-3 world dx pop 5.16 → 31.78 cm at
-                # day 57→58, see DIAG_MAIZE_LEAF_BOTTOM_HEAVY_2026-05-12).
-                M_YOUNG_LO = 0.80   # below: fully young theta
-                M_YOUNG_HI = 1.00   # above: fully mature theta_rank
                 collar_tangent_out = np.array([tangent.x, tangent.y, tangent.z],
                                               dtype=np.float64)
                 # Seedling first leaf: use the tropism-evolved skeleton
@@ -2217,73 +2146,6 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                             horiz_unit[1] * sin_s,
                             cos_s,
                         ], dtype=np.float64)
-                if ym_fade_end is not None and ym_exp is not None:
-                    profile_alpha = max(
-                        0.0,
-                        1.0 - (nurbs_maturity / ym_fade_end) ** ym_exp,
-                    )
-                    n_c = float(np.linalg.norm(collar_tangent_out))
-                    n_p = float(np.linalg.norm(parent_tangent_np))
-                    # Skip the maturity-coupled theta morph for the V1
-                    # seedling first leaf (rank 1). Gap 2 pulls young
-                    # leaves toward THETA_YOUNG ≈ 8° off the stem axis to
-                    # form the V-stage whorl, which is correct for ranks
-                    # 2+ that are still rolled inside the older sheaths.
-                    # Rank 1 is the first leaf to emerge — by V3 it has
-                    # already opened to its natural splay, so forcing it
-                    # near-vertical produces an unnatural "pencil at the
-                    # base" look that contradicts the Nielsen reference.
-                    # Lifted profile_alpha gate (2026-05-02): the original 'soft'
-                    # profile clamped profile_alpha to 0 at m=0.7, blocking the
-                    # whorl-posture morph for leaves with m in [0.7, 1.0]. With
-                    # the new collar-emergence smoothstep [M_YOUNG_LO=0.95,
-                    # M_YOUNG_HI=0.99], we want the morph to fire across all
-                    # maturities so leaves stay vertical until collar-emergence.
-                    # Smoothstep itself handles the fade — profile_alpha gate is
-                    # redundant.
-                    can_morph = (
-                        n_c >= 1e-9 and n_p >= 1e-9
-                        and leaf_position != 0
-                    )
-                    if can_morph:
-                        leaf_unit = collar_tangent_out / n_c
-                        stem_unit = parent_tangent_np / n_p
-                        cos_now = float(np.clip(np.dot(leaf_unit, stem_unit), -1.0, 1.0))
-                        theta_now = math.acos(cos_now)  # current leaf-stem angle [rad]
-
-                        # smoothstep on m ∈ [M_YOUNG_LO, M_YOUNG_HI]; s=0 → young, s=1 → mature
-                        t = max(0.0, min(1.0, (nurbs_maturity - M_YOUNG_LO)
-                                                / (M_YOUNG_HI - M_YOUNG_LO)))
-                        s = t * t * (3.0 - 2.0 * t)
-                        effective_theta = (1.0 - s) * THETA_YOUNG_FROM_STEM + s * theta_now
-                        # slerp(leaf_unit, stem_unit, alpha) sits at angle
-                        # theta_now*(1-alpha) from the stem; solve for alpha.
-                        alpha = max(0.0, min(1.0, 1.0 - effective_theta / max(theta_now, 1e-9)))
-
-                        if alpha > 1e-4:
-                            collar_tangent_new = _slerp_tangent(leaf_unit, stem_unit, alpha)
-                            # Rotate world-frame skeleton about the collar by the
-                            # same incremental rotation (leaf_unit → collar_tangent_new),
-                            # so SDF capsules and DART seg IDs co-locate with the
-                            # rendered blade.
-                            cross = np.cross(leaf_unit, collar_tangent_new)
-                            n_cross = float(np.linalg.norm(cross))
-                            cos_step = float(np.clip(np.dot(leaf_unit, collar_tangent_new),
-                                                     -1.0, 1.0))
-                            step_angle = math.acos(cos_step)
-                            if n_cross > 1e-9 and step_angle > 1e-6:
-                                rot_axis = cross / n_cross
-                                current_skel = _rodrigues_rotate(
-                                    current_skel, collar_pos_np,
-                                    rot_axis, step_angle,
-                                )
-                            collar_tangent_out = collar_tangent_new
-                            # Damp the leaf-local y (droop axis) of the CP grid
-                            # so the surface itself looks pre-droop in the whorl
-                            # — same effect as the prior morph block. cps_local
-                            # is in leaf-local frame: +z midrib, +x lateral, ±y droop.
-                            cps_local = cps_local.copy()
-                            cps_local[..., 1] *= (1.0 - alpha)
 
                 # Senescence two-segment bend (Item 1, PLAN_GEOMETRY_FIDELITY_2026-04-22).
                 # Four-part: (1) shrink the blade width (Item 6, ribbon/
