@@ -95,6 +95,14 @@ public:
 	bool hasSurfaceCPs() const;
 	void updateNodesFromSurfaceCPs();
 
+	/* MaturityCollarSwing. Rigidly re-orients the whole leaf about its collar
+	 * so the insertion (base) heading tracks maturity: the SAME leaf sits near
+	 * vertical when young (theta_young_rad) and swings out to its mature splay
+	 * (theta) as it elongates. Runs at Plant scope after rel2abs (this leaf and
+	 * its parent stem are absolute there, so maturityHeading() is valid). Gated
+	 * off by default (theta_young_rad>=0 && use_tropism_midrib) -> D0 no-op. */
+	void applyMaturitySwing();
+
 	/* Young-stage shape blend. Returns the LRP's mature CP grid blended
 	 * toward a flat template based on this leaf's maturity (length / lmax).
 	 *   alpha = max(0, 1 - (m / kYoungFadeEnd)^kYoungExp),   m in [0, 1]

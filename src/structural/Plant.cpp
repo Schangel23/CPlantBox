@@ -276,6 +276,10 @@ void Plant::simulate(double dt, bool verbose)
 		    && lf->getNumberOfNodes() > 1) {
 			lf->updateNodesFromSurfaceCPs();
 		}
+		// MaturityCollarSwing: rigid whole-leaf re-orientation tracking the
+		// maturity-blended insertion heading. Self-gated (theta_young_rad>=0 &&
+		// use_tropism_midrib); a no-op for every shipping / D0 XML.
+		lf->applyMaturitySwing();
 	}
 }
 

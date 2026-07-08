@@ -614,6 +614,55 @@ void Leaf::updateNodesFromSurfaceCPs()
 }
 
 /**
+ * MaturityCollarSwing (whorl -> splay). One rigid rotation of the whole leaf
+ * about its collar so the base segment tracks maturityHeading(), which blends
+ * theta_young_rad -> theta by a smoothstep on length/lmax. getIncrement() only
+ * steers NEW tip segments, so placed collar/base nodes otherwise stay frozen at
+ * emergence and a leaf keeps one insertion angle for life. Here every node
+ * offset from the collar gets the SAME rotation R (current base -> target),
+ * preserving the tropism-grown blade shape exactly (a rigid isometry).
+ *
+ * R is applied as cross products (Rodrigues), deliberately NOT via Matrix3d::ons
+ * on the base heading: ons picks its secondary axes by world-axis dominance and
+ * is not rotation-equivariant, so re-encoding only the base relative node shears
+ * / flips the blade at the 45 deg axis switch (inside the 22..66 deg swing).
+ *
+ * Must run where nodes AND the parent stem are absolute (maturityHeading() reads
+ * the parent frame) -> Plant scope after rel2abs, same as Phase-D reprojection.
+ * Self-gated (theta_young_rad>=0 && use_tropism_midrib); a no-op for every
+ * shipping / D0 XML, so bit-identical when off.
+ */
+void Leaf::applyMaturitySwing()
+{
+	auto lrp = getLeafRandomParameter();
+	if (!lrp || lrp->theta_young_rad < 0. || !lrp->use_tropism_midrib) return;
+	if (!alive || getAge() <= 0. || nodes.size() < 2) return;
+
+	const Vector3d collar = nodes.front();
+	Vector3d h_cur = nodes[1].minus(collar);        // current base-segment direction
+	const double lc = h_cur.length();
+	if (lc < 1e-9) return;
+	h_cur = h_cur.times(1.0 / lc);
+	const Vector3d h_tgt = maturityHeading();        // unit (ons-normalized) maturity target
+
+	// Rodrigues rotation h_cur -> h_tgt: R v = v + (K x v) + k*(K x (K x v)),
+	// with K = h_cur x h_tgt (|K| = sin), k = (1 - cos) / sin^2.
+	const Vector3d axis = h_cur.cross(h_tgt);
+	const double s2 = axis.times(axis);              // sin^2(angle)
+	const double c  = h_cur.times(h_tgt);            // cos(angle)
+	if (s2 < 1e-18) return;                          // aligned (or opposed) -> nothing to rotate
+	const double k = (1.0 - c) / s2;
+
+	for (size_t i = 1; i < nodes.size(); ++i) {
+		const Vector3d v   = nodes[i].minus(collar);
+		const Vector3d kv  = axis.cross(v);
+		const Vector3d kkv = axis.cross(kv);
+		setNode((int)i, collar.plus(v).plus(kv).plus(kkv.times(k)));
+	}
+	moved = true;
+}
+
+/**
  *
  */
 double Leaf::getParameter(std::string name) const {
@@ -1259,9 +1308,13 @@ Vector3d Leaf::getIncrement(const Vector3d& p, double sdx, int n)
 {
 
     Vector3d h = heading(n);
-	if (getLeafRandomParameter()->theta_young_rad >= 0.) {
-		h = maturityHeading();
-	}
+	// Insertion-angle maturity tracking now lives entirely in applyMaturitySwing()
+	// (a rigid whole-leaf re-orientation), so the native accumulating tangent
+	// heading(n) stays live here and the tropism arch is preserved. The earlier
+	// `if (theta_young_rad>=0) h = maturityHeading();` override replaced the local
+	// tangent with a constant insertion direction, which flattened the blade to a
+	// straight stick (chord/arc ~1.0). D0-neutral: theta_young_rad<0 in every
+	// baseline XML, so that branch was never taken there.
     Matrix3d ons = Matrix3d::ons(h);
 	bool isPseudoStem = getParameter("isPseudostem");
 	bool isSheath = ( getLength(n) - getParameter("lb") < -1e-10);
