@@ -465,18 +465,18 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
-        <parameter name="leafCurvature" phi="0" kappa="0.0389913" />
-        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0195426" />
-        <parameter name="leafCurvature" phi="0.181818" kappa="0.0748208" />
-        <parameter name="leafCurvature" phi="0.272727" kappa="0.132342" />
-        <parameter name="leafCurvature" phi="0.363636" kappa="0.226568" />
-        <parameter name="leafCurvature" phi="0.454545" kappa="0.152125" />
-        <parameter name="leafCurvature" phi="0.545455" kappa="0.110676" />
-        <parameter name="leafCurvature" phi="0.636364" kappa="0.0997222" />
-        <parameter name="leafCurvature" phi="0.727273" kappa="0.0922506" />
-        <parameter name="leafCurvature" phi="0.818182" kappa="0.0690966" />
-        <parameter name="leafCurvature" phi="0.909091" kappa="0.0308083" />
-        <parameter name="leafCurvature" phi="1" kappa="0.0115435" />
+        <parameter name="leafCurvature" phi="0" kappa="0.031193" />
+        <parameter name="leafCurvature" phi="0.0909091" kappa="0.0156341" />
+        <parameter name="leafCurvature" phi="0.181818" kappa="0.0598566" />
+        <parameter name="leafCurvature" phi="0.272727" kappa="0.105874" />
+        <parameter name="leafCurvature" phi="0.363636" kappa="0.181254" />
+        <parameter name="leafCurvature" phi="0.454545" kappa="0.1217" />
+        <parameter name="leafCurvature" phi="0.545455" kappa="0.0885408" />
+        <parameter name="leafCurvature" phi="0.636364" kappa="0.0797778" />
+        <parameter name="leafCurvature" phi="0.727273" kappa="0.0738005" />
+        <parameter name="leafCurvature" phi="0.818182" kappa="0.0552773" />
+        <parameter name="leafCurvature" phi="0.909091" kappa="0.0246466" />
+        <parameter name="leafCurvature" phi="1" kappa="0.0092348" />
     </leaf>
     <leaf name="maize_leaf_L2" subType="4">
         <parameter name="geometryN" value="100" />
@@ -637,7 +637,7 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.57999999999999996" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
-        <parameter name="leafCurvature" phi="0.00000" kappa="-0.00388" /><parameter name="leafCurvature" phi="0.12500" kappa="-0.00305" /><parameter name="leafCurvature" phi="0.25000" kappa="0.01862" /><parameter name="leafCurvature" phi="0.37500" kappa="0.04689" /><parameter name="leafCurvature" phi="0.50000" kappa="0.05801" /><parameter name="leafCurvature" phi="0.62500" kappa="0.04005" /><parameter name="leafCurvature" phi="0.75000" kappa="0.03755" /><parameter name="leafCurvature" phi="0.87500" kappa="0.02878" /><parameter name="leafCurvature" phi="1.00000" kappa="0.00310" /></leaf>
+        <parameter name="leafCurvature" phi="0.00000" kappa="-0.0055096" /><parameter name="leafCurvature" phi="0.12500" kappa="-0.004331" /><parameter name="leafCurvature" phi="0.25000" kappa="0.0264404" /><parameter name="leafCurvature" phi="0.37500" kappa="0.0665838" /><parameter name="leafCurvature" phi="0.50000" kappa="0.0823742" /><parameter name="leafCurvature" phi="0.62500" kappa="0.056871" /><parameter name="leafCurvature" phi="0.75000" kappa="0.053321" /><parameter name="leafCurvature" phi="0.87500" kappa="0.0408676" /><parameter name="leafCurvature" phi="1.00000" kappa="0.004402" /></leaf>
     <leaf name="maize_leaf_L4" subType="6">
         <parameter name="geometryN" value="100" />
         <parameter name="gf" value="6" />
@@ -711,7 +711,7 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.58999999999999997" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
-        <parameter name="leafCurvature" phi="0.00000" kappa="0.00459" /><parameter name="leafCurvature" phi="0.12500" kappa="0.02262" /><parameter name="leafCurvature" phi="0.25000" kappa="0.04235" /><parameter name="leafCurvature" phi="0.37500" kappa="0.04769" /><parameter name="leafCurvature" phi="0.50000" kappa="0.05701" /><parameter name="leafCurvature" phi="0.62500" kappa="0.10280" /><parameter name="leafCurvature" phi="0.75000" kappa="0.05522" /><parameter name="leafCurvature" phi="0.87500" kappa="0.02073" /><parameter name="leafCurvature" phi="1.00000" kappa="-0.00000" /></leaf>
+        <parameter name="leafCurvature" phi="0.00000" kappa="0.005049" /><parameter name="leafCurvature" phi="0.12500" kappa="0.024882" /><parameter name="leafCurvature" phi="0.25000" kappa="0.046585" /><parameter name="leafCurvature" phi="0.37500" kappa="0.052459" /><parameter name="leafCurvature" phi="0.50000" kappa="0.062711" /><parameter name="leafCurvature" phi="0.62500" kappa="0.11308" /><parameter name="leafCurvature" phi="0.75000" kappa="0.060742" /><parameter name="leafCurvature" phi="0.87500" kappa="0.022803" /><parameter name="leafCurvature" phi="1.00000" kappa="-0" /></leaf>
     <leaf name="maize_leaf_L5" subType="7">
         <parameter name="geometryN" value="100" />
         <parameter name="gf" value="6" />
@@ -933,7 +933,7 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.56999999999999995" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
-        <parameter name="leafCurvature" phi="0.00000" kappa="-0.03704" /><parameter name="leafCurvature" phi="0.12500" kappa="-0.05027" /><parameter name="leafCurvature" phi="0.25000" kappa="-0.03051" /><parameter name="leafCurvature" phi="0.37500" kappa="0.05820" /><parameter name="leafCurvature" phi="0.50000" kappa="0.06022" /><parameter name="leafCurvature" phi="0.62500" kappa="0.06778" /><parameter name="leafCurvature" phi="0.75000" kappa="0.07838" /><parameter name="leafCurvature" phi="0.87500" kappa="0.07534" /><parameter name="leafCurvature" phi="1.00000" kappa="0.01798" /></leaf>
+        <parameter name="leafCurvature" phi="0.00000" kappa="-0.0244464" /><parameter name="leafCurvature" phi="0.12500" kappa="-0.0331782" /><parameter name="leafCurvature" phi="0.25000" kappa="-0.0201366" /><parameter name="leafCurvature" phi="0.37500" kappa="0.038412" /><parameter name="leafCurvature" phi="0.50000" kappa="0.0397452" /><parameter name="leafCurvature" phi="0.62500" kappa="0.0447348" /><parameter name="leafCurvature" phi="0.75000" kappa="0.0517308" /><parameter name="leafCurvature" phi="0.87500" kappa="0.0497244" /><parameter name="leafCurvature" phi="1.00000" kappa="0.0118668" /></leaf>
     <leaf name="maize_leaf_L8" subType="10">
         <parameter name="geometryN" value="100" />
         <parameter name="gf" value="6" />
@@ -1158,7 +1158,7 @@
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.56000000000000005" />
         <parameter name="leafGeometry" phi="3.6000000000000001" x="0.050000000000000003" />
         <parameter name="shape_distribution_path" path="dart/coupling/data/plant01_leaf_shape_dist.json" />
-        <parameter name="leafCurvature" phi="0.00000" kappa="0.00067" /><parameter name="leafCurvature" phi="0.12500" kappa="0.01361" /><parameter name="leafCurvature" phi="0.25000" kappa="0.04551" /><parameter name="leafCurvature" phi="0.37500" kappa="0.02523" /><parameter name="leafCurvature" phi="0.50000" kappa="0.03093" /><parameter name="leafCurvature" phi="0.62500" kappa="0.01531" /><parameter name="leafCurvature" phi="0.75000" kappa="0.13224" /><parameter name="leafCurvature" phi="0.87500" kappa="0.13146" /><parameter name="leafCurvature" phi="1.00000" kappa="0.02049" /></leaf>
+        <parameter name="leafCurvature" phi="0.00000" kappa="0.0004221" /><parameter name="leafCurvature" phi="0.12500" kappa="0.0085743" /><parameter name="leafCurvature" phi="0.25000" kappa="0.0286713" /><parameter name="leafCurvature" phi="0.37500" kappa="0.0158949" /><parameter name="leafCurvature" phi="0.50000" kappa="0.0194859" /><parameter name="leafCurvature" phi="0.62500" kappa="0.0096453" /><parameter name="leafCurvature" phi="0.75000" kappa="0.0833112" /><parameter name="leafCurvature" phi="0.87500" kappa="0.0828198" /><parameter name="leafCurvature" phi="1.00000" kappa="0.0129087" /></leaf>
     <leaf name="maize_leaf_L11" subType="13">
         <parameter name="geometryN" value="100" />
         <parameter name="gf" value="6" />
