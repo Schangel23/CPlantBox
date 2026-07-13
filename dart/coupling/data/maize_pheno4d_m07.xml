@@ -434,7 +434,7 @@
         <parameter name="lag_exp_n" value="0" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="3.87964273689848" />
+        <parameter name="lmax" value="3.73742956635399" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2" />
@@ -520,10 +520,10 @@
         <parameter name="lag_exp_n" value="0" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="11.9888101895422" />
+        <parameter name="lmax" value="12.0892611492147" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
-        <parameter name="r" value="1.2966638979234" />
+        <parameter name="r" value="1.41430579561541" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="shape_variation_scale" value="1.0" />
         <parameter name="midrib_curvature_scale" value="1.0" />
@@ -584,14 +584,14 @@
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
         <parameter name="BetaDev" value="0.05" />
-        <parameter name="D_lin_n" value="234.87749456379" />
+        <parameter name="D_lin_n" value="244.183160426101" />
         <parameter name="InitBeta" value="0.542620003789387" />
         <parameter name="LER_max" value="1.5" />
         <parameter name="L_min" value="0.025000000000000001" />
         <parameter name="R1_n" value="0.0290889677936107" />
-        <parameter name="R2_n" value="0.0954155310707198" />
+        <parameter name="R2_n" value="0.0922071059437853" />
         <parameter name="RotBeta" value="0" />
-        <parameter name="T0_n" value="52.4380311465097" />
+        <parameter name="T0_n" value="51.1387757476335" />
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
@@ -603,10 +603,10 @@
         <parameter name="dx" value="0.10000000000000001" />
         <parameter name="dxMin" value="9.9999999999999995e-07" />
         <parameter name="la" value="0" />
-        <parameter name="lag_exp_n" value="167.64987553798" />
+        <parameter name="lag_exp_n" value="166.474028860868" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="25.6910886507169" />
+        <parameter name="lmax" value="25.6852533393641" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2.3969999999999998" />
@@ -663,9 +663,9 @@
         <parameter name="LER_max" value="1.5" />
         <parameter name="L_min" value="0.025000000000000001" />
         <parameter name="R1_n" value="0.04" />
-        <parameter name="R2_n" value="0.17857323599825" />
+        <parameter name="R2_n" value="0.183705200557063" />
         <parameter name="RotBeta" value="0" />
-        <parameter name="T0_n" value="258.082539046052" />
+        <parameter name="T0_n" value="253.960701699565" />
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
@@ -677,10 +677,10 @@
         <parameter name="dx" value="0.10000000000000001" />
         <parameter name="dxMin" value="9.9999999999999995e-07" />
         <parameter name="la" value="0" />
-        <parameter name="lag_exp_n" value="129.6249700695" />
+        <parameter name="lag_exp_n" value="130.333307546878" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="29.4110119689118" />
+        <parameter name="lmax" value="30.2562465317483" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2.8130000000000002" />
@@ -813,7 +813,7 @@
         <parameter name="R1_n" value="0.017285593090234003" />
         <parameter name="R2_n" value="0.2565759231605501" />
         <parameter name="RotBeta" value="0" />
-        <parameter name="T0_n" value="217.728493478837" />
+        <parameter name="T0_n" value="218.216948676957" />
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
