@@ -411,6 +411,7 @@ def grow_plant(xml_path, simulation_time, min_stem_nodes=50, min_leaf_nodes=20,
                enable_photosynthesis=False, seed=None,
                daily_met=None, T_air_default=25.0,
                mutate_lrp_pre_init=None,
+               snapshot_times=None, snapshot_callback=None,
                soil_min_b=DEFAULT_SOIL_MIN_B,
                soil_max_b=DEFAULT_SOIL_MAX_B,
                soil_cell_number=DEFAULT_SOIL_CELL_NUMBER):
@@ -427,6 +428,13 @@ def grow_plant(xml_path, simulation_time, min_stem_nodes=50, min_leaf_nodes=20,
             day that has no met entry.
         T_air_default: Fallback air temperature (°C) for days with no met
             data. Also used when no met source is available at all.
+        snapshot_times: Optional simulation times at which to invoke
+            ``snapshot_callback`` on this same continuously grown plant. Exact
+            fractional checkpoints are supported; the normal no-snapshot path
+            keeps the existing one-day stepping unchanged.
+        snapshot_callback: ``callback(plant, simulation_time)``. The plant is
+            mutated after the callback returns, so copy any nodes/metrics the
+            snapshot must retain.
         soil_min_b, soil_max_b, soil_cell_number: 3D rectangular grid for the
             soil seg→cell mapping (cm, cm, ints). Defaults to a 1×1×100
             vertical column with **±50 cm lateral OOD bounds** (Phase 3.5):
@@ -437,6 +445,12 @@ def grow_plant(xml_path, simulation_time, min_stem_nodes=50, min_leaf_nodes=20,
             Pass e.g. ``(-50,-50,-150)/(50,50,0)/(8,8,25)`` for true 3D
             heterogeneity. Phase 3.5+ canonical pattern.
     """
+    if (snapshot_times is None) != (snapshot_callback is None):
+        raise ValueError('snapshot_times and snapshot_callback must be provided together')
+    checkpoints = sorted({float(t) for t in (snapshot_times or [])})
+    if any(t < 0 or t > simulation_time for t in checkpoints):
+        raise ValueError('snapshot_times must lie within [0, simulation_time]')
+
     print(f"=== Growing Plant ===")
     print(f"  XML: {xml_path}")
     print(f"  Simulation time: {simulation_time} days")
@@ -506,8 +520,19 @@ def grow_plant(xml_path, simulation_time, min_stem_nodes=50, min_leaf_nodes=20,
     # lateral creation. Incremental steps + catch allow partial growth.
     dt = 1.0  # 1-day steps
     total_simulated = 0.0
+    checkpoint_index = 0
+    if checkpoints and checkpoints[0] == 0.0:
+        snapshot_callback(plant, 0.0)
+        checkpoint_index = 1
     while total_simulated < simulation_time:
-        step = min(dt, simulation_time - total_simulated)
+        if checkpoints:
+            next_day = float(int(np.floor(total_simulated + 1e-12)) + 1)
+            next_checkpoint = (checkpoints[checkpoint_index]
+                               if checkpoint_index < len(checkpoints) else simulation_time)
+            boundary = min(float(simulation_time), next_day, next_checkpoint)
+            step = boundary - total_simulated
+        else:
+            step = min(dt, simulation_time - total_simulated)
         # Feed today's T_mean to the CPlantBox TT accumulator.
         # Sim-day convention: 1-based (day 1 = first 24h of growth).
         sim_day_1b = int(total_simulated) + 1
@@ -522,6 +547,10 @@ def grow_plant(xml_path, simulation_time, min_stem_nodes=50, min_leaf_nodes=20,
         try:
             plant.simulate(step, verbose=(total_simulated == 0))
             total_simulated += step
+            if (checkpoints and checkpoint_index < len(checkpoints)
+                    and abs(total_simulated - checkpoints[checkpoint_index]) < 1e-9):
+                snapshot_callback(plant, checkpoints[checkpoint_index])
+                checkpoint_index += 1
         except (IndexError, RuntimeError) as e:
             print(f"  Warning: simulate() error at day {total_simulated + step:.1f}: {e}")
             print(f"  Continuing with {total_simulated:.1f} days simulated")
