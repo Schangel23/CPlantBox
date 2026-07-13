@@ -163,7 +163,7 @@
         <parameter name="InitBeta" value="0" />
         <parameter name="RotBeta" value="3.1415926535897931" />
         <parameter name="a" value="0.20000000000000001" dev="0.02" />
-        <parameter name="basal_internode_cm" value="2.61066841146725" />
+        <parameter name="basal_internode_cm" value="2.4" />
         <parameter name="collar_frac_of_dlin" value="1" />
         <parameter name="internode_jointing_onset_tt" value="470.063557124518" />
         <parameter name="internode_collar_onset_gate" value="1" />
