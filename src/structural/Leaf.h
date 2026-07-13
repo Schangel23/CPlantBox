@@ -98,7 +98,8 @@ public:
 	/* MaturityCollarSwing. Rigidly re-orients the whole leaf about its collar
 	 * so the insertion (base) heading tracks maturity: the SAME leaf sits near
 	 * vertical when young (theta_young_rad) and swings out to its mature splay
-	 * (theta) as it elongates. Runs at Plant scope after rel2abs (this leaf and
+	 * (theta) along either the default length/lmax clock or an opt-in independent
+	 * age clock. Runs at Plant scope after rel2abs (this leaf and
 	 * its parent stem are absolute there, so maturityHeading() is valid). Gated
 	 * off by default (theta_young_rad>=0 && use_tropism_midrib) -> D0 no-op. */
 	void applyMaturitySwing();

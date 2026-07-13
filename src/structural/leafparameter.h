@@ -120,6 +120,7 @@ public:
 	double theta = 1.22;	///< Angle between leafvein and parent leafvein (rad)
 	double thetas = 0.; 	///< Standard deviation angle between leafvein and parent leafvein (rad)
 	double theta_young_rad = -1.; ///< Young-leaf insertion angle [rad]; <0 disables maturity-coupled heading
+	double heading_maturity_age_days = -1.; ///< Age scale for heading maturity [day]; <=0 uses length/lmax
 	double m_young_lo = 0.3; ///< Maturity fraction where young insertion angle is fully active
 	double m_young_hi = 0.7; ///< Maturity fraction where mature theta is fully active
 	double rlt = 1.e9;		///< Leaf life time (days)

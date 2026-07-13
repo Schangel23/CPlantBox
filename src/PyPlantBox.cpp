@@ -802,6 +802,7 @@ PYBIND11_MODULE(plantbox, m) {
       .def_readwrite("theta", &LeafRandomParameter::theta)
       .def_readwrite("thetas", &LeafRandomParameter::thetas)
       .def_readwrite("theta_young_rad", &LeafRandomParameter::theta_young_rad)
+      .def_readwrite("heading_maturity_age_days", &LeafRandomParameter::heading_maturity_age_days)
       .def_readwrite("m_young_lo", &LeafRandomParameter::m_young_lo)
       .def_readwrite("m_young_hi", &LeafRandomParameter::m_young_hi)
       .def_readwrite("rlt", &LeafRandomParameter::rlt)

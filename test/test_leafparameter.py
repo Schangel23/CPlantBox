@@ -69,6 +69,13 @@ class TestLeafParameter(unittest.TestCase):
         self.assertEqual(thetas, 456, "getParameter: value unexpected")
         # print([theta,thetas])
 
+    def test_heading_maturity_age_parameter(self):
+        """Heading timing can opt out of the length/lmax maturity clock."""
+        lrp = pb.LeafRandomParameter(pb.Organism())
+        self.assertEqual(lrp.heading_maturity_age_days, -1.)
+        lrp.heading_maturity_age_days = 42.
+        self.assertEqual(lrp.getParameter("heading_maturity_age_days"), 42.)
+
     def test_toString(self):
         """ tests toString() """
         self.lrp = pb.LeafRandomParameter(pb.Organism())
@@ -189,4 +196,3 @@ class TestLeafParameter(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

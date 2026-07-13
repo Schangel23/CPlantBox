@@ -731,6 +731,7 @@ void LeafRandomParameter::bindParameters()
     bindParameter("tropismAge", &tropismAge, "Age at which organ switch tropism", &tropismAges);
     bindParameter("theta", &theta, "Angle between leaf and parent leaf [rad]", &thetas);
     bindParameter("theta_young_rad", &theta_young_rad, "Young-leaf insertion angle [rad]; <0 disables maturity-coupled heading");
+    bindParameter("heading_maturity_age_days", &heading_maturity_age_days, "Age scale for heading maturity [day]; <=0 uses length/lmax");
     bindParameter("m_young_lo", &m_young_lo, "Maturity fraction below which theta_young_rad is fully active");
     bindParameter("m_young_hi", &m_young_hi, "Maturity fraction above which mature theta is fully active");
     bindParameter("rlt", &rlt, "Leaf life time [day]", &rlts);

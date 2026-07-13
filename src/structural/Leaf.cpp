@@ -616,7 +616,9 @@ void Leaf::updateNodesFromSurfaceCPs()
 /**
  * MaturityCollarSwing (whorl -> splay). One rigid rotation of the whole leaf
  * about its collar so the base segment tracks maturityHeading(), which blends
- * theta_young_rad -> theta by a smoothstep on length/lmax. getIncrement() only
+ * theta_young_rad -> theta by a maturity smoothstep. Maturity is length/lmax
+ * unless heading_maturity_age_days opts into a decoupled organ-age clock.
+ * getIncrement() only
  * steers NEW tip segments, so placed collar/base nodes otherwise stay frozen at
  * emergence and a leaf keeps one insertion angle for life. Here every node
  * offset from the collar gets the SAME rotation R (current base -> target),
@@ -1261,8 +1263,14 @@ Vector3d Leaf::maturityHeading() const
 	if (!lrp || lrp->theta_young_rad < 0.) {
 		return heading(-1);
 	}
-	const double mature_length = std::max(lrp->lmax, 1e-9);
-	const double maturity = std::min(std::max(getLength(true) / mature_length, 0.0), 1.0);
+	double maturity;
+	if (lrp->heading_maturity_age_days > 0.) {
+		maturity = getAge() / lrp->heading_maturity_age_days;
+	} else {
+		const double mature_length = std::max(lrp->lmax, 1e-9);
+		maturity = getLength(true) / mature_length;
+	}
+	maturity = std::min(std::max(maturity, 0.0), 1.0);
 	const double lo = std::min(lrp->m_young_lo, lrp->m_young_hi);
 	const double hi = std::max(lrp->m_young_lo, lrp->m_young_hi);
 	double w = 1.0;
