@@ -413,7 +413,7 @@
         <parameter name="use_thermal_emergence" value="1" />
         <parameter name="BetaDev" value="0.05" />
         <parameter name="D_lin_n" value="0" />
-        <parameter name="InitBeta" value="1.0" />
+        <parameter name="InitBeta" value="0.324029471224182" />
         <parameter name="LER_max" value="1.5" />
         <parameter name="L_min" value="0.025000000000000001" />
         <parameter name="R1_n" value="0" />
@@ -447,7 +447,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="-1" />
         <parameter name="tau_extension_n" value="115.8" />
-        <parameter name="theta" value="0.78" dev="0.05" />
+        <parameter name="theta" value="0.646246163034622" dev="0.05" />
         <parameter name="tropismAge" value="0.907" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -499,7 +499,7 @@
         <parameter name="use_thermal_emergence" value="1" />
         <parameter name="BetaDev" value="0.05" />
         <parameter name="D_lin_n" value="0" />
-        <parameter name="InitBeta" value="0.0" />
+        <parameter name="InitBeta" value="1.24387541452992" />
         <parameter name="LER_max" value="1.5" />
         <parameter name="L_min" value="0.025000000000000001" />
         <parameter name="R1_n" value="0" />
@@ -533,7 +533,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="-1" />
         <parameter name="tau_extension_n" value="173.69999999999999" />
-        <parameter name="theta" value="0.78" dev="0.05" />
+        <parameter name="theta" value="0.34339415372468" dev="0.05" />
         <parameter name="tropismAge" value="0.902" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -585,7 +585,7 @@
         <parameter name="use_thermal_emergence" value="1" />
         <parameter name="BetaDev" value="0.05" />
         <parameter name="D_lin_n" value="234.87749456379" />
-        <parameter name="InitBeta" value="1.0" />
+        <parameter name="InitBeta" value="0.542620003789387" />
         <parameter name="LER_max" value="1.5" />
         <parameter name="L_min" value="0.025000000000000001" />
         <parameter name="R1_n" value="0.0290889677936107" />
@@ -619,7 +619,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="163.8" />
         <parameter name="tau_extension_n" value="231.59999999999999" />
-        <parameter name="theta" value="1.056563" dev="0" />
+        <parameter name="theta" value="0.32677425637273" dev="0" />
         <parameter name="tropismAge" value="1.541" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -659,7 +659,7 @@
         <parameter name="use_thermal_emergence" value="1" />
         <parameter name="BetaDev" value="0.05" />
         <parameter name="D_lin_n" value="139.69999999999999" />
-        <parameter name="InitBeta" value="0.0" />
+        <parameter name="InitBeta" value="0.341120204782244" />
         <parameter name="LER_max" value="1.5" />
         <parameter name="L_min" value="0.025000000000000001" />
         <parameter name="R1_n" value="0.04" />
@@ -693,7 +693,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="214.277" />
         <parameter name="tau_extension_n" value="289.5" />
-        <parameter name="theta" value="0.88551" dev="0" />
+        <parameter name="theta" value="0.161903440544356" dev="0" />
         <parameter name="tropismAge" value="1.540" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -807,7 +807,7 @@
         <parameter name="use_thermal_emergence" value="1" />
         <parameter name="BetaDev" value="0.05" />
         <parameter name="D_lin_n" value="147" />
-        <parameter name="InitBeta" value="0.0" />
+        <parameter name="InitBeta" value="0.481007453540695" />
         <parameter name="LER_max" value="1.5" />
         <parameter name="L_min" value="0.025000000000000001" />
         <parameter name="R1_n" value="0.017285593090234003" />
@@ -841,7 +841,7 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="316.388" />
         <parameter name="tau_extension_n" value="405.30000000000001" />
-        <parameter name="theta" value="0.574278" dev="0" />
+        <parameter name="theta" value="0.150802778054017" dev="0" />
         <parameter name="tropismAge" value="1.896" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
