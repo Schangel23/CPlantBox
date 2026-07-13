@@ -447,9 +447,9 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="-1" />
         <parameter name="tau_extension_n" value="115.8" />
-        <parameter name="theta" value="0.721594526211972" dev="0.05" />
-        <parameter name="theta_young_rad" value="0.521366869982712" />
-        <parameter name="heading_maturity_age_days" value="44.8808462212926" />
+        <parameter name="theta" value="0.722743129658025" dev="0.05" />
+        <parameter name="theta_young_rad" value="0.521484580508357" />
+        <parameter name="heading_maturity_age_days" value="45.0703669106244" />
         <parameter name="m_young_lo" value="0.3" />
         <parameter name="m_young_hi" value="0.7" />
         <parameter name="tropismAge" value="0.907" />
@@ -537,9 +537,9 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="-1" />
         <parameter name="tau_extension_n" value="173.69999999999999" />
-        <parameter name="theta" value="0.528737962495784" dev="0.05" />
-        <parameter name="theta_young_rad" value="0.0836211340399911" />
-        <parameter name="heading_maturity_age_days" value="29.4653442441763" />
+        <parameter name="theta" value="0.528495352964681" dev="0.05" />
+        <parameter name="theta_young_rad" value="0.0823578736871447" />
+        <parameter name="heading_maturity_age_days" value="29.4239547884918" />
         <parameter name="m_young_lo" value="0.3" />
         <parameter name="m_young_hi" value="0.7" />
         <parameter name="tropismAge" value="0.902" />
@@ -627,9 +627,9 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="163.8" />
         <parameter name="tau_extension_n" value="231.59999999999999" />
-        <parameter name="theta" value="0.657943607581654" dev="0" />
-        <parameter name="theta_young_rad" value="0.0805163056896021" />
-        <parameter name="heading_maturity_age_days" value="44.7708374663803" />
+        <parameter name="theta" value="0.657276332883099" dev="0" />
+        <parameter name="theta_young_rad" value="0.0789233794091593" />
+        <parameter name="heading_maturity_age_days" value="44.7086640787961" />
         <parameter name="m_young_lo" value="0.3" />
         <parameter name="m_young_hi" value="0.7" />
         <parameter name="tropismAge" value="1.541" />
@@ -705,9 +705,9 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="214.277" />
         <parameter name="tau_extension_n" value="289.5" />
-        <parameter name="theta" value="0.110556124458159" dev="0" />
-        <parameter name="theta_young_rad" value="0.81639094963147" />
-        <parameter name="heading_maturity_age_days" value="35.0711306537141" />
+        <parameter name="theta" value="0.121830297210111" dev="0" />
+        <parameter name="theta_young_rad" value="1.44209283351136" />
+        <parameter name="heading_maturity_age_days" value="32.9600998286142" />
         <parameter name="m_young_lo" value="0.3" />
         <parameter name="m_young_hi" value="0.7" />
         <parameter name="tropismAge" value="1.540" />
