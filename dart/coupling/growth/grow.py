@@ -547,10 +547,6 @@ def grow_plant(xml_path, simulation_time, min_stem_nodes=50, min_leaf_nodes=20,
         try:
             plant.simulate(step, verbose=(total_simulated == 0))
             total_simulated += step
-            if (checkpoints and checkpoint_index < len(checkpoints)
-                    and abs(total_simulated - checkpoints[checkpoint_index]) < 1e-9):
-                snapshot_callback(plant, checkpoints[checkpoint_index])
-                checkpoint_index += 1
         except (IndexError, RuntimeError) as e:
             print(f"  Warning: simulate() error at day {total_simulated + step:.1f}: {e}")
             print(f"  Continuing with {total_simulated:.1f} days simulated")
@@ -560,6 +556,10 @@ def grow_plant(xml_path, simulation_time, min_stem_nodes=50, min_leaf_nodes=20,
             except Exception:
                 pass
             break
+        if (checkpoints and checkpoint_index < len(checkpoints)
+                and abs(total_simulated - checkpoints[checkpoint_index]) < 1e-9):
+            snapshot_callback(plant, checkpoints[checkpoint_index])
+            checkpoint_index += 1
 
     organs = plant.getOrgans()
     n_stems = sum(1 for o in organs if o.organType() == pb.OrganTypes.stem)
