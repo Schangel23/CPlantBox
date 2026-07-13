@@ -447,7 +447,11 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="-1" />
         <parameter name="tau_extension_n" value="115.8" />
-        <parameter name="theta" value="0.586448866572602" dev="0.05" />
+        <parameter name="theta" value="0.781004055714026" dev="0.05" />
+        <parameter name="theta_young_rad" value="0.540510551513246" />
+        <parameter name="heading_maturity_age_days" value="51.3344543188679" />
+        <parameter name="m_young_lo" value="0.3" />
+        <parameter name="m_young_hi" value="0.7" />
         <parameter name="tropismAge" value="0.907" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -533,7 +537,11 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="-1" />
         <parameter name="tau_extension_n" value="173.69999999999999" />
-        <parameter name="theta" value="0.395527261478803" dev="0.05" />
+        <parameter name="theta" value="0.509706332368238" dev="0.05" />
+        <parameter name="theta_young_rad" value="0.0729908111759011" />
+        <parameter name="heading_maturity_age_days" value="30.6658082195654" />
+        <parameter name="m_young_lo" value="0.3" />
+        <parameter name="m_young_hi" value="0.7" />
         <parameter name="tropismAge" value="0.902" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -619,7 +627,11 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="163.8" />
         <parameter name="tau_extension_n" value="231.59999999999999" />
-        <parameter name="theta" value="0.364966558595949" dev="0" />
+        <parameter name="theta" value="0.63956292734241" dev="0" />
+        <parameter name="theta_young_rad" value="0.0607304432109001" />
+        <parameter name="heading_maturity_age_days" value="41.3409171652697" />
+        <parameter name="m_young_lo" value="0.3" />
+        <parameter name="m_young_hi" value="0.7" />
         <parameter name="tropismAge" value="1.541" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
@@ -658,14 +670,14 @@
         <parameter name="use_thermal_elongation" value="0" />
         <parameter name="use_thermal_emergence" value="1" />
         <parameter name="BetaDev" value="0.05" />
-        <parameter name="D_lin_n" value="139.69999999999999" />
+        <parameter name="D_lin_n" value="211.748779635945" />
         <parameter name="InitBeta" value="0.321021956919982" />
         <parameter name="LER_max" value="1.5" />
         <parameter name="L_min" value="0.025000000000000001" />
-        <parameter name="R1_n" value="0.04" />
-        <parameter name="R2_n" value="0.183705200557063" />
+        <parameter name="R1_n" value="0.0587200430733047" />
+        <parameter name="R2_n" value="0.135046639794211" />
         <parameter name="RotBeta" value="0" />
-        <parameter name="T0_n" value="253.960701699565" />
+        <parameter name="T0_n" value="263.944306786724" />
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
@@ -677,10 +689,10 @@
         <parameter name="dx" value="0.10000000000000001" />
         <parameter name="dxMin" value="9.9999999999999995e-07" />
         <parameter name="la" value="0" />
-        <parameter name="lag_exp_n" value="130.333307546878" />
+        <parameter name="lag_exp_n" value="77.0046869576887" />
         <parameter name="lb" value="0" />
         <parameter name="ldelay" value="0" />
-        <parameter name="lmax" value="30.2562465317483" />
+        <parameter name="lmax" value="30.8958000792922" />
         <parameter name="ln" value="1" />
         <parameter name="phyllochron_tt" value="57.899999999999999" />
         <parameter name="r" value="2.8130000000000002" />
@@ -693,7 +705,11 @@
         <parameter name="sl_ratio" value="0.40000000000000002" />
         <parameter name="t_col_emp_Cd" value="214.277" />
         <parameter name="tau_extension_n" value="289.5" />
-        <parameter name="theta" value="0.160414323361755" dev="0" />
+        <parameter name="theta" value="0.089253" dev="0" />
+        <parameter name="theta_young_rad" value="0.565449" />
+        <parameter name="heading_maturity_age_days" value="36.837" />
+        <parameter name="m_young_lo" value="0.3" />
+        <parameter name="m_young_hi" value="0.7" />
         <parameter name="tropismAge" value="1.540" />
         <parameter name="tropismExponent" value="1" />
         <parameter name="tropismN" value="4.000" />
