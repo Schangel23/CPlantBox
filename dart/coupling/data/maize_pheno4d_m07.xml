@@ -163,14 +163,14 @@
         <parameter name="InitBeta" value="0" />
         <parameter name="RotBeta" value="3.1415926535897931" />
         <parameter name="a" value="0.20000000000000001" dev="0.02" />
-        <parameter name="basal_internode_cm" value="0.463936096670687" />
+        <parameter name="basal_internode_cm" value="2.61066841146725" />
         <parameter name="collar_frac_of_dlin" value="1" />
-        <parameter name="internode_jointing_onset_tt" value="400.43720532826" />
+        <parameter name="internode_jointing_onset_tt" value="470.063557124518" />
         <parameter name="internode_collar_onset_gate" value="1" />
-        <parameter name="internode_sheath_visible_fraction" value="0.43286182763022113" />
+        <parameter name="internode_sheath_visible_fraction" value="0.91730366303095" />
         <parameter name="sheath_cm" values="3.337,3.675,4.392,6.289,8.229,11.875,15.054,16.925,16.538,15.512,14.169,13.473,13.936,14.267,14.55,14.133,13.667,12.937,11.45,5.8" />
         <parameter name="internode_maturity_floor_cm" value="0.0" />
-        <parameter name="internode_maturity_span" value="423.17826121491345" />
+        <parameter name="internode_maturity_span" value="725.986107595741" />
         <parameter name="cultivar_height_factor" value="1.34" dev="0.091999999999999998" />
         <parameter name="delayNGEnd" value="0" />
         <parameter name="delayNGStart" value="0" />
@@ -216,7 +216,7 @@
 <parameter name="successor" ruleId="16" numLat="1" where="16" subType="20" organType="3" percentage="1" />
         <parameter name="v_n" values="0.16, 0.16, 0.16, 0.16, 0.16, 0.16, 0.13, 0.2, 0.32, 0.38, 0.36, 0.28, 0.25, 0.24, 0.19, 0.16" />
         <parameter name="D_n" values="110, 110, 110, 110, 110, 70, 75, 58, 55, 50, 55, 60, 54, 66, 82" />
-        <parameter name="IL_final" values="13.00, 23.00, 18.00, 11.00, 3.00, 3.00, 3.00, 5.00, 20.80, 24.80, 24.00, 24.00, 20.80, 14.40, 3.20, 3.20" />
+        <parameter name="IL_final" values="1.49561021393836, 33.7735883633022, 11.5700050909404, 13.003161792911, 21.4077877749925, 16.9653934313419, 17.7996071086456, 5, 20.8, 24.8, 24, 24, 20.8, 14.4, 3.2, 3.2" />
         <parameter name="basal_zero_ranks" values="1" />
     </stem>
     <stem name="tassel_spike" subType="20">
