@@ -423,7 +423,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="6" />
+        <parameter name="Width_blade" value="0.8002336722239273" />
         <parameter name="Width_petiole" value="0.7218675801583716" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="220.515" />
@@ -513,7 +513,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="8" />
+        <parameter name="Width_blade" value="1.1911056039627663" />
         <parameter name="Width_petiole" value="1.0267277278502556" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="243.573" />
@@ -603,7 +603,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="8" />
+        <parameter name="Width_blade" value="1.5845445285525301" />
         <parameter name="Width_petiole" value="1.3038733166610588" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="277.61" />
@@ -681,7 +681,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="8" />
+        <parameter name="Width_blade" value="2.2604643444118246" />
         <parameter name="Width_petiole" value="1.5117325082691615" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="281.721" />
@@ -833,7 +833,7 @@
         <parameter name="T_base" value="8" />
         <parameter name="T_max" value="41" />
         <parameter name="T_opt" value="30" />
-        <parameter name="Width_blade" value="11" />
+        <parameter name="Width_blade" value="2.3692434866660648" />
         <parameter name="Width_petiole" value="1.9135933141322627" />
         <parameter name="a" value="0.040000000000000001" />
         <parameter name="areaMax" value="231.996" />
