@@ -171,6 +171,88 @@ def test_sra_vectorized_interface_matches_scalar_reference():
     assert np.allclose(got, expected, atol=0.01, rtol=0.0)
 
 
+def test_sra_accepts_soil_hydraulic_calibration():
+    from dart.coupling.hydraulics.soil_psi import SteadyRatePerirhizalPsi
+
+    sand = (0.045, 0.43, 0.15, 3.0, 1000.0)
+    default = SteadyRatePerirhizalPsi()
+    calibrated = SteadyRatePerirhizalPsi(vg_params=sand)
+
+    assert calibrated.vg_params == sand
+    assert calibrated._soil_parameters() is calibrated._soil_parameters()
+    assert calibrated._soil_parameters() is not default._soil_parameters()
+
+
+class _FakeSraHydraulics:
+    class _MappedSegments:
+        @staticmethod
+        def getHs(bulk_psi):
+            return np.asarray(bulk_psi, dtype=float)
+
+    class _Params:
+        psi_air = -15000.0
+
+    def __init__(self, xylem_after_interface_solves):
+        self.ms = self._MappedSegments()
+        self.params = self._Params()
+        self.calls = []
+        self._xylem = np.array([-100.0])
+        self._updates = iter(xylem_after_interface_solves)
+
+    def solve(self, *, rsx, cells, **kwargs):
+        self.calls.append({"rsx": np.asarray(rsx).copy(), "cells": cells, **kwargs})
+        if not cells:
+            self._xylem = np.array([float(next(self._updates))])
+
+    @staticmethod
+    def get_kr(sim_time):
+        return np.array([1.0e-4])
+
+    def get_water_potential(self):
+        return self._xylem.copy()
+
+
+def _single_root_geometry(_hm):
+    return (
+        np.array([2]),
+        np.array([0]),
+        np.array([0.1]),
+        np.array([10.0]),
+        np.array([0]),
+    )
+
+
+def test_sra_fixed_point_converges():
+    from dart.coupling.hydraulics.soil_psi import SteadyRatePerirhizalPsi
+
+    hm = _FakeSraHydraulics([-200.0, -200.5])
+    provider = SteadyRatePerirhizalPsi(
+        n_cells=1, max_iterations=3, tolerance_cm=1.0,
+    )
+    provider._root_geometry = _single_root_geometry
+    provider.interface_potentials = lambda rx, sx, inner_kr, rho: sx.copy()
+
+    provider.solve_photosynthesis(hm, np.array([-500.0]), sim_time=1.0)
+
+    assert [call["cells"] for call in hm.calls] == [True, False, False]
+    assert provider.last_iterations == 2
+    assert provider.last_error_cm == pytest.approx(0.5)
+
+
+def test_sra_fixed_point_reports_non_convergence():
+    from dart.coupling.hydraulics.soil_psi import SteadyRatePerirhizalPsi
+
+    hm = _FakeSraHydraulics([-200.0, -300.0])
+    provider = SteadyRatePerirhizalPsi(
+        n_cells=1, max_iterations=2, tolerance_cm=1.0,
+    )
+    provider._root_geometry = _single_root_geometry
+    provider.interface_potentials = lambda rx, sx, inner_kr, rho: sx.copy()
+
+    with pytest.raises(RuntimeError, match="did not converge after 2 iterations"):
+        provider.solve_photosynthesis(hm, np.array([-500.0]), sim_time=1.0)
+
+
 def test_photosynthesis_dispatch_selects_sra_solver():
     from dart.coupling.hydraulics.soil_psi import (
         FixedSoilPsi, SteadyRatePerirhizalPsi,

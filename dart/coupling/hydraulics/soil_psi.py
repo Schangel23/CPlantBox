@@ -168,7 +168,7 @@ class SteadyRatePerirhizalPsi(FixedSoilPsi):
     water redistribution, rainfall, or drainage.
     """
 
-    _shared_sp = None
+    _shared_soils = {}
 
     def __init__(
         self,
@@ -176,26 +176,38 @@ class SteadyRatePerirhizalPsi(FixedSoilPsi):
         n_cells: int = 100,
         max_iterations: int = 20,
         tolerance_cm: float = 1.0,
+        vg_params: Optional[Tuple[float, float, float, float, float]] = None,
     ):
         super().__init__(psi_cm=psi_cm, n_cells=n_cells)
         self.max_iterations = int(max_iterations)
         self.tolerance_cm = float(tolerance_cm)
+        self.vg_params = tuple(_LOAM_VG if vg_params is None else vg_params)
+        if len(self.vg_params) != 5:
+            raise ValueError("SRA vg_params must contain qr, qs, alpha, n, and Ksat")
         if self.max_iterations <= 0 or self.tolerance_cm <= 0:
             raise ValueError("SRA max_iterations and tolerance_cm must be > 0")
         self.last_iterations = 0
         self.last_error_cm = 0.0
 
-    @classmethod
-    def _soil_parameters(cls):
-        if cls._shared_sp is None:
+    def _soil_parameters(self):
+        if self.vg_params not in self._shared_soils:
             import plantbox.functional.van_genuchten as vg
 
-            cls._shared_sp = vg.Parameters(list(_LOAM_VG))
-            vg.create_mfp_lookup(cls._shared_sp)
-        return cls._shared_sp
+            soil = vg.Parameters(list(self.vg_params))
+            vg.create_mfp_lookup(soil)
+            self._shared_soils[self.vg_params] = soil
+        return self._shared_soils[self.vg_params]
 
     def interface_potentials(self, rx, sx, inner_kr, rho) -> np.ndarray:
-        """Vectorized two-input form of the steady-rate interface equation."""
+        """Solve the steady-rate interface equation for many root segments.
+
+        The physical inputs are xylem head ``rx``, bulk-soil head ``sx``,
+        inner radius times radial conductivity ``inner_kr``, and outer/inner
+        radius ratio ``rho``.  As in upstream ``PerirhizalPython``, the
+        geometry factor ``b`` uses the Vanderborght 0.53 coefficient.  These
+        inputs reduce to the two lookup dimensions ``inner_kr / b`` and
+        ``(inner_kr / b) * rx + MFP(sx)`` before the vectorized root solve.
+        """
         import plantbox.functional.van_genuchten as vg
 
         rx = np.clip(np.asarray(rx, dtype=float), -15999.0, -1.0)
