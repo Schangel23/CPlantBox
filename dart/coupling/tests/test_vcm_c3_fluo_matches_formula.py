@@ -78,5 +78,9 @@ def main():
     print("OK: C++ C3 fluorescence matches the Python restatement (Ja, eta)")
 
 
+def test_vcm_c3_fluo_matches_formula():
+    main()
+
+
 if __name__ == "__main__":
     main()

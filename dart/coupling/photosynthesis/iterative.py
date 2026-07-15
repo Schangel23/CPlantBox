@@ -135,6 +135,22 @@ def write_triangle_gs_csv(rcw_per_triangle, output_path):
                 f.write(f"{i},{rcw:.6f}\n")
 
 
+def replace_triangle_physiology(triangles, eta_per_segment, an_per_segment):
+    """Replace Baleno's diagnostic physiology with CPlantBox segment state in-place."""
+    eta = np.asarray(eta_per_segment, dtype=float)
+    assimilation = np.asarray(an_per_segment, dtype=float)
+    for triangle in triangles:
+        segment_idx = triangle.get('segment_idx')
+        if not isinstance(segment_idx, (int, np.integer)) or not (
+                0 <= segment_idx < len(eta) and segment_idx < len(assimilation)):
+            raise ValueError(f"Invalid triangle segment_idx: {segment_idx}")
+        triangle.setdefault('eta_baleno_diag', triangle.get('eta', 0.0))
+        triangle.setdefault('An_baleno_diag', triangle.get('An_umol', 0.0))
+        triangle['eta'] = float(eta[segment_idx])
+        triangle['An_umol'] = float(assimilation[segment_idx])
+    return triangles
+
+
 def run_iterative_coupling(
     plant, sim_time, par_umol, mapping_json_path, reindex_json_path,
     baleno_sim_dir, baleno_simu_name,
@@ -145,6 +161,7 @@ def run_iterative_coupling(
     soil_psi_provider=None,
     tair_c=25.0, rh=0.6,
     initial_tleaf=None,
+    c4_model=0, c3_model=0,
 ):
     """Iterative Tuzet-Baleno coupling loop.
 
@@ -226,25 +243,13 @@ def run_iterative_coupling(
             label=f"iter_{iteration+1}",
             rh=rh, soil_psi_cm=soil_psi_cm,
             soil_psi_provider=soil_psi_provider,
+            c4_model=c4_model, c3_model=c3_model,
         )
         if result is None:
             print(f"  ERROR: photosynthesis solve failed at iteration {iteration+1}")
             break
 
-        # Extract gs from CPlantBox hydraulic model
-        # hm.gco2 is not directly accessible after run_photosynthesis_solve
-        # returns. We need to re-derive gs from An and the diffusion equation.
-        # Alternative: extract from the solve itself.
-        # For robustness, compute gs from An using the Tuzet inverse:
-        #   gs_co2 = An / (Ca - Ci)  where Ci ~ 0.7*Ca for C4
-        # But better: re-run with access to hm object.
-        gs_tuzet = _extract_gs_from_solve(
-            plant, sim_time, par_umol, tleaf, rh, soil_psi_cm,
-            soil_psi_provider=soil_psi_provider)
-
-        if gs_tuzet is None:
-            print(f"  ERROR: gs extraction failed at iteration {iteration+1}")
-            break
+        gs_tuzet = np.asarray(result['gco2'], dtype=np.float64)
 
         gs_mean = float(np.mean(gs_tuzet[gs_tuzet > 0]))
         print(f"  gs_tuzet: mean={gs_mean:.6f} mol CO2/m²/s, "
@@ -417,98 +422,6 @@ def run_iterative_coupling(
         'gs_history': gs_history,
         'converged': converged,
     }
-
-
-def _extract_gs_from_solve(plant, sim_time, par_umol, tleaf, rh, soil_psi_cm,
-                           soil_psi_provider=None):
-    """Run CPlantBox photosynthesis and extract per-segment gs (gco2).
-
-    Returns array of gs [mol CO2/m²/s] per leaf segment, or None on failure.
-
-    soil_psi_provider takes precedence over soil_psi_cm; if None, falls back
-    to FixedSoilPsi(soil_psi_cm) (legacy linspace).
-    """
-    from plantbox.functional.phloem_flux import PhloemFluxPython
-    from plantbox.functional.PlantHydraulicParameters import PlantHydraulicParameters
-    from ..prospect_params import get_chl_for_photosynthesis
-
-    params = PlantHydraulicParameters()
-    params.read_parameters(get_hydraulics_json())
-
-    hm = PhloemFluxPython(plant, params)
-    hm.read_photosynthesis_parameters(filename=get_photosynthesis_json())
-    hm.read_phloem_parameters(filename=get_phloem_json())
-
-    # Per-segment effective Chl from LOPS seasonal top value + Wang2026 height profile
-    chl_per_seg = get_chl_per_segment(sim_time, plant)
-    seg_check = plant.getSegmentIds(4)
-    if len(chl_per_seg) == len(seg_check):
-        hm.Chl = chl_per_seg
-    else:
-        hm.Chl = [get_chl_for_photosynthesis(sim_time)]
-
-    # Soil water potential
-    if soil_psi_provider is None:
-        from ..hydraulics.soil_psi import FixedSoilPsi
-        from ..growth.grow import DEFAULT_SOIL_CELL_NUMBER
-        n_default_cells = int(np.prod(DEFAULT_SOIL_CELL_NUMBER))
-        soil_psi_provider = FixedSoilPsi(psi_cm=soil_psi_cm,
-                                         n_cells=n_default_cells)
-    n_cells = int(soil_psi_provider.n_cells_total)
-    p_s = soil_psi_provider.get_profile(t_days=float(sim_time), depth_cm=n_cells)
-
-    # Vapour pressure
-    if np.isscalar(tleaf):
-        es = hm.get_es(tleaf)
-    else:
-        es = hm.get_es(float(np.mean(tleaf)))
-    ea = es * rh
-
-    # PAR conversion: µmol/m²/s -> mol/cm²/d
-    if np.isscalar(par_umol):
-        par_mol = par_umol * 1e-6 * 86400 * 1e-4
-    else:
-        par_mol = np.asarray(par_umol) * 1e-6 * 86400 * 1e-4
-
-    try:
-        hm.solve(
-            sim_time=sim_time, rsx=p_s, cells=True,
-            ea=ea, es=es, PAR=par_mol, TairC=tleaf, verbose=0,
-        )
-    except Exception as e:
-        print(f"  gs extraction solve error: {e}")
-        return None
-
-    # Close the soil↔plant water loop. This solve fires once per Tuzet
-    # iteration; DumuxSoilPsi.update overwrites the queued sink each call,
-    # so the sink advanced into DuMux on next get_profile is the converged
-    # one, not an intermediate. No-op for static providers.
-    from ..hydraulics.soil_psi import push_rwu_sink_to_provider
-    push_rwu_sink_to_provider(hm, sim_time, p_s, soil_psi_provider,
-                              n_cells=n_cells, verbose=False)
-
-    # Extract gs (gco2) from the solved hydraulic model
-    try:
-        gco2 = np.array(hm.gco2)
-    except AttributeError:
-        # Fallback: derive from An
-        # gs_co2 = An / (Ca - Ci), but we don't have Ci directly
-        # Use approximate inverse: An is available
-        An = np.array(hm.get_net_assimilation())  # mol CO2/d per segment
-        # Convert to µmol/m²/s for gs estimation
-        seg_areas = np.array(hm.get_leafBlade_area())  # cm²
-        seg_areas = np.maximum(seg_areas, 1e-6)
-        An_umol = An * 1e6 / 86400 * 1e4 / seg_areas  # µmol/m²/s
-
-        # Simple gs estimate: gs = An * 1.6 / (Ca - Ci)
-        from ..config import DEFAULT_CO2_PPM
-        Ca = DEFAULT_CO2_PPM
-        Ci_frac = get_species()["ci_ca_ratio"]
-        gs_h2o = An_umol * 1.6 / (Ca * (1 - Ci_frac) + 1e-10)  # mol/m²/s approx
-        gco2 = gs_h2o / 1.6
-        gco2 = np.maximum(gco2, 0.0)
-
-    return np.asarray(gco2, dtype=np.float64)
 
 
 # ============================================================================
@@ -831,12 +744,7 @@ def run_iterative_coupling_multi(
 
             final_results[pi] = result
 
-            gs = _extract_gs_from_solve(
-                plants[pi], sim_time, par_umol_per_plant[pi],
-                tleaf[pi], rh, soil_psi_cm,
-                soil_psi_provider=soil_psi_provider)
-            if gs is None:
-                gs = np.zeros(n_leaf_segs[pi])
+            gs = np.asarray(result['gco2'], dtype=np.float64)
             all_gs_tuzet.append(gs)
 
         # 2. Check convergence per plant
@@ -1034,15 +942,20 @@ def run_iterative_coupling_multi(
             # geometry (tri_data) legitimately stays Baleno/DART's (radiation).
             baleno_eta = per_plant_eta[pi] if pi < len(per_plant_eta) else None
             cpb_eta = np.asarray(r['eta']) if (r and r.get('eta') is not None and len(r['eta'])) else None
-            if (c4_model or c3_model) and cpb_eta is not None:
+            if c4_model or c3_model:
+                if cpb_eta is None or len(cpb_eta) != n_leaf_segs[pi]:
+                    raise RuntimeError(f"Plant {pi}: CPlantBox eta missing or misaligned")
                 rd['eta_per_segment'] = cpb_eta
-                rd['eta_source'] = 'cplantbox_vcm'
+                rd['eta_source'] = 'cplantbox'
             else:
                 rd['eta_per_segment'] = baleno_eta
                 rd['eta_source'] = 'baleno'
             rd['eta_baleno_diag'] = baleno_eta
             rd['tri_data'] = per_plant_tri_data[pi] if pi < len(per_plant_tri_data) else None
-            rd['tri_data_raw'] = per_plant_tri_raw[pi] if pi < len(per_plant_tri_raw) else None
+            tri_raw = per_plant_tri_raw[pi] if pi < len(per_plant_tri_raw) else None
+            if (c4_model or c3_model) and tri_raw is not None:
+                replace_triangle_physiology(tri_raw, cpb_eta, rd['an_per_segment'])
+            rd['tri_data_raw'] = tri_raw
         results.append(rd)
 
     return results

@@ -40,5 +40,9 @@ def main():
     print("OK: dark-state fluorescence finite and bounded for C3 and C4")
 
 
+def test_vcm_dark_finite():
+    main()
+
+
 if __name__ == "__main__":
     main()

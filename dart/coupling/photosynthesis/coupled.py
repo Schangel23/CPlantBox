@@ -213,6 +213,12 @@ def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
     if photo_type is not None:
         # override AFTER read (which sets PhotoType from JSON); 0 = C3, 1 = C4. tests / mixed canopies
         hm.PhotoType = int(photo_type)
+    if (c4_model or c3_model) and not (
+            (hm.PhotoType == 1 and c4_model) or (hm.PhotoType == 0 and c3_model)):
+        raise ValueError(
+            f"No enabled fluorescence model for PhotoType={hm.PhotoType}: "
+            f"c4_model={c4_model}, c3_model={c3_model}"
+        )
     if vcm_parameters:
         allowed = {
             'vcm_qLs', 'vcm_NPQs', 'vcm_x', 'vcm_alpha', 'vcm_Vpr',
@@ -348,6 +354,7 @@ def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
         'psi_leaf_cm': psi_leaf,
         'psi_leaf_MPa': psi_leaf_MPa,
         'gco2': np.array(hm.gco2),
+        'photo_type': int(hm.PhotoType),
     }
     # von Caemmerer-Magnani fluorescence: eta drives SIF, Ja is actual electron transport.
     # Per leaf-segment (seg_leaves_idx order). Empty/zero unless c4_model == 1.
