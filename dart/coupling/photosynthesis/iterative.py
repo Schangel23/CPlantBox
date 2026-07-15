@@ -162,6 +162,7 @@ def run_iterative_coupling(
     tair_c=25.0, rh=0.6,
     initial_tleaf=None,
     c4_model=0, c3_model=0,
+    vcm_parameters=None,
 ):
     """Iterative Tuzet-Baleno coupling loop.
 
@@ -244,6 +245,7 @@ def run_iterative_coupling(
             rh=rh, soil_psi_cm=soil_psi_cm,
             soil_psi_provider=soil_psi_provider,
             c4_model=c4_model, c3_model=c3_model,
+            vcm_parameters=vcm_parameters,
         )
         if result is None:
             print(f"  ERROR: photosynthesis solve failed at iteration {iteration+1}")
@@ -591,6 +593,7 @@ def run_iterative_coupling_multi(
     baleno_timeout=3600,
     c4_model=0,
     c3_model=0,
+    vcm_parameters=None,
 ):
     """Multi-plant iterative Tuzet-Baleno coupling loop.
 
@@ -622,7 +625,7 @@ def run_iterative_coupling_multi(
     """
     if with_sif:
         # SIF is never allowed to fall back to Baleno's competing assimilation solve.
-        # Enabling both selectors is safe: each plant dispatches through its PhotoType.
+        # Enabling both selectors covers whichever pathway the configured species uses.
         c4_model = c3_model = 1
 
     from ..dart.baleno import (
@@ -727,6 +730,7 @@ def run_iterative_coupling_multi(
     gs_prev = [None] * n_plants
     converged_flags = [False] * n_plants
     final_results = [None] * n_plants
+    state_needs_resolve = [False] * n_plants
 
     for iteration in range(max_iterations):
         print(f"\n  --- Iteration {iteration + 1}/{max_iterations} ---")
@@ -741,13 +745,19 @@ def run_iterative_coupling_multi(
                 rh=rh, soil_psi_cm=soil_psi_cm,
                 soil_psi_provider=soil_psi_provider,
                 c4_model=c4_model, c3_model=c3_model,
+                vcm_parameters=vcm_parameters,
             )
             if result is None:
+                if with_sif:
+                    raise RuntimeError(
+                        f"Plant {pi}: photosynthesis solve failed in SIF coupling"
+                    )
                 print(f"  Plant {pi}: photosynthesis solve FAILED")
                 all_gs_tuzet.append(np.zeros(n_leaf_segs[pi]))
                 continue
 
             final_results[pi] = result
+            state_needs_resolve[pi] = False
 
             gs = np.asarray(result['gco2'], dtype=np.float64)
             all_gs_tuzet.append(gs)
@@ -866,7 +876,10 @@ def run_iterative_coupling_multi(
         print(f"  Running Baleno (ExternalGS, {n_plants} plants)...")
         ok = run_baleno_subprocess(timeout=baleno_timeout)
         if not ok:
-            print(f"  ERROR: Baleno subprocess failed at iteration {iteration+1}")
+            message = f"Baleno subprocess failed at iteration {iteration+1}"
+            if with_sif:
+                raise RuntimeError(message)
+            print(f"  ERROR: {message}")
             break
 
         # 7. Read per-plant Tleaf + diagnostics
@@ -874,7 +887,10 @@ def run_iterative_coupling_multi(
             str(baleno_sim_dir), mapping_json_paths, reindex_json_paths,
             n_plants, tair_c=tair_c)
         if tleaf_new_list is None:
-            print(f"  ERROR: Tleaf read failed at iteration {iteration+1}")
+            message = f"Tleaf read failed at iteration {iteration+1}"
+            if with_sif:
+                raise RuntimeError(message)
+            print(f"  ERROR: {message}")
             break
 
         # Log EB diagnostics (was missing in multi-plant path)
@@ -896,8 +912,32 @@ def run_iterative_coupling_multi(
 
             old_mean = float(np.mean(tleaf[pi]))
             tleaf[pi] = tleaf_new
+            state_needs_resolve[pi] = True
             new_mean = float(np.mean(tleaf_new))
             print(f"  Plant {pi}: Tleaf mean={new_mean:.2f}C (was {old_mean:.2f}C)")
+
+    # A max-iteration exit can occur immediately after Baleno supplied a new Tleaf.
+    # Resolve once at that temperature so An, gs, Ja, and eta all describe the state
+    # published below. This is required for the single-authority SIF contract.
+    if with_sif:
+        for pi in range(n_plants):
+            if not state_needs_resolve[pi]:
+                continue
+            result = run_photosynthesis_solve(
+                plants[pi], sim_time,
+                par=par_umol_per_plant[pi], tleaf=tleaf[pi],
+                label=f"final_state_p{pi}",
+                rh=rh, soil_psi_cm=soil_psi_cm,
+                soil_psi_provider=soil_psi_provider,
+                c4_model=c4_model, c3_model=c3_model,
+                vcm_parameters=vcm_parameters,
+            )
+            if result is None:
+                raise RuntimeError(
+                    f"Plant {pi}: final SIF state solve failed at Baleno Tleaf"
+                )
+            final_results[pi] = result
+            state_needs_resolve[pi] = False
 
     # Build final results
     n_iters = max(len(h) for h in gs_history_per_plant) if any(gs_history_per_plant) else 0
@@ -926,13 +966,17 @@ def run_iterative_coupling_multi(
             per_plant_tri_data = sif_result.get('tri_data', [None] * n_plants)
             per_plant_tri_raw = sif_result.get('tri_data_raw', [None] * n_plants)
             print(f"  SIF: read fluorescence for {n_plants} plants")
+        else:
+            raise RuntimeError("Baleno triangle state unavailable for SIF output")
 
     results = []
     for pi in range(n_plants):
         r = final_results[pi]
         rd = {
             'tleaf_per_segment': tleaf[pi],
-            'gs_per_segment': gs_prev[pi] if gs_prev[pi] is not None else np.zeros(n_leaf_segs[pi]),
+            'gs_per_segment': (np.asarray(r['gco2']) if with_sif and r else
+                               gs_prev[pi] if gs_prev[pi] is not None else
+                               np.zeros(n_leaf_segs[pi])),
             'an_per_segment': r['An_per_umol'] if r else np.zeros(n_leaf_segs[pi]),
             'an_total_mmol': r['An_total_mmol'] if r else 0.0,
             'psi_leaf_cm': r.get('psi_leaf_cm') if r else None,
@@ -954,8 +998,9 @@ def run_iterative_coupling_multi(
             rd['eta_baleno_diag'] = baleno_eta
             rd['tri_data'] = per_plant_tri_data[pi] if pi < len(per_plant_tri_data) else None
             tri_raw = per_plant_tri_raw[pi] if pi < len(per_plant_tri_raw) else None
-            if tri_raw is not None:
-                replace_triangle_physiology(tri_raw, cpb_eta, rd['an_per_segment'])
+            if tri_raw is None:
+                raise RuntimeError(f"Plant {pi}: Baleno triangle mapping missing for SIF")
+            replace_triangle_physiology(tri_raw, cpb_eta, rd['an_per_segment'])
             rd['tri_data_raw'] = tri_raw
         results.append(rd)
 

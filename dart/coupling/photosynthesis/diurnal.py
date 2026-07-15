@@ -328,8 +328,7 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
                    gs_max_iterations=6, gs_tolerance=0.05,
                    gs_damping_alpha=0.6, with_sif=False,
                    with_dart_f=False, sif_triangles=False,
-                   soil_psi_provider=None, c4_model=0, c3_model=0,
-                   vcm_parameters=None):
+                   soil_psi_provider=None, c4_model=0, c3_model=0):
     """Run full diurnal coupling for a single day with 9 unique plants.
 
     Args:
@@ -354,8 +353,6 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
     if with_sif:
         if not (use_dart and enable_baleno):
             raise ValueError("with_sif requires DART and Baleno")
-        if skip_photosynthesis:
-            raise ValueError("with_sif requires photosynthesis")
         iterate_gs = True
         c4_model = c3_model = 1
 
@@ -526,7 +523,6 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
     hourly_results = []
     psi_sif_accum = []  # accumulate psi-SIF points across timesteps
     for step_i, (ts_time, ts_row) in enumerate(solar_df.iterrows()):
-        iter_results = None
         sun_zen = ts_row['apparent_zenith']
         sun_azi = ts_row['azimuth']
         ts_label = ts_time.strftime('%H:%M')
@@ -707,17 +703,12 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
                     with_sif=with_sif,
                     baleno_timeout=_iter_timeout,
                     c4_model=c4_model, c3_model=c3_model,
-                    vcm_parameters=vcm_parameters,
                 )
                 if iter_results is not None:
                     for pi in range(N_PLANTS):
                         per_plant_An[pi] = iter_results[pi]['an_total_mmol']
                         all_tleaf[pi] = iter_results[pi]['tleaf_per_segment']
             else:
-                if with_sif:
-                    raise RuntimeError(
-                        f"SIF coupled state unavailable at {ts_label}: Baleno/Tleaf failed"
-                    )
                 for pi in range(N_PLANTS):
                     seed = FIELD_SEED + pi
                     plant_ts = grow_plant(
@@ -734,15 +725,9 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
                         rh=rh, soil_psi_cm=-500.0,
                         soil_psi_provider=soil_psi_provider,
                         c4_model=c4_model, c3_model=c3_model,
-                        vcm_parameters=vcm_parameters,
                     )
                     if result is not None:
                         per_plant_An[pi] = result['An_total_mmol']
-
-            if with_sif and iter_results is None:
-                raise RuntimeError(
-                    f"SIF coupled state unavailable at {ts_label}: iterative solve failed"
-                )
 
             An_field_mean = float(np.mean(per_plant_An))
             An_field_std = float(np.std(per_plant_An))
@@ -793,7 +778,7 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
             hourly_row[f'An_p{pi}'] = per_plant_An[pi]
 
         # --- SIF output ---
-        if with_sif and iter_results is not None:
+        if with_sif and use_dart and iterate_gs and iter_results is not None:
             from ..sif.sif_writer import (
                 write_segment_sif_csv, write_triangle_sif_csv,
                 compute_sunlit_shaded_summary, collect_per_triangle_eta,
@@ -1205,8 +1190,7 @@ def run_single_day_with_carbon(sim_day, use_dart=True, timestep_min=30,
                                soil_psi_provider=None,
                                soil_psi_pool=None,
                                carbon_solver='s5',
-                               c4_model=0, c3_model=0,
-                               vcm_parameters=None):
+                               c4_model=0, c3_model=0):
     """Run diurnal loop + per-plant carbon partitioning and AgroC export.
 
     Wraps run_single_day() and appends:
@@ -1248,7 +1232,6 @@ def run_single_day_with_carbon(sim_day, use_dart=True, timestep_min=30,
         sif_triangles=sif_triangles,
         soil_psi_provider=soil_psi_provider,
         c4_model=c4_model, c3_model=c3_model,
-        vcm_parameters=vcm_parameters,
     )
 
     daily_An_per_plant = result.get('daily_An_mol_per_plant', [])
@@ -1473,8 +1456,7 @@ def run_production_series(growth_days, use_dart=True, timestep_min=60,
                           soil_psi_provider=None,
                           soil_psi_pool=None,
                           carbon_solver='s5',
-                          c4_model=0, c3_model=0,
-                          vcm_parameters=None):
+                          c4_model=0, c3_model=0):
     """Run full production diurnal campaign with carbon + AgroC.
 
     Calls run_single_day_with_carbon() per day, supports checkpointing/resume
@@ -1588,7 +1570,6 @@ def run_production_series(growth_days, use_dart=True, timestep_min=60,
             soil_psi_pool=soil_psi_pool,
             carbon_solver=carbon_solver,
             c4_model=c4_model, c3_model=c3_model,
-            vcm_parameters=vcm_parameters,
         )
         series_results[day] = result
 
@@ -1808,8 +1789,7 @@ def run_production_series_carbon(growth_days, timestep_min=60,
                                   soil_psi_provider=None,
                                   soil_psi_pool=None,
                                   carbon_solver='s5',
-                                  c4_model=0, c3_model=0,
-                                  vcm_parameters=None):
+                                  c4_model=0, c3_model=0):
     """Production series with carbon-feedback growth.
 
     Flow:
@@ -2199,7 +2179,6 @@ def run_production_series_carbon(growth_days, timestep_min=60,
                         with_sif=with_sif,
                         baleno_timeout=baleno_timeout,
                         c4_model=c4_model, c3_model=c3_model,
-                        vcm_parameters=vcm_parameters,
                     )
                     if iter_results is not None:
                         for pi in range(N_PLANTS):
@@ -2278,17 +2257,9 @@ def run_production_series_carbon(growth_days, timestep_min=60,
                                         )
                                 except Exception as e:
                                     print(f"    DART-F error: {e}")
-                except _BalenoNotReady as e:
-                    if with_sif:
-                        raise RuntimeError(
-                            f"SIF coupled state unavailable at {ts_label}"
-                        ) from e
+                except _BalenoNotReady:
                     pass  # Already logged, fall through to uniform photosynthesis
                 except Exception as e:
-                    if with_sif:
-                        raise RuntimeError(
-                            f"SIF iterative coupling failed at {ts_label}"
-                        ) from e
                     import traceback
                     print(f"    Iterative coupling error: {e}")
                     traceback.print_exc()
@@ -2344,10 +2315,6 @@ def run_production_series_carbon(growth_days, timestep_min=60,
             # - iterate_gs=False, baleno_ok -> use Baleno Tleaf
             # - iterate_gs=False, no baleno -> use Tair
             # Skip if iterative coupling already produced results
-            if with_sif and not (iterate_gs and baleno_ok_ts):
-                raise RuntimeError(
-                    f"SIF coupled state unavailable at {ts_label}; refusing fallback"
-                )
             if not (iterate_gs and baleno_ok_ts):
                 for pi in range(N_PLANTS):
                     plant_p = persistent_plants[pi]
@@ -2364,7 +2331,6 @@ def run_production_series_carbon(growth_days, timestep_min=60,
                         rh=rh, soil_psi_cm=-500.0,
                         soil_psi_provider=soil_psi_provider,
                         c4_model=c4_model, c3_model=c3_model,
-                        vcm_parameters=vcm_parameters,
                     )
                     if result is not None:
                         per_plant_An_ts[pi] = result['An_total_mmol']
