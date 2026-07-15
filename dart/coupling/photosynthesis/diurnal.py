@@ -351,6 +351,8 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
     Returns:
         dict with 'hourly' list, 'daily_An_mol_per_plant', 'daily_An_mol_field_mean'.
     """
+    if with_dart_f and not with_sif:
+        raise ValueError("with_dart_f requires with_sif")
     if with_sif:
         if not (use_dart and enable_baleno):
             raise ValueError("with_sif requires DART and Baleno")
@@ -845,23 +847,25 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
                         mapping_json_paths=setup['dart_mapping_paths'],
                         field_filename=FIELD_FILENAME,
                     )
-                    run_dart_f(sif_simu)
+                    if not run_dart_f(sif_simu):
+                        raise RuntimeError("DART-F simulation failed")
                     sif_radiance = read_sif_radiance(sif_simu)
-                    if sif_radiance:
-                        # Scalar metrics to CSV row (skip image arrays)
-                        for k, v in sif_radiance.items():
-                            if not isinstance(v, (dict, np.ndarray)):
-                                hourly_row[k] = v
-                        # Spatial analysis + plots
-                        sif_label = ts_label.replace(':', '')
-                        analyze_dart_f_output(
-                            sif_simu,
-                            output_dir=day_dir / 'sif_maps',
-                            label=sif_label,
-                            scene_size_m=SCENE_SIZE,
-                        )
+                    if not sif_radiance:
+                        raise RuntimeError("DART-F radiance output unavailable")
+                    # Scalar metrics to CSV row (skip image arrays)
+                    for k, v in sif_radiance.items():
+                        if not isinstance(v, (dict, np.ndarray)):
+                            hourly_row[k] = v
+                    # Spatial analysis + plots
+                    sif_label = ts_label.replace(':', '')
+                    analyze_dart_f_output(
+                        sif_simu,
+                        output_dir=day_dir / 'sif_maps',
+                        label=sif_label,
+                        scene_size_m=SCENE_SIZE,
+                    )
                 except Exception as e:
-                    print(f"    DART-F error: {e}")
+                    raise RuntimeError(f"DART-F failed at {ts_label}") from e
 
         hourly_results.append(hourly_row)
 
@@ -1233,6 +1237,8 @@ def run_single_day_with_carbon(sim_day, use_dart=True, timestep_min=30,
     Returns:
         dict with all run_single_day keys plus 'daily_carbon' and 'daily_agroc_ts'.
     """
+    if with_dart_f and not with_sif:
+        raise ValueError("with_dart_f requires with_sif")
     subdir = 'diurnal' if use_dart else 'diurnal_uniform'
 
     # 1. Run diurnal photosynthesis loop
@@ -1504,6 +1510,8 @@ def run_production_series(growth_days, use_dart=True, timestep_min=60,
     Returns:
         dict mapping day -> daily result.
     """
+    if with_dart_f and not with_sif:
+        raise ValueError("with_dart_f requires with_sif")
     from ..carbon.dvs_partitioning import gdd_at_day, dvs_from_gdd, _dvs_from_day
 
     mode_label = "" if use_dart else " (UNIFORM BASELINE)"
@@ -1843,6 +1851,8 @@ def run_production_series_carbon(growth_days, timestep_min=60,
     Returns:
         dict mapping day -> daily result.
     """
+    if with_dart_f and not with_sif:
+        raise ValueError("with_dart_f requires with_sif")
     if with_sif:
         if not enable_baleno:
             raise ValueError("with_sif requires Baleno")
@@ -2263,21 +2273,25 @@ def run_production_series_carbon(growth_days, timestep_min=60,
                                         mapping_json_paths=setup['dart_mapping_paths'],
                                         field_filename=FIELD_FILENAME,
                                     )
-                                    run_dart_f(sif_simu)
+                                    if not run_dart_f(sif_simu):
+                                        raise RuntimeError("DART-F simulation failed")
                                     sif_radiance = read_sif_radiance(sif_simu)
-                                    if sif_radiance:
-                                        for k, v in sif_radiance.items():
-                                            if not isinstance(v, (dict, np.ndarray)):
-                                                sif_hourly_data[k] = v
-                                        sif_label = ts_label.replace(':', '')
-                                        analyze_dart_f_output(
-                                            sif_simu,
-                                            output_dir=day_dir / 'sif_maps',
-                                            label=sif_label,
-                                            scene_size_m=SCENE_SIZE,
-                                        )
+                                    if not sif_radiance:
+                                        raise RuntimeError("DART-F radiance output unavailable")
+                                    for k, v in sif_radiance.items():
+                                        if not isinstance(v, (dict, np.ndarray)):
+                                            sif_hourly_data[k] = v
+                                    sif_label = ts_label.replace(':', '')
+                                    analyze_dart_f_output(
+                                        sif_simu,
+                                        output_dir=day_dir / 'sif_maps',
+                                        label=sif_label,
+                                        scene_size_m=SCENE_SIZE,
+                                    )
                                 except Exception as e:
-                                    print(f"    DART-F error: {e}")
+                                    raise RuntimeError(
+                                        f"DART-F failed at {ts_label}"
+                                    ) from e
                 except _BalenoNotReady as e:
                     if with_sif:
                         raise RuntimeError(
