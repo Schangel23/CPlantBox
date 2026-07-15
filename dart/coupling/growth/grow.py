@@ -712,11 +712,11 @@ def run_photosynthesis(plant, sim_time, output_prefix,
     par_mol_cm2_d = par_umol * 1e-6 * 86400 * 1e-4
 
     # --- Solve photosynthesis + hydraulics ---
+    from ..hydraulics.soil_psi import solve_photosynthesis_with_soil_psi
     try:
-        hm.solve(
+        solve_photosynthesis_with_soil_psi(
+            hm, soil_psi_provider, p_s,
             sim_time=sim_time,
-            rsx=p_s,
-            cells=True,
             ea=ea,
             es=es,
             PAR=par_mol_cm2_d,

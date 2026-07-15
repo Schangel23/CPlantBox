@@ -295,11 +295,11 @@ def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
     print(f"  Leaf segments: {n_leaf_segs}")
 
     # --- Solve ---
+    from ..hydraulics.soil_psi import solve_photosynthesis_with_soil_psi
     try:
-        hm.solve(
+        solve_photosynthesis_with_soil_psi(
+            hm, soil_psi_provider, p_s,
             sim_time=sim_time,
-            rsx=p_s,
-            cells=True,
             ea=ea,
             es=es,
             PAR=par_mol,

@@ -59,10 +59,12 @@ def test_fixed_update_is_noop(fixed):
 
 def test_factory_dispatch():
     from dart.coupling.hydraulics.soil_psi import (
-        BucketSoilPsi, FixedSoilPsi, make_provider,
+        BucketSoilPsi, FixedSoilPsi, SteadyRatePerirhizalPsi, make_provider,
     )
     assert isinstance(make_provider("fixed", soil_psi_cm=-500), FixedSoilPsi)
     assert isinstance(make_provider("bucket", soil_psi_cm=-300), BucketSoilPsi)
+    assert isinstance(make_provider("sra", soil_psi_cm=-300),
+                      SteadyRatePerirhizalPsi)
     with pytest.raises(ValueError):
         make_provider("nonsense")
 
@@ -122,12 +124,86 @@ def test_provider_protocol_conformance():
     """Each concrete provider satisfies the SoilPsiProvider Protocol."""
     from dart.coupling.hydraulics.soil_psi import (
         BucketSoilPsi, FixedSoilPsi, SoilPsiProvider,
+        SteadyRatePerirhizalPsi,
     )
     # Protocol is duck-typed; these calls should be runtime-callable
-    for prov in [FixedSoilPsi(-500.0), BucketSoilPsi()]:
+    for prov in [FixedSoilPsi(-500.0), BucketSoilPsi(),
+                 SteadyRatePerirhizalPsi()]:
         prof = prov.get_profile(0.0, 100)
         assert prof.shape == (100,)
         prov.update(0.0, np.zeros(100))  # must not raise
+
+
+def test_sra_vectorized_interface_matches_scalar_reference():
+    """The fast two-input SRA matches the canonical Schröder solve."""
+    import plantbox.functional.van_genuchten as vg
+    from scipy.optimize import brentq
+    from dart.coupling.hydraulics.soil_psi import SteadyRatePerirhizalPsi
+
+    provider = SteadyRatePerirhizalPsi()
+    rx = np.array([-800.0, -1200.0, -4000.0, -600.0])
+    sx = np.array([-300.0, -500.0, -1000.0, -600.0])
+    inner_kr = np.array([2e-6, 1e-5, 5e-5, 0.0])
+    rho = np.array([5.0, 20.0, 100.0, 50.0])
+
+    got = provider.interface_potentials(rx, sx, inner_kr, rho)
+    sp = provider._soil_parameters()
+    mfp = vg.fast_mfp[sp]
+
+    def scalar_reference(rxi, sxi, kri, rhoi):
+        if kri < 1e-7 or rxi == sxi:
+            return sxi
+        rho2 = rhoi * rhoi
+        b = 2 * (rho2 - 1) / (
+            1 - 0.53**2 * rho2
+            + 2 * rho2 * (np.log(rhoi) + np.log(0.53))
+        )
+        a = kri / b
+        target = a * rxi + mfp(sxi)
+        return brentq(lambda x: mfp(x) + a * x - target,
+                      min(rxi, sxi), max(rxi, sxi))
+
+    expected = np.array([
+        scalar_reference(*values)
+        for values in zip(rx, sx, inner_kr, rho)
+    ])
+
+    assert np.allclose(got, expected, atol=0.01, rtol=0.0)
+
+
+def test_photosynthesis_dispatch_selects_sra_solver():
+    from dart.coupling.hydraulics.soil_psi import (
+        FixedSoilPsi, SteadyRatePerirhizalPsi,
+        solve_photosynthesis_with_soil_psi,
+    )
+
+    class FakeHydraulics:
+        def __init__(self):
+            self.calls = []
+
+        def solve(self, **kwargs):
+            self.calls.append(kwargs)
+
+    hm = FakeHydraulics()
+    bulk = np.array([-500.0])
+    solve_photosynthesis_with_soil_psi(
+        hm, FixedSoilPsi(n_cells=1), bulk, sim_time=1.0,
+    )
+    assert len(hm.calls) == 1
+    assert hm.calls[0]["rsx"] is bulk
+    assert hm.calls[0]["cells"] is True
+    assert hm.calls[0]["sim_time"] == 1.0
+
+    sra = SteadyRatePerirhizalPsi(n_cells=1)
+    called = []
+    sra.solve_photosynthesis = lambda model, psi, **kwargs: called.append(
+        (model, psi, kwargs),
+    )
+    solve_photosynthesis_with_soil_psi(hm, sra, bulk, sim_time=2.0)
+    assert len(called) == 1
+    assert called[0][0] is hm
+    assert called[0][1] is bulk
+    assert called[0][2] == {"sim_time": 2.0}
 
 
 if __name__ == "__main__":

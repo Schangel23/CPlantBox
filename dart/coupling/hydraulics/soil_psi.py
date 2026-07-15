@@ -158,6 +158,149 @@ class BucketSoilPsi:
         return  # bucket is too coarse to honour spatial sink
 
 
+class SteadyRatePerirhizalPsi(FixedSoilPsi):
+    """Fast Schröder steady-rate root–soil interface approximation.
+
+    The bulk-soil profile stays prescribed, as in ``FixedSoilPsi``.  For each
+    hydraulic solve, the root-surface potential is obtained from the current
+    xylem potential, bulk-soil potential, root conductivity, and perirhizal
+    radius.  This replaces transient DuMux soil flow; it does not model bulk
+    water redistribution, rainfall, or drainage.
+    """
+
+    _shared_sp = None
+
+    def __init__(
+        self,
+        psi_cm: float = -500.0,
+        n_cells: int = 100,
+        max_iterations: int = 20,
+        tolerance_cm: float = 1.0,
+    ):
+        super().__init__(psi_cm=psi_cm, n_cells=n_cells)
+        self.max_iterations = int(max_iterations)
+        self.tolerance_cm = float(tolerance_cm)
+        if self.max_iterations <= 0 or self.tolerance_cm <= 0:
+            raise ValueError("SRA max_iterations and tolerance_cm must be > 0")
+        self.last_iterations = 0
+        self.last_error_cm = 0.0
+
+    @classmethod
+    def _soil_parameters(cls):
+        if cls._shared_sp is None:
+            import plantbox.functional.van_genuchten as vg
+
+            cls._shared_sp = vg.Parameters(list(_LOAM_VG))
+            vg.create_mfp_lookup(cls._shared_sp)
+        return cls._shared_sp
+
+    def interface_potentials(self, rx, sx, inner_kr, rho) -> np.ndarray:
+        """Vectorized two-input form of the steady-rate interface equation."""
+        import plantbox.functional.van_genuchten as vg
+
+        rx = np.clip(np.asarray(rx, dtype=float), -15999.0, -1.0)
+        sx = np.clip(np.asarray(sx, dtype=float), -15999.0, -1.0)
+        inner_kr = np.asarray(inner_kr, dtype=float)
+        rho = np.asarray(rho, dtype=float)
+        if not (rx.shape == sx.shape == inner_kr.shape == rho.shape):
+            raise ValueError("rx, sx, inner_kr, and rho must have equal shapes")
+        if np.any(~np.isfinite(rho)) or np.any(rho <= 1.0):
+            raise ValueError("perirhizal radius ratio rho must be finite and > 1")
+
+        rho2 = rho * rho
+        b = 2.0 * (rho2 - 1.0) / (
+            1.0 - 0.53**2 * rho2
+            + 2.0 * rho2 * (np.log(rho) + np.log(0.53))
+        )
+        inner_kr_b = inner_kr / b
+        mfp = vg.fast_mfp[self._soil_parameters()]
+        target = inner_kr_b * rx + mfp(sx)
+
+        lo = np.minimum(rx, sx)
+        hi = np.maximum(rx, sx)
+        active = (inner_kr >= 1.0e-7) & (rx != sx)
+        for _ in range(32):
+            mid = 0.5 * (lo + hi)
+            residual = mfp(mid) + inner_kr_b * mid - target
+            lo = np.where(residual < 0.0, mid, lo)
+            hi = np.where(residual >= 0.0, mid, hi)
+
+        interface = 0.5 * (lo + hi)
+        interface[~active] = sx[~active]
+        return interface
+
+    def _root_geometry(self, hm):
+        organ_types = np.asarray(hm.ms.organTypes, dtype=int)
+        from plantbox.functional.Perirhizal import PerirhizalPython
+
+        root_ids = np.asarray([
+            i for i in np.flatnonzero(organ_types == 2)
+            if hm.ms.seg2cell.get(int(i), -1) >= 0
+        ], dtype=int)
+        if root_ids.size:
+            outer = np.asarray(
+                PerirhizalPython(hm.ms).get_outer_radii("length"), dtype=float,
+            )
+            inner = np.asarray(hm.ms.radii, dtype=float)
+            rho = outer[root_ids] / inner[root_ids]
+            child_nodes = np.asarray(
+                [hm.ms.segments[int(i)].y for i in root_ids], dtype=int,
+            )
+        else:
+            inner = np.empty(0)
+            rho = np.empty(0)
+            child_nodes = np.empty(0, dtype=int)
+
+        return organ_types, root_ids, inner, rho, child_nodes
+
+    def solve_photosynthesis(self, hm, bulk_psi, **solve_kwargs):
+        """Solve photosynthesis with a fixed-point SRA root boundary."""
+        bulk_psi = np.asarray(bulk_psi, dtype=float)
+        hm.solve(rsx=bulk_psi, cells=True, **solve_kwargs)
+
+        organ_types, root_ids, inner, rho, child_nodes = self._root_geometry(hm)
+        if root_ids.size == 0:
+            self.last_iterations = 0
+            self.last_error_cm = 0.0
+            return
+
+        sim_time = float(solve_kwargs["sim_time"])
+        bulk_per_root = np.asarray(hm.ms.getHs(bulk_psi), dtype=float)[root_ids]
+        inner_kr = inner[root_ids] * np.asarray(
+            hm.get_kr(sim_time), dtype=float,
+        )[root_ids]
+        segment_psi = np.full(organ_types.size, float(hm.params.psi_air))
+        xylem = np.asarray(hm.get_water_potential(), dtype=float)[child_nodes]
+
+        for iteration in range(1, self.max_iterations + 1):
+            segment_psi.fill(float(hm.params.psi_air))
+            segment_psi[root_ids] = self.interface_potentials(
+                xylem, bulk_per_root, inner_kr, rho,
+            )
+            hm.solve(rsx=segment_psi, cells=False, **solve_kwargs)
+            new_xylem = np.asarray(
+                hm.get_water_potential(), dtype=float,
+            )[child_nodes]
+            error = float(np.max(np.abs(new_xylem - xylem)))
+            xylem = new_xylem
+            if error <= self.tolerance_cm:
+                self.last_iterations = iteration
+                self.last_error_cm = error
+                return
+
+        raise RuntimeError(
+            f"SRA root-interface iteration did not converge after "
+            f"{self.max_iterations} iterations (max Δψx={error:.3g} cm)"
+        )
+
+
+def solve_photosynthesis_with_soil_psi(hm, provider, bulk_psi, **solve_kwargs):
+    """Route a photosynthesis solve through the selected soil model."""
+    if isinstance(provider, SteadyRatePerirhizalPsi):
+        return provider.solve_photosynthesis(hm, bulk_psi, **solve_kwargs)
+    return hm.solve(rsx=bulk_psi, cells=True, **solve_kwargs)
+
+
 # Default DuMux build location — local Python 3.14 build.
 _DEFAULT_DUMUX_BIND = Path(
     "/home/lukas/PHD/dumux-build/dumux/dumux-rosi/build-cmake/cpp/python_binding"
@@ -379,9 +522,11 @@ def make_provider(
         return FixedSoilPsi(psi_cm=soil_psi_cm, **kwargs)
     if mode == "bucket":
         return BucketSoilPsi(psi_init_cm=soil_psi_cm, **kwargs)
+    if mode == "sra":
+        return SteadyRatePerirhizalPsi(psi_cm=soil_psi_cm, **kwargs)
     if mode == "dumux":
         return DumuxSoilPsi(psi_init_cm=soil_psi_cm, **kwargs)
-    raise ValueError(f"Unknown soil_mode={mode!r}; use fixed/bucket/dumux")
+    raise ValueError(f"Unknown soil_mode={mode!r}; use fixed/bucket/sra/dumux")
 
 
 def make_provider_pool(
@@ -399,9 +544,8 @@ def make_provider_pool(
     because ``DumuxSoilPsi.update`` is stateful — sharing one instance
     across plants would have each plant overwrite the previous plant's
     pending sink before the next ``solveNoMPI`` fires. ``"fixed"`` and
-    ``"bucket"`` providers are stateless w.r.t. ``update`` so their
-    pool entries are functionally equivalent (independent objects, kept
-    independent for uniform downstream handling).
+    ``"bucket"`` and ``"sra"`` providers are stateless w.r.t. ``update``.
+    All pool entries remain independent for uniform downstream handling.
 
     The pool is consumed by:
 
@@ -414,7 +558,7 @@ def make_provider_pool(
         ``pool[pi]._t_last_days = float(sim_day)`` before each PM call.
 
     Args:
-        mode: 'fixed', 'bucket', or 'dumux'.
+        mode: 'fixed', 'bucket', 'sra', or 'dumux'.
         n_plants: Number of independent providers to construct.
         soil_psi_cm: Initial pressure head [cm], passed to each provider.
         **kwargs: Forwarded to each provider's ctor (e.g. ``min_b``,

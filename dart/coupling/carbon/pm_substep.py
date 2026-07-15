@@ -767,7 +767,9 @@ def solve_carbon_partitioning_pm(plant, An_per_leaf_seg, Tair_C=25.0,
     # ``DumuxSoilPsi`` the push closes the soil↔plant water loop:
     # substep N's RWU sink drives substep N+1's RichardsSP advance
     # inside ``get_profile``.
-    from ..hydraulics.soil_psi import push_rwu_sink_to_provider
+    from ..hydraulics.soil_psi import (
+        push_rwu_sink_to_provider, solve_photosynthesis_with_soil_psi,
+    )
 
     if soil_psi_provider is None:
         p_s = np.linspace(soil_psi_cm, soil_psi_cm - 200.0, 200)
@@ -967,8 +969,11 @@ def solve_carbon_partitioning_pm(plant, An_per_leaf_seg, Tair_C=25.0,
             _trace_record = None
         fdpair = _suppress_io()
         try:
-            hm.solve(sim_time=sim, rsx=p_s, cells=True, ea=ea, es=es,
-                     PAR=par_mol_cm2_d, TairC=float(Tair_C), verbose=0)
+            solve_photosynthesis_with_soil_psi(
+                hm, soil_psi_provider, p_s,
+                sim_time=sim, ea=ea, es=es, PAR=par_mol_cm2_d,
+                TairC=float(Tair_C), verbose=0,
+            )
         except Exception as e:
             _restore_io(*fdpair)
             if _trace_record is not None:
