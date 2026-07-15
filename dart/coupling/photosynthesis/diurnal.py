@@ -350,6 +350,12 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
     Returns:
         dict with 'hourly' list, 'daily_An_mol_per_plant', 'daily_An_mol_field_mean'.
     """
+    if with_sif:
+        if not (use_dart and enable_baleno):
+            raise ValueError("with_sif requires DART and Baleno")
+        iterate_gs = True
+        c4_model = c3_model = 1
+
     mode_label = "" if use_dart else " (UNIFORM BASELINE)"
     subdir = 'diurnal' if use_dart else 'diurnal_uniform'
 
@@ -718,6 +724,7 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
                         label=ps_label,
                         rh=rh, soil_psi_cm=-500.0,
                         soil_psi_provider=soil_psi_provider,
+                        c4_model=c4_model, c3_model=c3_model,
                     )
                     if result is not None:
                         per_plant_An[pi] = result['An_total_mmol']
@@ -1183,7 +1190,8 @@ def run_single_day_with_carbon(sim_day, use_dart=True, timestep_min=30,
                                sif_triangles=False,
                                soil_psi_provider=None,
                                soil_psi_pool=None,
-                               carbon_solver='s5'):
+                               carbon_solver='s5',
+                               c4_model=0, c3_model=0):
     """Run diurnal loop + per-plant carbon partitioning and AgroC export.
 
     Wraps run_single_day() and appends:
@@ -1224,6 +1232,7 @@ def run_single_day_with_carbon(sim_day, use_dart=True, timestep_min=30,
         with_sif=with_sif, with_dart_f=with_dart_f,
         sif_triangles=sif_triangles,
         soil_psi_provider=soil_psi_provider,
+        c4_model=c4_model, c3_model=c3_model,
     )
 
     daily_An_per_plant = result.get('daily_An_mol_per_plant', [])
@@ -1447,7 +1456,8 @@ def run_production_series(growth_days, use_dart=True, timestep_min=60,
                           sif_triangles=False,
                           soil_psi_provider=None,
                           soil_psi_pool=None,
-                          carbon_solver='s5'):
+                          carbon_solver='s5',
+                          c4_model=0, c3_model=0):
     """Run full production diurnal campaign with carbon + AgroC.
 
     Calls run_single_day_with_carbon() per day, supports checkpointing/resume
@@ -1560,6 +1570,7 @@ def run_production_series(growth_days, use_dart=True, timestep_min=60,
             soil_psi_provider=soil_psi_provider,
             soil_psi_pool=soil_psi_pool,
             carbon_solver=carbon_solver,
+            c4_model=c4_model, c3_model=c3_model,
         )
         series_results[day] = result
 
@@ -1778,7 +1789,8 @@ def run_production_series_carbon(growth_days, timestep_min=60,
                                   sif_triangles=False,
                                   soil_psi_provider=None,
                                   soil_psi_pool=None,
-                                  carbon_solver='s5'):
+                                  carbon_solver='s5',
+                                  c4_model=0, c3_model=0):
     """Production series with carbon-feedback growth.
 
     Flow:
@@ -1812,6 +1824,12 @@ def run_production_series_carbon(growth_days, timestep_min=60,
     Returns:
         dict mapping day -> daily result.
     """
+    if with_sif:
+        if not enable_baleno:
+            raise ValueError("with_sif requires Baleno")
+        iterate_gs = True
+        c4_model = c3_model = 1
+
     from ..growth import init_plant, run_photosynthesis, extract_lai_profile
     from ..growth.carbon_growth import (
         enable_cw_limited_growth, step_plant_carbon,
@@ -2161,6 +2179,7 @@ def run_production_series_carbon(growth_days, timestep_min=60,
                         initial_tleaf=None,
                         with_sif=with_sif,
                         baleno_timeout=baleno_timeout,
+                        c4_model=c4_model, c3_model=c3_model,
                     )
                     if iter_results is not None:
                         for pi in range(N_PLANTS):
@@ -2313,6 +2332,7 @@ def run_production_series_carbon(growth_days, timestep_min=60,
                         label=f"carbon_ts_{ts_label}_p{pi}",
                         rh=rh, soil_psi_cm=-500.0,
                         soil_psi_provider=soil_psi_provider,
+                        c4_model=c4_model, c3_model=c3_model,
                     )
                     if result is not None:
                         per_plant_An_ts[pi] = result['An_total_mmol']
@@ -2927,7 +2947,7 @@ Examples:
 
     # SIF fluorescence flags
     parser.add_argument('--with-sif', action='store_true',
-                        help='Enable SIF fluorescence computation + per-segment output')
+                        help='Enable single-authority CPlantBox SIF; also enables iterative gs')
     parser.add_argument('--sif-triangles', action='store_true',
                         help='Write per-triangle SIF CSVs (large, requires --with-sif)')
     parser.add_argument('--with-dart-f', action='store_true',

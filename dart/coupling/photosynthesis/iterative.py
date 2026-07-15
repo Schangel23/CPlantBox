@@ -620,6 +620,11 @@ def run_iterative_coupling_multi(
           an_total_mmol, iterations, gs_history, converged.
         Or None on complete failure.
     """
+    if with_sif:
+        # SIF is never allowed to fall back to Baleno's competing assimilation solve.
+        # Enabling both selectors is safe: each plant dispatches through its PhotoType.
+        c4_model = c3_model = 1
+
     from ..dart.baleno import (
         run_baleno_subprocess, read_baleno_tleaf_multi,
         BALENO_DIR, log_baleno_diagnostics, EXTERNAL_GS_PLUGIN,
@@ -942,18 +947,14 @@ def run_iterative_coupling_multi(
             # geometry (tri_data) legitimately stays Baleno/DART's (radiation).
             baleno_eta = per_plant_eta[pi] if pi < len(per_plant_eta) else None
             cpb_eta = np.asarray(r['eta']) if (r and r.get('eta') is not None and len(r['eta'])) else None
-            if c4_model or c3_model:
-                if cpb_eta is None or len(cpb_eta) != n_leaf_segs[pi]:
-                    raise RuntimeError(f"Plant {pi}: CPlantBox eta missing or misaligned")
-                rd['eta_per_segment'] = cpb_eta
-                rd['eta_source'] = 'cplantbox'
-            else:
-                rd['eta_per_segment'] = baleno_eta
-                rd['eta_source'] = 'baleno'
+            if cpb_eta is None or len(cpb_eta) != n_leaf_segs[pi]:
+                raise RuntimeError(f"Plant {pi}: CPlantBox eta missing or misaligned")
+            rd['eta_per_segment'] = cpb_eta
+            rd['eta_source'] = 'cplantbox'
             rd['eta_baleno_diag'] = baleno_eta
             rd['tri_data'] = per_plant_tri_data[pi] if pi < len(per_plant_tri_data) else None
             tri_raw = per_plant_tri_raw[pi] if pi < len(per_plant_tri_raw) else None
-            if (c4_model or c3_model) and tri_raw is not None:
+            if tri_raw is not None:
                 replace_triangle_physiology(tri_raw, cpb_eta, rd['an_per_segment'])
             rd['tri_data_raw'] = tri_raw
         results.append(rd)
