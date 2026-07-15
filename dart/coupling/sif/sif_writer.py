@@ -6,6 +6,16 @@ import numpy as np
 from pathlib import Path
 
 
+def collect_per_triangle_eta(iter_results):
+    """Collect CPlantBox eta values in DART-F triangle order."""
+    return np.asarray([
+        td['eta']
+        for result in iter_results
+        if result is not None
+        for td in (result.get('tri_data_raw') or [])
+    ], dtype=np.float64)
+
+
 def write_segment_sif_csv(output_path, iter_result, plant_idx,
                           clearsky_par_wm2, fqe=0.01, sunlit_frac=0.2,
                           n_par_bands=6):

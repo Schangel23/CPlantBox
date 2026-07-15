@@ -18,6 +18,7 @@ import pytools4dart as ptd
 from .. import config as _cfg
 from ..config import DART_HOME
 from ..prospect_params import get_prospect_params, get_stem_prospect_params
+from ..sif.sif_writer import collect_per_triangle_eta
 from .simulation import configure_atmosphere_midlatsum, configure_exact_date
 
 
@@ -43,29 +44,6 @@ def write_eta_file(output_path, eta_per_triangle):
         f.write(f"{n} 1 1\n")
         for v in eta_per_triangle:
             f.write(f"{v:.18e}\n")
-
-
-def collect_per_triangle_eta(iter_results):
-    """Collect flat array of per-triangle eta from iterative coupling results.
-
-    Concatenates all plants' tri_data_raw eta values in order.
-
-    Args:
-        iter_results: list of per-plant result dicts from iterative coupling.
-
-    Returns:
-        np.ndarray of eta values, one per triangle across all plants.
-    """
-    all_eta = []
-    for r in iter_results:
-        if r is None:
-            continue
-        tri_raw = r.get('tri_data_raw')
-        if tri_raw is None:
-            continue
-        for td in tri_raw:
-            all_eta.append(td.get('eta', 0.0))
-    return np.array(all_eta, dtype=np.float64)
 
 
 def create_dart_f_simulation(obj_paths, prospect_params, eta_file_path,

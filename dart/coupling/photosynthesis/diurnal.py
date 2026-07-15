@@ -781,7 +781,7 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
         if with_sif and use_dart and iterate_gs and iter_results is not None:
             from ..sif.sif_writer import (
                 write_segment_sif_csv, write_triangle_sif_csv,
-                compute_sunlit_shaded_summary,
+                compute_sunlit_shaded_summary, collect_per_triangle_eta,
             )
             seg_dir = day_dir / 'segments'
             seg_dir.mkdir(exist_ok=True)
@@ -812,7 +812,6 @@ def run_single_day(sim_day, use_dart=True, timestep_min=30,
                     from ..dart.dart_f import (
                         create_dart_f_simulation, run_dart_f,
                         read_sif_radiance, write_eta_file,
-                        collect_per_triangle_eta,
                     )
                     from ..sif.sif_analysis import analyze_dart_f_output
                     all_tri_eta = collect_per_triangle_eta(iter_results)
@@ -2193,7 +2192,7 @@ def run_production_series_carbon(growth_days, timestep_min=60,
                         if with_sif:
                             from ..sif.sif_writer import (
                                 write_segment_sif_csv, write_triangle_sif_csv,
-                                compute_sunlit_shaded_summary,
+                                compute_sunlit_shaded_summary, collect_per_triangle_eta,
                             )
                             seg_dir = day_dir / 'segments'
                             seg_dir.mkdir(exist_ok=True)
@@ -2225,7 +2224,6 @@ def run_production_series_carbon(growth_days, timestep_min=60,
                                     from ..dart.dart_f import (
                                         create_dart_f_simulation, run_dart_f,
                                         read_sif_radiance, write_eta_file,
-                                        collect_per_triangle_eta,
                                     )
                                     from ..sif.sif_analysis import analyze_dart_f_output
                                     all_tri_eta = collect_per_triangle_eta(iter_results)
