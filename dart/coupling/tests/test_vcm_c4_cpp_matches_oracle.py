@@ -10,6 +10,7 @@ import os
 import sys
 
 import numpy as np
+import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__)))))
 
@@ -30,6 +31,9 @@ def main():
     Ja_cpp = np.asarray(res["Ja"], dtype=float) * 1e6      # mol -> umol
     vin = res.get("_vcm_inputs")
     assert vin is not None, "VCM branch not exercised - is maize PhotoType C4?"
+    gco2 = np.asarray(res["gco2"], dtype=float)
+    assert np.all(np.isfinite(gco2)) and np.all(gco2 >= 0), "same-solve gs unavailable"
+    assert np.all(np.asarray(vin["Jmax"], dtype=float) > 0), "VCM Jmax state was not exported"
     n = len(eta_cpp)
     assert n > 0, "no leaf segments"
 
@@ -74,6 +78,44 @@ def main():
             f"{name} C++ vs oracle mismatch: max abs {dmax:.3e}, max rel {rmax:.3e}"
 
     print("OK: C++ TWO_CELL_VCM matches the Python oracle (An, Ja, eta)")
+
+
+def test_vcm_c4_cpp_matches_oracle():
+    main()
+
+
+def test_vcm_nonzero_bundle_sheath_o2_matches_worked_reference():
+    out = vcm_c4(
+        0.0016, Q=1800.0, T=303.15, Vcmax25=40.0,
+        p=101300.0, O=0.21, alpha=0.2,
+    )
+
+    assert float(out["Ja"]) == pytest.approx(241.741298736254, rel=1e-12)
+    assert float(out["eta"]) == pytest.approx(1.2981324121685385, rel=1e-12)
+
+    plant = grow_plant(os.path.normpath(XML), simulation_time=55, seed=42)
+    res = run_photosynthesis_solve(
+        plant, sim_time=1, par=1800.0, tleaf=30.0,
+        label="vcm-alpha-check", c4_model=1,
+        vcm_parameters={'vcm_alpha': 0.2},
+    )
+    vin = res["_vcm_inputs"]
+    n = len(res["eta"])
+    qlight = np.asarray(vin["Qlight"], dtype=float)
+    tleaf = np.asarray(vin["TleafK"], dtype=float)
+    qlight = qlight if len(qlight) == n else np.full(n, qlight[0])
+    tleaf = tleaf if len(tleaf) == n else np.full(n, tleaf[0])
+    oracle = vcm_c4(
+        np.asarray(vin["ci"]) * PATM_HPA / 1000.0,
+        Q=qlight * 1e6,
+        T=tleaf,
+        Vcmax25=np.asarray(vin["Vcrefmax"]) * 1e6,
+        p=PATM_HPA * 100.0,
+        O=210e-3 * PATM_HPA / 1000.0,
+        alpha=0.2,
+    )
+    assert np.allclose(np.asarray(res["Ja"]) * 1e6, oracle["Ja"], rtol=2e-3, atol=1e-4)
+    assert np.allclose(np.asarray(res["eta"]), oracle["eta"], rtol=2e-3, atol=1e-4)
 
 
 if __name__ == "__main__":

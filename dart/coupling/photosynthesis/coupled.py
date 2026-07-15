@@ -179,7 +179,7 @@ def build_tleaf_array(csv_data):
 def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
                              rh=0.7, soil_psi_cm=-500.0,
                              soil_psi_provider=None, c4_model=0, c3_model=0,
-                             photo_type=None):
+                             photo_type=None, vcm_parameters=None):
     """Setup hydraulics + FvCB photosynthesis and run hm.solve().
 
     Args:
@@ -213,6 +213,17 @@ def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
     if photo_type is not None:
         # override AFTER read (which sets PhotoType from JSON); 0 = C3, 1 = C4. tests / mixed canopies
         hm.PhotoType = int(photo_type)
+    if vcm_parameters:
+        allowed = {
+            'vcm_qLs', 'vcm_NPQs', 'vcm_x', 'vcm_alpha', 'vcm_Vpr',
+            'vcm_kf', 'vcm_kD', 'vcm_kd', 'vcm_po0max', 'vcm_beta',
+            'vcm_beta_c3',
+        }
+        unknown = set(vcm_parameters) - allowed
+        if unknown:
+            raise ValueError(f"Unknown VCM parameter(s): {sorted(unknown)}")
+        for name, value in vcm_parameters.items():
+            setattr(hm, name, float(value))
     hm.read_phloem_parameters(filename=get_phloem_json())
 
     # Override Chl with the LOPS seasonal top value + Wang2026 height profile
@@ -336,6 +347,7 @@ def run_photosynthesis_solve(plant, sim_time, par, tleaf, label,
         'n_segs': len(An_leaf),
         'psi_leaf_cm': psi_leaf,
         'psi_leaf_MPa': psi_leaf_MPa,
+        'gco2': np.array(hm.gco2),
     }
     # von Caemmerer-Magnani fluorescence: eta drives SIF, Ja is actual electron transport.
     # Per leaf-segment (seg_leaves_idx order). Empty/zero unless c4_model == 1.

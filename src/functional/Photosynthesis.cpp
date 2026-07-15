@@ -8,6 +8,7 @@
 #include <eigen/Eigen/Sparse>
 #include <iostream>
 #include <fstream>
+#include <limits>
 
 
 
@@ -532,11 +533,12 @@ void Photosynthesis::initVcVjRd(){
 		Vp.resize(seg_leaves_idx.size(), 0.);
 		kp.resize(seg_leaves_idx.size(), 0.);
 		kp25.resize(seg_leaves_idx.size(), 0.);
-		//von Caemmerer-Magnani two-cell C4 fluorescence outputs (c4Model == TWO_CELL_VCM)
-		Ja.resize(seg_leaves_idx.size(), 0.);
-		eta.resize(seg_leaves_idx.size(), 0.);
-		fs_fluo.resize(seg_leaves_idx.size(), 0.);
 	}
+	// Fluorescence is solve-local state. Reset it even when the leaf count is unchanged,
+	// so switching a model flag off cannot expose values from a previous solve.
+	Ja.assign(seg_leaves_idx.size(), 0.);
+	eta.assign(seg_leaves_idx.size(), 0.);
+	fs_fluo.assign(seg_leaves_idx.size(), 0.);
 	for(int i = 0; i < this->seg_leaves_idx.size(); i++){
 		//carboxylation rate
 		//Vc25max
@@ -673,11 +675,25 @@ void Photosynthesis::photoC4_loop(int i)
 double Photosynthesis::md12_fs(double ps, double Ja_, double Jms, double kps,
                                double kf_, double kds, double kDs)
 {
-	double fs1 = ps * (kf_ / kps) / (1.0 - Ja_ / Jms);
+	if (!(std::isfinite(ps) && std::isfinite(Ja_) && Jms > 0. && kps > 0. && kf_ > 0.
+	      && std::isfinite(kds) && std::isfinite(kDs))) {
+		throw std::runtime_error("Photosynthesis::md12_fs: invalid fluorescence parameters");
+	}
+	double open_fraction = 1.0 - Ja_ / Jms;
+	double fs1 = open_fraction > 1e-12
+		? ps * (kf_ / kps) / open_fraction
+		: std::numeric_limits<double>::infinity();
+	if (std::abs(kps - kds) <= 1e-12 * std::max(kps, kds)) {
+		throw std::runtime_error("Photosynthesis::md12_fs: kps and kds must differ");
+	}
 	double par1 = kps / (kps - kds);
 	double par2 = par1 * (kf_ + kDs + kds) / kf_;
 	double fs2 = (par1 - ps) / par2;
-	return std::min(fs1, fs2);
+	double fs = std::min(fs1, fs2);
+	if (!std::isfinite(fs) || fs < 0.) {
+		throw std::runtime_error("Photosynthesis::md12_fs: non-finite or negative fluorescence");
+	}
+	return fs;
 }
 
 /**
@@ -703,6 +719,10 @@ void Photosynthesis::photoC4_loop_vcm(int i)
 	double Vcmax25  = Vcrefmax.at(i) * 1e6;                   // mol -> umol m-2 s-1
 	double O        = oi * tobar;                             // [bar]
 	if (Q <= 0.) Q = 1e-9;
+	if (!(std::isfinite(T) && T > 0. && std::isfinite(Vcmax25) && Vcmax25 > 0.
+	      && std::isfinite(Ci) && std::isfinite(O) && std::isfinite(pPa) && pPa > 0.)) {
+		throw std::runtime_error("Photosynthesis::photoC4_loop_vcm: invalid environmental input");
+	}
 
 	const double R = 8.314, TREF = 298.15;
 	double dum1 = R / 1000.0 * T, dum2 = R / 1000.0 * TREF;
@@ -714,7 +734,11 @@ void Photosynthesis::photoC4_loop_vcm(int i)
 	double Vpmo  = Vcmax25 * 2.33;
 	double Vpr   = vcm_Vpr;
 	double gbs   = (0.0207 * Vcmax25 + 0.4806) * 1000.0;
-	double x = std::min(std::max(vcm_x, 1e-3), 1.0 - 1e-3), alpha_bs = vcm_alpha; // clamp: guards a_e/a_c/a_j
+	double x = std::min(std::max(vcm_x, 1e-3), 1.0 - 1e-3), alpha_bs = vcm_alpha;
+	if (!(std::isfinite(alpha_bs) && alpha_bs >= 0. && alpha_bs <= 1.
+	      && std::isfinite(Vpr) && Vpr >= 0.)) {
+		throw std::runtime_error("Photosynthesis::photoC4_loop_vcm: alpha must be in [0,1] and Vpr non-negative");
+	}
 
 	// temperature-correction constants (C4)
 	double HARD = 46.39,    CRD = 1000.0 * HARD / (R * TREF);
@@ -747,6 +771,11 @@ void Photosynthesis::photoC4_loop_vcm(int i)
 	double kf_ = vcm_kf, kD_ = vcm_kD, kd_ = vcm_kd, beta = vcm_beta;
 	double qLs  = std::min(std::max(vcm_qLs, 1e-4), 1.0);
 	double po0m = std::min(std::max(vcm_po0max, 1e-3), 1.0 - 1e-3);
+	if (!(std::isfinite(kf_) && kf_ > 0. && std::isfinite(kD_) && kD_ >= 0.
+	      && std::isfinite(kd_) && kd_ >= 0. && std::isfinite(beta) && beta > 0. && beta <= 1.
+	      && std::isfinite(vcm_NPQs) && vcm_NPQs >= 0.)) {
+		throw std::runtime_error("Photosynthesis::photoC4_loop_vcm: invalid fluorescence calibration parameter");
+	}
 	double kPSII = (kD_ + kf_) * po0m / (1.0 - po0m);
 	double fo0   = kf_ / (kf_ + kPSII + kD_);
 	double kps   = kPSII * qLs;
@@ -757,6 +786,9 @@ void Photosynthesis::photoC4_loop_vcm(int i)
 	double po0   = kps / (kps + kf_ + kDs);
 	double THETA = (kps - kds) / (kps + kf_ + kDs);
 	double Q2 = beta * Q * po0;
+	if (!(Jms > 0. && fo0 > 0.) || std::abs(kps - kds) <= 1e-12 * std::max(kps, kds)) {
+		throw std::runtime_error("Photosynthesis::photoC4_loop_vcm: singular electron-transport calibration");
+	}
 	double J_ = (Q2 + Jms - std::sqrt((Q2 + Jms) * (Q2 + Jms) - 4 * THETA * Q2 * Jms)) / (2 * THETA);
 
 	// two-cell assimilation (von Caemmerer 2000)
@@ -776,12 +808,22 @@ void Photosynthesis::photoC4_loop_vcm(int i)
 	double a_c = 1.0 - d1 * d2;
 	double b_c = -(dum3 + dum4 + dum5 + d1 * (dum6 + Rd_ * d2));
 	double c_c = dum4 * dum3 - dum6 * gbs * O + Rd_ * dum5;
-	double Ac = (-b_c - std::sqrt(std::max(b_c * b_c - 4.0 * a_c * c_c, 0.))) / (2.0 * a_c);
+	auto quadratic_root = [](double a, double b, double c, bool upper) {
+		if (std::abs(a) < 1e-12) {
+			if (std::abs(b) < 1e-12) {
+				throw std::runtime_error("Photosynthesis::photoC4_loop_vcm: degenerate quadratic");
+			}
+			return -c / b;
+		}
+		double root = std::sqrt(std::max(b * b - 4.0 * a * c, 0.));
+		return (-b + (upper ? root : -root)) / (2.0 * a);
+	};
+	double Ac = quadratic_root(a_c, b_c, c_c, false);
 
 	double a_j = 1.0 - 7.0 / 3.0 * gam * d1;
 	double b_j = -(dum7 + dum9 + gbs * gam * O * 7.0 / 3.0 + d1 * gam * dum10);
 	double c_j = dum7 * dum9 - gbs * gam * O * dum10;
-	double Aj = (-b_j - std::sqrt(std::max(b_j * b_j - 4.0 * a_j * c_j, 0.))) / (2.0 * a_j);
+	double Aj = quadratic_root(a_j, b_j, c_j, false);
 
 	double A = std::min(Ac, Aj);
 
@@ -791,12 +833,11 @@ void Photosynthesis::photoC4_loop_vcm(int i)
 	if (Ac <= Aj) {
 		double As = (std::abs(A) < 1e-9) ? 1e-9 : A;
 		double a_e = x * (1.0 - x) / 6.0 / As;
-		double b_e = (1.0 - x) / 3.0 * (gbs / As * (Cm - Rm / gbs - gam * O) - 1.0 - d1)
+		double b_e = (1.0 - x) / 3.0 * (gbs / As * (Cm - Rm / gbs - gam * O) - 1.0 - d1 * gam)
 		           - x / 2.0 * (1.0 + Rd_ / As);
 		double c_e = (1.0 + Rd_ / As) * (Rm - gbs * Cm - 7.0 * gbs * gam * O / 3.0)
 		           + (Rd_ + A) * (1.0 - 7.0 * alpha_bs * gam / 3.0 / 0.047);
-		double disc = std::max(b_e * b_e - 4.0 * a_e * c_e, 0.);
-		Ja_ = (-b_e + std::sqrt(disc)) / (2.0 * a_e);
+		Ja_ = quadratic_root(a_e, b_e, c_e, true);
 	} else {
 		Ja_ = J_;
 	}
@@ -812,6 +853,8 @@ void Photosynthesis::photoC4_loop_vcm(int i)
 	Vj.at(i)  = Aj * 1e-6;
 	Vp.at(i)  = Vp_ * 1e-6;
 	J.at(i)   = J_ * 1e-6;
+	Jmax.at(i) = Jmax_ * 1e-6;
+	Vcmax.at(i) = Vcmax_ * 1e-6;
 	Rd.at(i)  = Rd_ * 1e-6;
 	An.at(i)  = A * 1e-6;
 	Ja.at(i)  = Ja_ * 1e-6;
@@ -838,6 +881,11 @@ void Photosynthesis::photoC3_fluo(int i)
 	double qLs  = std::min(std::max(vcm_qLs, 1e-4), 1.0);
 	double po0m = std::min(std::max(vcm_po0max, 1e-3), 1.0 - 1e-3);
 	double kf_ = vcm_kf, kD_ = vcm_kD, kd_ = vcm_kd, beta = vcm_beta_c3;
+	if (!(std::isfinite(kf_) && kf_ > 0. && std::isfinite(kD_) && kD_ >= 0.
+	      && std::isfinite(kd_) && kd_ >= 0. && std::isfinite(beta) && beta > 0. && beta <= 1.
+	      && std::isfinite(vcm_NPQs) && vcm_NPQs >= 0.)) {
+		throw std::runtime_error("Photosynthesis::photoC3_fluo: invalid fluorescence calibration parameter");
+	}
 	double kPSII = (kD_ + kf_) * po0m / (1.0 - po0m);
 	double fo0   = kf_ / (kf_ + kPSII + kD_);
 	double kps   = kPSII * qLs;

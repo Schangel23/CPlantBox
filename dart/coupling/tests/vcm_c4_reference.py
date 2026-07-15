@@ -37,7 +37,8 @@ def _md12_fs(ps, Ja, Jms, kps, kf, kds, kDs):
 
 
 def vcm_c4(Ci, Q, T, Vcmax25, p,
-           O=0.21, qLs=1.0, NPQs=0.0, Rdparam=0.025):
+           O=0.21, qLs=1.0, NPQs=0.0, Rdparam=0.025,
+           x=0.4, alpha=0.0, Vpr=80.0):
     """Two-cell C4 assimilation + fluorescence.
 
     Parameters (scalar or numpy array, broadcast):
@@ -65,10 +66,7 @@ def vcm_c4(Ci, Q, T, Vcmax25, p,
     Rdopt = Rdparam * Vcmax25
     Jmo = Vcmax25 * 40.0 / 6.0
     Vpmo = Vcmax25 * 2.33
-    Vpr = 80.0
     gbs = (0.0207 * Vcmax25 + 0.4806) * 1000.0
-    x = 0.4
-    alpha = 0.0
 
     # --- temperature-correction constants (C4) ---
     HARD = 46.39;    CRD = 1000.0 * HARD / (R_GAS * TREF)
@@ -145,7 +143,7 @@ def vcm_c4(Ci, Q, T, Vcmax25, p,
     # quadratic (von Caemmerer 2000; corrected from the reference's dead A(ind) branch).
     Asafe = np.where(np.abs(A) < 1e-9, 1e-9, A)
     a_e = x * (1.0 - x) / 6.0 / Asafe
-    b_e = (1.0 - x) / 3.0 * (gbs / Asafe * (Cm - Rm / gbs - gam * O) - 1.0 - d1) \
+    b_e = (1.0 - x) / 3.0 * (gbs / Asafe * (Cm - Rm / gbs - gam * O) - 1.0 - d1 * gam) \
         - x / 2.0 * (1.0 + Rd / Asafe)
     c_e = (1.0 + Rd / Asafe) * (Rm - gbs * Cm - 7.0 * gbs * gam * O / 3.0) \
         + (Rd + A) * (1.0 - 7.0 * alpha * gam / 3.0 / 0.047)
