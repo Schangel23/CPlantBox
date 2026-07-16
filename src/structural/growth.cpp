@@ -760,6 +760,21 @@ static void update_cessation_latches(MultiPhaseStemGrowth::PerOrganFAState& st,
                       + srp->phase_II_duration
                       + D_n
                       + srp->phase_IV_duration;
+            // The maturity gate can deliberately postpone visible elongation
+            // beyond bare Phase-IV completion.  Keep cessation separate from
+            // that bare schedule when explicitly requested, otherwise the
+            // delayed target is frozen before it can move the collar.
+            if (srp->internode_maturity_extends_cessation
+                && srp->internode_maturity_span > 0.0 && lrp_n) {
+                const double collar_tt = have_t_col_emp
+                    ? lrp_n->t_col_emp_Cd
+                    : (lrp_n->T0_n + lrp_n->lag_exp_n
+                       + srp->collar_frac_of_dlin * lrp_n->D_lin_n);
+                const double maturity_end_tt = std::max(
+                    collar_tt, srp->internode_jointing_onset_tt)
+                    + srp->internode_maturity_span;
+                threshold = std::max(threshold, maturity_end_tt - init_tt);
+            }
         }
         if (tau_n >= threshold) {
             st.cessation_andrieu_tt_per_n[leaf_ordinal] = plant_andrieu_tt;

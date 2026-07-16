@@ -462,6 +462,7 @@ void StemRandomParameter::bindParameters()
     bindParameter("half_plastochron_lag_degCd", &half_plastochron_lag_degCd, "FA lag between leaf primordium and internode init [degCd] (FA 2000 line 207 default 9.6)");
     bindParameter("collar_frac_of_dlin", &collar_frac_of_dlin, "FA α in collar_TT = T0 + lag_exp + α·D_lin (FA 2005 / AHB 2006 literal default 1.0)");
     bindParameter("internode_maturity_span", &internode_maturity_span, "Per-phytomer maturity window [degCd]; >0 scales internode post-Phase-II elongation 0->full over this span past leaf-n collar emergence (default 0 = disabled)");
+    bindParameter("internode_maturity_extends_cessation", &internode_maturity_extends_cessation, "Keep per-rank operational cessation open until the maturity window reaches full scale [0/1] (default 0)");
     bindParameter("internode_jointing_onset_tt", &internode_jointing_onset_tt, "Whole-plant jointing onset [degCd]; basal internodes stay compressed until plant TT passes this, then joint acropetally (default 0 = no-op)");
     bindParameter("internode_maturity_floor_cm", &internode_maturity_floor_cm, "Length [cm] an internode holds while immature (gate m=0); <0 uses il_at_end_phase_II_cm; ~0 lets whorl/apical internodes sit near zero (default -1)");
     bindParameter("internode_collar_onset_gate", &internode_collar_onset_gate, "Use collar-node onset gate: internode n stays in Phase I until leaf-n collar passes leaf-(n-1) collar [0/1]");

@@ -332,6 +332,21 @@ void Stem::simulate(double dt, bool verbose)
 									+ srp_fa_outer.phase_II_duration
 									+ D_n
 									+ srp_fa_outer.phase_IV_duration;
+								// Match MultiPhaseStemGrowth::update_cessation_latches:
+								// an opt-in maturity delay must be allowed to finish before
+								// the operational Phase-IV latch freezes this rank.
+								if (srp_fa_outer.internode_maturity_extends_cessation
+								    && srp_fa_outer.internode_maturity_span > 0.0 && lrp_outer) {
+									const double collar_tt_outer = have_t_col_emp_outer
+										? lrp_outer->t_col_emp_Cd
+										: (lrp_outer->T0_n + lrp_outer->lag_exp_n
+										   + srp_fa_outer.collar_frac_of_dlin * lrp_outer->D_lin_n);
+									const double maturity_end_tt_outer = std::max(
+										collar_tt_outer, srp_fa_outer.internode_jointing_onset_tt)
+										+ srp_fa_outer.internode_maturity_span;
+									threshold_outer = std::max(
+										threshold_outer, maturity_end_tt_outer - init_tt_outer);
+								}
 							}
 							if (tau_n_outer >= threshold_outer) {
 								// S0.5b.5: write per-rank latches to GF state only.
