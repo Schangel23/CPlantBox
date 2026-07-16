@@ -165,12 +165,12 @@
         <parameter name="a" value="0.20000000000000001" dev="0.02" />
         <parameter name="basal_internode_cm" value="1.9398099930868" />
         <parameter name="collar_frac_of_dlin" value="1" />
-        <parameter name="internode_jointing_onset_tt" value="414.909651325276" />
+        <parameter name="internode_jointing_onset_tt" value="671.621376081232" />
         <parameter name="internode_collar_onset_gate" value="1" />
         <parameter name="internode_sheath_visible_fraction" value="0.875951180494409" />
         <parameter name="sheath_cm" values="3.337,3.675,4.392,6.289,8.229,11.875,15.054,16.925,16.538,15.512,14.169,13.473,13.936,14.267,14.55,14.133,13.667,12.937,11.45,5.8" />
         <parameter name="internode_maturity_floor_cm" value="0.0" />
-        <parameter name="internode_maturity_span" value="756.222578284797" />
+        <parameter name="internode_maturity_span" value="3904.35182828162" />
         <parameter name="cultivar_height_factor" value="1.34" dev="0.091999999999999998" />
         <parameter name="delayNGEnd" value="0" />
         <parameter name="delayNGStart" value="0" />
@@ -192,6 +192,7 @@
         <parameter name="r" value="3.5" dev="0.34999999999999998" />
         <parameter name="rlt" value="1000000000" />
         <parameter name="theta" value="0" />
+        <parameter name="internode_maturity_extends_cessation" value="1" />
         <parameter name="tropismAge" value="0" />
         <parameter name="tropismN" value="1" />
         <parameter name="tropismS" value="0" />

@@ -11,14 +11,15 @@ SAMPLE_TIMES = (68.5, 82.9)
 
 def _collar_delta(tmp_path, extend_cessation):
     text = XML.read_text()
-    anchor = '        <parameter name="internode_maturity_span" value="756.222578284797" />'
-    replacement = (
-        f'{anchor}\n        <parameter name="internode_maturity_extends_cessation" '
-        f'value="{int(extend_cessation)}" />'
-    )
-    assert anchor in text
+    flag = '        <parameter name="internode_maturity_extends_cessation" value="1" />'
+    assert flag in text
     xml = tmp_path / f"maturity_cessation_{int(extend_cessation)}.xml"
-    xml.write_text(text.replace(anchor, replacement, 1))
+    xml.write_text(text.replace(
+        flag,
+        f'        <parameter name="internode_maturity_extends_cessation" '
+        f'value="{int(extend_cessation)}" />',
+        1,
+    ))
 
     collars = {}
 
