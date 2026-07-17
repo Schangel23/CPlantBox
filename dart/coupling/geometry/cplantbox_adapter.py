@@ -1984,11 +1984,9 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                 collar = organ.getNode(0)
                 tangent = organ.getiHeading0()
                 node_ids = [int(nid) for nid in organ.getNodeIds()]
-                mature_length = float(lrp.lmax)
+                mature_length = float(organ.getParameter("k"))
                 current_skel = np.array([[n.x, n.y, n.z] for n in nodes])
-                current_length = float(
-                    np.sum(np.linalg.norm(np.diff(current_skel, axis=0), axis=1))
-                )
+                current_length = float(organ.getLength(True))
 
                 # Rank-1 seedling first leaf override: replace the MF3D
                 # 24-cm mature sword with a small rounded ovate blade so
@@ -2296,7 +2294,8 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                 # ponytail: maize accepts mild leaf-leaf clipping in exchange
                 # for matching the measured pose; add per-leaf relaxation that
                 # preserves the skeleton if clipping ever shows in renders.
-                if (collision_obstacles and nurbs_maturity >= relax_threshold
+                if (species != 'maize' and collision_obstacles
+                        and nurbs_maturity >= relax_threshold
                         and rho_senesce <= 0.0):
                     # margin shrinks toward the threshold so post-collar
                     # blades emerging out of the whorl still get a soft
@@ -2321,16 +2320,9 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                     margin_cm=0.0,
                 ))
 
-                midrib = cps_local[:, n_v // 2, :]
-                midrib_arc = float(np.sum(np.linalg.norm(np.diff(midrib, axis=0), axis=1)))
-                is_normalized = midrib_arc < 2.0
-
-                # §3.1 leaf fracture on the NURBS path. Truncating the
-                # rigid (N_U, N_V, 3) CP grid in-place would break its
-                # shape contract, so we shorten via ``current_length``
-                # (the backend already scales CPs by
-                # ``current_length/mature_length``) and clip the world-
-                # frame skeleton/node_ids so segment mapping tracks the
+                # §3.1 leaf fracture on the NURBS path. The native grid is
+                # already physical, so shorten it explicitly and clip the
+                # world-frame skeleton/node_ids so segment mapping tracks the
                 # shorter blade. This produces a uniformly-shortened
                 # blade (tip preserved) rather than a true torn end —
                 # approximate but visually consistent with fracture.
@@ -2345,6 +2337,16 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                     )
                     if break_fraction_nurbs < 1.0:
                         current_length = current_length * break_fraction_nurbs
+                        _vmid = n_v // 2
+                        _mid = cps_local[:, _vmid:_vmid + 1, :]
+                        _base = _mid[0:1]
+                        _width_fraction = max(
+                            0.15, min(1.0, break_fraction_nurbs / 0.50),
+                        )
+                        cps_local = (
+                            _base + (_mid - _base) * break_fraction_nurbs
+                            + (cps_local - _mid) * _width_fraction
+                        )
                         # Truncate world-frame skeleton + node_ids to the
                         # surviving arc fraction so the segment map stays
                         # in sync with the mesh the NURBS backend emits.
@@ -2441,23 +2443,6 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                 else:
                     _midrib_band_v_per_u = np.full(_n_skel_n, 0.025)
 
-                # Blade-width calibration (maize): the per-rank shape-distribution
-                # cross-sections come out too narrow for several ranks (esp. upper
-                # canopy, where ranks are copies of rank 11), giving thin sliver
-                # leaves. Normalize the lateral cross-section so the max blade
-                # width matches the per-rank Width_blade from the XML (full width
-                # in cm), keeping width calibration in the XML. Only for physical
-                # (non-normalized) maize cps with a positive Width_blade.
-                if (species == 'maize' and not is_normalized
-                        and float(lrp.Width_blade) > 1e-6):
-                    _vmid = n_v // 2
-                    _mid = cps_local[:, _vmid:_vmid + 1, :]
-                    _cur_w = float(np.max(np.linalg.norm(
-                        cps_local[:, -1, :] - cps_local[:, 0, :], axis=1)))
-                    _tgt_w = float(lrp.Width_blade)
-                    if _cur_w > 1e-6:
-                        cps_local = _mid + (cps_local - _mid) * (_tgt_w / _cur_w)
-
                 _entry = {
                     "type": "leaf",
                     "part_type": _leaf_part_type,
@@ -2466,7 +2451,6 @@ def extract_organs_for_lofter(plant, min_stem_nodes=50, min_leaf_nodes=20,
                     "node_ids": node_ids,
                     "use_nurbs_backend": True,
                     "surface_cps_local": cps_local,
-                    "surface_cps_normalized": is_normalized,
                     "surface_n_u": n_u,
                     "surface_n_v": n_v,
                     "surface_deg_u": int(lrp.surface_deg_u),

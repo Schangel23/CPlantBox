@@ -6,6 +6,44 @@
 
 namespace CPlantBox {
 
+std::vector<Vector3d> LeafShape::materializeDimensions(
+	std::vector<Vector3d> grid, int n_u, int n_v, double lmax, double max_w)
+{
+	if (n_u < 2 || n_v < 1 || static_cast<int>(grid.size()) != n_u * n_v) {
+		throw std::invalid_argument(
+			"LeafShape::materializeDimensions: grid must match n_u >= 2 and n_v >= 1");
+	}
+	const int v_mid = n_v / 2;
+	double natural_length = 0.0;
+	for (int iu = 1; iu < n_u; ++iu) {
+		Vector3d d = grid[iu * n_v + v_mid].minus(grid[(iu - 1) * n_v + v_mid]);
+		natural_length += std::sqrt(d.times(d));
+	}
+	double natural_width = 0.0;
+	for (int iu = 0; iu < n_u; ++iu) {
+		Vector3d d = grid[iu * n_v + n_v - 1].minus(grid[iu * n_v]);
+		natural_width = std::max(natural_width, std::sqrt(d.times(d)));
+	}
+	if (natural_length <= 1e-12 || (n_v > 1 && natural_width <= 1e-12)) {
+		throw std::runtime_error(
+			"LeafShape::sampleCanonicalGrid: cannot size a degenerate surface");
+	}
+
+	const double length_scale = std::max(lmax, 0.0) / natural_length;
+	const double width_scale = (n_v > 1)
+		? std::max(max_w, 0.0) / natural_width : 1.0;
+	const Vector3d base = grid[v_mid];
+	for (int iu = 0; iu < n_u; ++iu) {
+		const Vector3d mid = grid[iu * n_v + v_mid];
+		const Vector3d scaled_mid = base.plus(mid.minus(base).times(length_scale));
+		for (int iv = 0; iv < n_v; ++iv) {
+			const int i = iu * n_v + iv;
+			grid[i] = scaled_mid.plus(grid[i].minus(mid).times(width_scale));
+		}
+	}
+	return grid;
+}
+
 // ============================================================
 // LeafShape (base default for sampleCanonicalGrid)
 // ============================================================
@@ -28,7 +66,7 @@ std::vector<Vector3d> LeafShape::sampleCanonicalGrid(
 			out.push_back(evaluate(u, v, lmax, max_w));
 		}
 	}
-	return out;
+	return LeafShape::materializeDimensions(std::move(out), n_u, n_v, lmax, max_w);
 }
 
 // ============================================================
@@ -89,12 +127,10 @@ Vector3d MedianLeafShape::evaluate(
 std::vector<Vector3d> MedianLeafShape::sampleCanonicalGrid(
 	int n_u, int n_v, double lmax, double max_w) const
 {
-	// Byte-identity fast path: caller asks for the grid this MedianLeafShape
-	// was built on → return a direct copy of cps_. This is the S2 D.0 6-XML
-	// invariance guarantee — the default-fallback dispatch reproduces the
-	// previous direct-surface_cps consumption byte-for-byte.
+	// Direct-grid fast path: avoid interpolation drift before applying the
+	// caller's requested dimensions.
 	if (n_u == n_u_ && n_v == n_v_) {
-		return cps_;
+		return LeafShape::materializeDimensions(cps_, n_u, n_v, lmax, max_w);
 	}
 	// Fallback: bilinear via evaluate (base-class default). Not exercised
 	// today but kept for any future caller that resamples on a different grid.

@@ -42,10 +42,11 @@ public:
 	 * @param u along-midrib parameter, 0 = collar, 1 = tip.
 	 * @param v across-blade parameter, 0 = one margin, 1 = the other,
 	 *          0.5 = midrib.
-	 * @param lmax mature leaf length [cm]. Median path ignores this
-	 *          (the stored CPs are already at mature size); the
-	 *          parametric path scales coefficients by it.
-	 * @param max_w mature leaf max blade half-width [cm]. Same idea.
+	 * @param lmax requested mature leaf length [cm]. Point evaluators retain
+	 *          their natural fitted coordinates; sampleCanonicalGrid enforces
+	 *          this dimension on the complete surface.
+	 * @param max_w requested mature full blade width [cm]. Enforced by
+	 *          sampleCanonicalGrid on the complete transverse rows.
 	 * @return position in the canonical leaf-intrinsic frame [cm].
 	 */
 	virtual Vector3d evaluate(double u, double v,
@@ -58,15 +59,19 @@ public:
 	 * the mature CP grid that the maturity-fade blend sits on top of.
 	 *
 	 * Default implementation calls evaluate(u_i, v_j) at u_i = i/(n_u-1),
-	 * v_j = j/(n_v-1). MedianLeafShape overrides this to short-circuit to a
-	 * direct copy of its stored CPs when (n_u, n_v) match — that override is
-	 * what gives the S2 D.0 6-XML byte-identity guarantee. Without it, the
-	 * default bilinear path drifts by ~1e-15 cm at non-FP-exact canonical
-	 * coordinates (e.g. u_i = 0.7 for n_u = 11) and the byte-identity gate
-	 * would fail.
+	 * v_j = j/(n_v-1), then materializes the requested mature midrib arc
+	 * length and maximum transverse width. MedianLeafShape overrides the
+	 * sampling step to start from a direct copy of its stored CPs when the
+	 * grid sizes match, avoiding interpolation drift before the same generic
+	 * dimension materialization.
 	 */
 	virtual std::vector<Vector3d> sampleCanonicalGrid(int n_u, int n_v,
 		double lmax, double max_w) const;
+
+	/** Scale an existing grid to an exact midrib arc length and maximum width. */
+	static std::vector<Vector3d> materializeDimensions(
+		std::vector<Vector3d> grid, int n_u, int n_v,
+		double lmax, double max_w);
 };
 
 /**
@@ -75,15 +80,14 @@ public:
  * evaluate() uses bilinear interpolation in the parametric domain (u, v) in
  * [0, 1]^2 with the standard mapping fu = u * (n_u - 1), fv = v * (n_v - 1).
  * At canonical grid coordinates u_i = i / (n_u - 1), v_j = j / (n_v - 1) this
- * returns cps_[i * n_v + j] exactly (FP precision), giving the S1 byte-identity
- * guarantee against the existing surface_cps consumption path.
+ * returns cps_[i * n_v + j] exactly (FP precision) before the sampled grid is
+ * materialized to its requested physical dimensions.
  *
  * Out-of-range (u, v) are clamped to [0, 1]; the canonical Leaf::* callers
  * never pass values outside this range, but the clamp keeps misuse safe.
  *
- * The CP grid is in mature leaf-local frame; lmax and max_w are intentionally
- * unused. Downstream consumers (Leaf::updateNodesFromSurfaceCPs) apply the
- * current_length / mature_length scale themselves.
+ * The CP grid is in its fitted mature leaf-local frame; evaluate() leaves
+ * lmax and max_w unused. sampleCanonicalGrid materializes both dimensions.
  */
 class MedianLeafShape : public LeafShape
 {
@@ -93,7 +97,7 @@ public:
 	Vector3d evaluate(double u, double v,
 		double lmax, double max_w) const override;
 
-	/// Direct copy of cps_ when (n_u, n_v) match (the S2 byte-identity path).
+	/// Start from a direct copy of cps_ when (n_u, n_v) match.
 	/// If the grid sizes differ we fall back to the base-class default
 	/// (bilinear sampling via evaluate); that case never fires today but
 	/// keeps the contract complete for future callers.
@@ -138,8 +142,8 @@ private:
  * where m_y/m_z/w are degree-4 B-splines evaluated at u via De Boor's
  * algorithm; asym_residual(u, v) is bilinear interpolation of the (n_u, n_v)
  * residual grid using the same u_i = i / (n_u - 1), v_j = j / (n_v - 1)
- * mapping as MedianLeafShape::evaluate. lmax is currently unused (the spline
- * coefficients carry physical droop/along positions in cm directly).
+ * mapping as MedianLeafShape::evaluate. evaluate() returns the fitted natural
+ * coordinates; sampleCanonicalGrid materializes requested dimensions.
  */
 class ParametricLeafShape : public LeafShape
 {
@@ -166,13 +170,14 @@ public:
 	int numCpsU() const { return n_u_; }
 	int numCpsV() const { return n_v_; }
 	/// Per-rank peak half-width (cm) the fitter normalised against (= the
-	/// XML grid's grid-derived max half-width for this rank). evaluate()
+	/// XML grid's grid-derived full width for this rank). evaluate()
 	/// uses this constant for the lateral term (v - 0.5) * w(u) * max_w
 	/// instead of the runtime-passed `max_w` arg, so the parametric path
 	/// reproduces the XML surface_cps grid bit-for-bit at scale = 0
 	/// (S6 D11 baseline guarantee). The runtime `max_w` arg of evaluate()
 	/// is therefore ignored on the parametric path; per-plant width
-	/// variation comes from the halfwidth coefficient block.
+	/// variation comes from the halfwidth coefficient block before the sampled
+	/// grid is materialized to its requested full width.
 	double maxWIntercept() const { return max_w_intercept_; }
 	/// Per-rank fit-time midrib arc length (cm) the fitter normalised against.
 	/// evaluate() multiplies the dimensionless droop + along splines by this

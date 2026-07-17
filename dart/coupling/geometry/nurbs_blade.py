@@ -418,9 +418,8 @@ def loft_leaf_nurbs(
     """
     organ_id = int(organ["organ_id"])
 
-    # Library-CP path (Phase C): organ carries a pre-fitted local-frame CP
-    # grid plus collar pose. Scale by current/mature length, transform into
-    # world coordinates, then skip the quad-ribbon build + deformation block.
+    # Native-CP path: organ carries the current physical local-frame grid plus
+    # collar pose. Transform it into world coordinates without changing size.
     cps_local = organ.get("surface_cps_local")
     if cps_local is not None:
         from .canonical_library import from_local_frame, build_compound_leaf_cps
@@ -440,35 +439,6 @@ def loft_leaf_nurbs(
                 f"non-canonical CP grid {cps_local.shape[:2]} requires raw_donor=True "
                 f"(synthetic taper/ruffle assume {(N_U, N_V)})"
             )
-        mature_length = float(organ.get("mature_length", 1.0))
-        current_length = float(organ.get("current_length", mature_length))
-        if organ.get("surface_cps_normalized", False):
-            scale = max(current_length, 0.0)
-        else:
-            scale = max(current_length, 0.0) / max(mature_length, 1e-9)
-        # Width matures ~2x faster than length (young maize blades are
-        # wider relative to length than mature ones — the V2-V3 blade
-        # reaches near-mature width by ~50% of final length, then keeps
-        # elongating). Without decoupling, a V3 leaf at scale=0.3 renders
-        # as a 30%-width hairline and misses the Nielsen reference where
-        # young blades are visibly broader. Width saturates at scale=0.5;
-        # length keeps scaling linearly. Mature endpoint (scale=1.0) is
-        # bit-for-bit unchanged. Floor at 0.15 so very-young emerging
-        # leaves have a visible but narrower blade.
-        # Width matures ~2x faster than length for the synthetic/MF3D donors
-        # (young blades proportionally wider). A faithful field donor (raw_donor)
-        # already carries the real per-stage aspect, so applying this decoupling
-        # on top makes young/mid leaves render full-width-but-short — wide
-        # "blobs". For raw_donor keep width locked to length (aspect preserved).
-        if bool(organ.get("raw_donor", False)):
-            width_maturity = scale
-        else:
-            width_maturity = max(0.15, min(1.0, scale / 0.50))
-        cps_local = cps_local.copy()
-        cps_local[..., 0] *= width_maturity   # lateral (blade width)
-        cps_local[..., 1] *= scale            # droop axis
-        cps_local[..., 2] *= scale            # midrib-along-tangent
-
         if NURBS_TIP_MONOTONE_Z:
             # Monotonise the midrib's along-axis (z-local). The parametric
             # leaf-shape spline overshoots in the last 25 % of arc and can
@@ -604,7 +574,8 @@ def loft_leaf_nurbs(
         # reaches 1.0 at blade scale = 0.3, clamped to 0.05 floor so
         # very-young emerging leaves still have a visible sheath stub.
         # Mature endpoint (scale=1.0) unchanged (→ sheath_maturity=1.0).
-        sheath_maturity = max(0.05, min(1.0, scale / 0.30))
+        maturity = float(organ.get("maturity_fraction", 1.0))
+        sheath_maturity = max(0.05, min(1.0, maturity / 0.30))
         sheath_length_cm *= sheath_maturity
         use_compound = stem_radius_cm > 0.0 and sheath_length_cm > 0.0
 
@@ -676,7 +647,7 @@ def loft_leaf_nurbs(
             if sheath_provenance == "vidal_per_rank":
                 max_sheath_cap = float(sheath_length_cm)
             else:
-                young_frac = max(0.0, min(1.0, 1.0 - scale / 0.50))
+                young_frac = max(0.0, min(1.0, 1.0 - maturity / 0.50))
                 default_cap = 2.5 * float(stem_radius_cm)
                 max_sheath_cap = (
                     young_frac * float(sheath_length_cm)

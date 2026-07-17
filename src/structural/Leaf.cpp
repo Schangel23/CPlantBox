@@ -419,9 +419,9 @@ std::vector<Vector3d> buildFlatTemplate(
  * the mature CP grid via ``sampleCanonicalGrid``.
  *
  * δ of PLAN_PARAMETRIC_LEAF_SHAPE_2026-05-09_REV1 (post-S8 calibration):
- * the native blend's mature endpoint is the XML median (not the parametric
- * draw); the parametric deviation ``parametric - median`` is added linearly
- * in ρ = m on top. Young leaves (ρ ≈ 0) ignore the perturbation (all plants
+ * the native blend's mature endpoint is the median materialized at the leaf's
+ * specific dimensions; the parametric deviation ``parametric - median`` is
+ * added linearly in ρ = m on top. Young leaves (ρ ≈ 0) ignore the perturbation (all plants
  * look the same as they emerge); mature leaves (ρ → 1) get the full
  * deviation; intermediate ρ scales the deviation smoothly with the same
  * maturity ratio that drives the native blend, eliminating the
@@ -429,7 +429,7 @@ std::vector<Vector3d> buildFlatTemplate(
  * shape_variation_scale = 0.3 between day 125 and day 135 of the VR-stages
  * row. For ``MedianLeafShape`` (no parametric XML wired) and for
  * ``ParametricLeafShape`` at scale = 0, ``parametric == median`` so the
- * deviation vanishes and D.0 6-XML byte-identity / G1 / G8 still hold.
+ * deviation vanishes, leaving only the leaf-specific physical dimensions.
  */
 std::vector<Vector3d> Leaf::getEffectiveSurfaceCPs() const
 {
@@ -452,14 +452,18 @@ std::vector<Vector3d> Leaf::getEffectiveSurfaceCPs(double maturityOverride) cons
 		sp->shape = std::make_shared<MedianLeafShape>(
 			lrp->surface_cps, n_u, n_v);
 	}
+	const double mature_length = std::max(sp->getK(), 1e-9);
+	const double mature_width = std::max(sp->width_blade, 0.0);
 	std::vector<Vector3d> parametric = sp->shape->sampleCanonicalGrid(
-		n_u, n_v, lrp->lmax, lrp->Width_blade);
+		n_u, n_v, mature_length, mature_width);
 	if ((int)parametric.size() != n_u * n_v) return lrp->surface_cps;
 
-	// δ: native blend uses XML median as mature endpoint, parametric deviation
-	// added on top. Median ≡ lrp->surface_cps; we never overwrite it.
-	const std::vector<Vector3d>& median = lrp->surface_cps;
-	const double mature_length = std::max(lrp->lmax, 1e-9);
+	// δ: native blend uses the mean shape at this leaf's immutable specific
+	// dimensions as its mature endpoint; the parametric deviation is added on
+	// top at the same dimensions.
+	MedianLeafShape median_shape(lrp->surface_cps, n_u, n_v);
+	const std::vector<Vector3d> median = median_shape.sampleCanonicalGrid(
+		n_u, n_v, mature_length, mature_width);
 	const double maturity = (maturityOverride >= 0.) ? maturityOverride : getLength(true) / mature_length;
 	const double m = std::min(std::max(maturity, 0.0), 1.0);
 
@@ -483,9 +487,9 @@ std::vector<Vector3d> Leaf::getEffectiveSurfaceCPs(double maturityOverride) cons
 	}
 
 	// δ additive deviation: + ρ · (parametric − median). Zero by construction
-	// for MedianLeafShape (parametric == median byte-identically via the S2
-	// fast path) and for ParametricLeafShape at scale=0 (within ≤ 1e-9 cm by
-	// the D10 anchor).
+	// for MedianLeafShape (parametric == median through the direct-grid path)
+	// and for ParametricLeafShape at scale=0 (within ≤ 1e-9 cm by the D10
+	// anchor).
 	std::vector<Vector3d> out(blended.size());
 	for (size_t i = 0; i < out.size(); ++i) {
 		const Vector3d& bl = blended[i];
@@ -496,7 +500,14 @@ std::vector<Vector3d> Leaf::getEffectiveSurfaceCPs(double maturityOverride) cons
 			bl.y + m * (pv.y - mv.y),
 			bl.z + m * (pv.z - mv.z));
 	}
-	return out;
+	// Return one physical current grid. Width keeps the existing native-render
+	// maturation law (full width by half length); the Python lofter no longer
+	// needs to infer or reapply size from RandomParameter means.
+	const double current_length = std::max(getLength(true), 0.0);
+	const double width_maturity = std::max(0.15, std::min(1.0, m / 0.50));
+	return LeafShape::materializeDimensions(
+		std::move(out), n_u, n_v, current_length,
+		mature_width * width_maturity);
 }
 
 /**
@@ -510,11 +521,10 @@ std::vector<Vector3d> Leaf::getEffectiveSurfaceCPs(double maturityOverride) cons
  *     so the simulator's node update consumes the same shape evaluator the
  *     Python lofter sees — no silent-disagreement window between simulator
  *     state and extracted geometry.
- *  2. Scale all local points by (current_length / mature_length).
- *  3. Build the insertion frame from ``nodes[0]`` (collar) and ``iHeading0``
+ *  2. Build the insertion frame from ``nodes[0]`` (collar) and ``iHeading0``
  *     (collar tangent): ``x_local = tangent x UP``, ``y_local = tangent x
  *     x_local``, ``R = [x_local, y_local, tangent]``.
- *  4. For each existing internal node i >= 1 at original arc-length s_i from
+ *  3. For each existing internal node i >= 1 at original arc-length s_i from
  *     the collar along the (tropism-evolved) midrib, compute
  *     ``frac_i = s_i / total_arc`` and linearly interpolate along the
  *     11-point v=midrib polyline at ``frac_i``, transform via ``R`` plus
@@ -530,20 +540,18 @@ void Leaf::updateNodesFromSurfaceCPs()
 	const int n_u = lrp->surface_n_u;
 	const int n_v = lrp->surface_n_v;
 	const int v_mid = n_v / 2;
-	const double mature_length = std::max(lrp->lmax, 1e-9);
 	const double current_length = getLength(true);
 	if (current_length < 1e-9) return;
-	const double scale = current_length / mature_length;
 
 	// Maturity-aware blend (young-stage flat template). Mature leaves early-out.
 	const std::vector<Vector3d> eff = lrp->use_tropism_midrib ? getEffectiveSurfaceCPs(1.) : getEffectiveSurfaceCPs();
 	if ((int)eff.size() != n_u * n_v) return;
 
-	// --- 1-2. Extract v=midrib column, scale ---
+	// --- 1. Extract the already-physical v=midrib column ---
 	std::vector<Vector3d> midrib_local; midrib_local.reserve(n_u);
 	for (int i_u = 0; i_u < n_u; ++i_u) {
 		const Vector3d& cp = eff[i_u * n_v + v_mid];
-		midrib_local.push_back(Vector3d(cp.x * scale, cp.y * scale, cp.z * scale));
+		midrib_local.push_back(cp);
 	}
 
 	// Arc-length along the library midrib (leaf-local), for interpolation.

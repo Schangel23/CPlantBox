@@ -245,9 +245,9 @@ def grow_and_get_cps(xml_path: str, day: float, params: dict
             d = np.asarray(_BLADE_DONORS[i], dtype=np.float64).copy()
             mid = d[:, d.shape[1] // 2, :]
             arc = float(np.sum(np.linalg.norm(np.diff(mid, axis=0), axis=1)))
-            ml = float(o.get("mature_length", 1.0))
-            if arc > 1e-9 and ml > 1e-9:
-                d = d * (ml / arc)
+            current = float(o.get("current_length", 1.0))
+            if arc > 1e-9 and current > 1e-9:
+                d = d * (current / arc)
             o["surface_cps_local"] = d
             o["surface_n_u"], o["surface_n_v"] = d.shape[0], d.shape[1]
             o["raw_donor"] = True

@@ -104,14 +104,13 @@ public:
 	 * off by default (theta_young_rad>=0 && use_tropism_midrib) -> D0 no-op. */
 	void applyMaturitySwing();
 
-	/* Young-stage shape blend. Returns the LRP's mature CP grid blended
-	 * toward a flat template based on this leaf's maturity (length / lmax).
+	/* Young-stage shape blend. Returns one current physical CP grid at this
+	 * leaf's realized mature dimensions and current maturity.
 	 *   alpha = max(0, 1 - (m / kYoungFadeEnd)^kYoungExp),   m in [0, 1]
 	 *   cps_eff = (1 - alpha) * mature_cps + alpha * flat_template
 	 * The flat template is a zero-y version of mature_cps with midrib z
 	 * stretched to the mature arc-length (removes droop without losing
-	 * blade length). Mature leaves (alpha≈0) return lrp->surface_cps
-	 * bit-for-bit via early-out. */
+	 * blade length). */
 	std::vector<Vector3d> getEffectiveSurfaceCPs() const;
 	std::vector<Vector3d> getEffectiveSurfaceCPs(double maturityOverride) const;
 

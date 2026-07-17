@@ -45,9 +45,9 @@ def _make_calibrated_xml_with_surface_cps(tmp_dir: Path) -> Path:
         capture_output=True,
     )
     assert out_path.exists()
-    # Sanity: 11 subtypes * 55 CPs = 605 surface_cp entries
+    # Sanity: 14 subtypes * 55 CPs = 770 surface_cp entries
     n_cps = out_path.read_text().count('name="surface_cp"')
-    assert n_cps == 605, f"expected 605 surface_cp entries; got {n_cps}"
+    assert n_cps == 770, f"expected 770 surface_cp entries; got {n_cps}"
     return out_path
 
 
