@@ -1275,7 +1275,7 @@ Vector3d Leaf::maturityHeading() const
 	if (lrp->heading_maturity_age_days > 0.) {
 		maturity = getAge() / lrp->heading_maturity_age_days;
 	} else {
-		const double mature_length = std::max(lrp->lmax, 1e-9);
+		const double mature_length = std::max(param()->getK(), 1e-9);
 		maturity = getLength(true) / mature_length;
 	}
 	maturity = std::min(std::max(maturity, 0.0), 1.0);
